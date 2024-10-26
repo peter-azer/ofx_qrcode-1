@@ -69,5 +69,12 @@ Route::delete('/packages/{id}', [PackageController::class, 'destroy']); // Delet
 Route::post('/subscriptions', [SubscriptionController::class, 'store']);  // Create a subscription
 Route::get('/subscriptions/user/{userId}', [SubscriptionController::class, 'getByUserId']);  // Get subscriptions by user ID
 Route::get('/subscriptions/package/{packageId}', [SubscriptionController::class, 'getByPackageId']);  // Get subscriptions by package ID
-Route::post('/subscriptions/validate', [SubscriptionController::class, 'validateSubscriptions']);  // Validate and disable expired subscriptions
-###########################################################USER_SUBSCRIPTION########################################################################################
+Route::get('/subscriptions/validate/{user_id}', [SubscriptionController::class, 'validateUserSubscription']);  // Validate and disable expired subscriptions
+Route::post('/subscriptions/update/{user_id}', [SubscriptionController::class, 'updateSubscriptionDuration']);
+
+
+###########################################################GEIDEA_PAYMENT########################################################################################
+use App\Http\Controllers\PaymentController;
+
+Route::post('/send-money', [PaymentController::class, 'sendMoney']);
+Route::post('/payment-callback', [PaymentController::class, 'handleCallback'])->name('geidea.callback');

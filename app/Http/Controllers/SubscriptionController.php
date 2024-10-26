@@ -12,38 +12,43 @@ use Carbon\Carbon;
 class SubscriptionController extends Controller
 {
     // Post a new subscription
-    public function store(Request $request)
-    {
-        $validatedData = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'package_id' => 'required|exists:packages,id',
-            'duration' => 'required|string|in:month,three_months,year',
-           
-        ]);
 
-        // Check if the user is already subscribed to a package
-        $existingSubscription = Subscription::where('user_id', $validatedData['user_id'])->where('is_enable', true)->first();
+public function store(Request $request)
+{
+    // Validate the incoming request data
+    $validatedData = $request->validate([
+        'user_id' => 'required|exists:users,id',
+        'package_id' => 'required|exists:packages,id',
+        'duration' => 'required|string|in:month,three_months,year',
+    ]);
 
-        if ($existingSubscription) {
-            return response()->json(['message' => 'User is already subscribed to a package'], 400);
-        }
+    // Check if the user already has an active subscription
+    $existingSubscription = Subscription::where('user_id', $validatedData['user_id'])
+                                        ->where('is_enable', true)
+                                        ->first();
 
-        // Set start and end dates
-        $startDate = Carbon::now();
-        $endDate = Subscription::calculateEndDate(clone $startDate, $validatedData['duration']);
-
-        // Create the subscription
-        $subscription = Subscription::create([
-            'user_id' => $validatedData['user_id'],
-            'package_id' => $validatedData['package_id'],
-            'start_date' => $startDate,
-            'end_date' => $endDate,
-
-            'duration' => $validatedData['duration'],
-        ]);
-
-        return response()->json(['message' => 'Subscription created successfully', 'data' => $subscription], 201);
+    if ($existingSubscription) {
+        // If an active subscription exists, return an error message
+        return response()->json(['message' => 'User is already subscribed to a package'], 400);
     }
+
+    // Calculate the start and end dates based on the subscription duration
+    $startDate = Carbon::now();
+    $endDate = Subscription::calculateEndDate(clone $startDate, $validatedData['duration']);
+
+    // Create the new subscription for the user
+    $subscription = Subscription::create([
+        'user_id' => $validatedData['user_id'],
+        'package_id' => $validatedData['package_id'],
+        'start_date' => $startDate,
+        'end_date' => $endDate,
+        'duration' => $validatedData['duration'],
+        'is_enable' => true, // Ensure this new subscription is active
+    ]);
+
+    // Return a success message with the subscription details
+    return response()->json(['message' => 'Subscription created successfully', 'data' => $subscription], 201);
+}
 
     // Get subscriptions by user ID
     public function getByUserId($userId)
@@ -70,14 +75,55 @@ class SubscriptionController extends Controller
     }
 
     // Validate and disable subscriptions if the end date has passed
-    public function validateSubscriptions()
+    public function validateUserSubscription($user_id)
     {
-        $expiredSubscriptions = Subscription::where('end_date', '<', Carbon::now())->where('is_enable', true)->get();
+        $subscription = Subscription::where('user_id', $user_id)->where('is_enable', true)->first();
 
-        foreach ($expiredSubscriptions as $subscription) {
-            $subscription->update(['is_enable' => false]);
+        if (!$subscription) {
+            return response()->json(['message' => 'User not subscribed yet.'], 404);
         }
 
-        return response()->json(['message' => 'Expired subscriptions have been disabled'], 200);
+        if (Carbon::now()->greaterThan($subscription->end_date)) {
+            $subscription->update(['is_enable' => false]);
+            return response()->json(['message' => 'Subscription has expired and has been disabled.'], 200);
+        }
+
+        return response()->json(['message' => 'Subscription is still active.'], 200);
     }
+
+
+
+
+
+
+public function updateSubscriptionDuration(Request $request, $user_id)
+{
+    // Validate request input for duration
+    $validatedData = $request->validate([
+        'duration' => 'required|string|in:month,three_months,year',
+    ]);
+
+    // Find the subscription by ID
+    $subscription = Subscription::where('user_id', $user_id)
+                                ->first();
+
+    if (!$subscription) {
+        return response()->json(['message' => 'Subscription not found'], 404);
+    }
+
+    // Update subscription to be enabled if it’s not already
+    if (!$subscription->is_enable) {
+        $subscription->is_enable = true;
+    }
+
+    // Update duration and calculate the new end date
+    $subscription->duration = $validatedData['duration'];
+    $subscription->end_date = Subscription::calculateEndDate(Carbon::now(), $validatedData['duration']);
+
+    // Save the updated subscription
+    $subscription->save();
+
+    return response()->json(['message' => 'Subscription duration updated successfully', 'data' => $subscription], 200);
+}
+
 }
