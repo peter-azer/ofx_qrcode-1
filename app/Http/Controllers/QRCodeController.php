@@ -101,20 +101,28 @@ public function generatewifiQrCode(Request $request)
     $wifiModel->password = $password;
     $wifiModel->encryption = $encryption;
     $wifiModel->save(); // Save Wi-Fi data
+    $wifiLink = route('wifi.details', [
+        'name' => urlencode($name),
+        'password' => urlencode($password),
+        'encryption' => urlencode($encryption),
+    ]);
+      // Update the QR Code Model with the Wi-Fi link
+      $qrCodeModel->link = $wifiLink; // Save the generated link in the QR Code Model
+      $qrCodeModel->save(); // Save again after updating the link
 
-    // Generate QR Code for Wi-Fi details
-    $qrCodeData = "WIFI:S:{$name};T:{$encryption};P:{$password};;";
+      // Generate QR Code for Wi-Fi details
+      $qrCodeData = "WIFI:S:{$name};T:{$encryption};P:{$password};;";
 
-    // Generate a unique name for the QR code
-    $uniqueName = uniqid();
-    $fileName = 'qrcodes/' . $uniqueName . '.png';
+      // Generate a unique name for the QR code
+      $uniqueName = uniqid();
+      $fileName = 'qrcodes/' . $uniqueName . '.png';
 
-    // Generate the QR code
-    $qrCode = QrCode::format('png')
-        ->backgroundColor(255, 255, 255)
-        ->size(200)
-        ->color(0, 0, 0)
-        ->generate($qrCodeData);
+      // Generate the QR code
+      $qrCode = QrCode::format('png')
+          ->backgroundColor(255, 255, 255)
+          ->size(200)
+          ->color(0, 0, 0)
+          ->generate($qrCodeData);
 
     // Store the QR code file
     Storage::disk('public')->put($fileName, $qrCode);
@@ -130,6 +138,7 @@ public function generatewifiQrCode(Request $request)
     return response()->json([
         'qr_code_url' => Storage::url($fileName),
         'tracking_link' => $trackingLink,
+        'wifi_link' => $wifiLink,
         'message' => 'Wi-Fi QR code generated and saved successfully.',
     ]);
 }
