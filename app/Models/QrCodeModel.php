@@ -10,10 +10,16 @@ class QrCodeModel extends Model
     use HasFactory;
 protected $table ='qrcodes';
     protected $fillable = [
-      'user_id' , 'profile_id', 'qrcode', 'link', 'scan_count', 'is_active','package_id'
+      'user_id' , 'profile_id', 'qrcode', 'link', 'scan_count', 'is_active','package_id','type'
     ];
 public $timestamps = false;
     // A QR code belongs to a profile
+
+
+      public function whatsappMessages()
+    {
+        return $this->hasMany(WhatsappMessage::class, 'qr_code_id');
+    }
     public function profile()
     {
         return $this->hasOne(Profile::class);

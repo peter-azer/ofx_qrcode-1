@@ -1,7 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\pdfs;
 use App\Models\UserLocation;
+use App\Models\WhatsappMessage;
+use App\Models\Wifi;
 use Illuminate\Http\Request;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Storage;
@@ -65,6 +68,189 @@ public function generateQrCode(Request $request)
     ]);
 }
 
+
+
+public function generatewifiQrCode(Request $request)
+{
+    // Validate incoming data
+    $validatedData = $request->validate([
+        'package_id' => 'required',
+        'name' => 'required|string', // Wi-Fi name
+        'password' => 'required|string', // Wi-Fi password
+        'encryption' => 'required|string|in:WEP,WPA,WPA2', // Wi-Fi encryption type
+    ]);
+
+    $user = $request->user();
+    $name = $validatedData['name'];
+    $password = $validatedData['password'];
+    $encryption = $validatedData['encryption'];
+
+    // Create new QR Code Model entry
+    $qrCodeModel = new QrCodeModel();
+    $qrCodeModel->link = null; // No link for Wi-Fi
+    $qrCodeModel->type = 'wifi';
+    $qrCodeModel->profile_id = null;
+    $qrCodeModel->user_id = $user->id;
+    $qrCodeModel->package_id = $validatedData['package_id'];
+    $qrCodeModel->save(); // Save model to generate ID
+
+    // Save Wi-Fi data in the wifi table
+    $wifiModel = new Wifi();
+    $wifiModel->qrcode_id = $qrCodeModel->id; // Link the QR code to the Wi-Fi data
+    $wifiModel->name = $name;
+    $wifiModel->password = $password;
+    $wifiModel->encryption = $encryption;
+    $wifiModel->save(); // Save Wi-Fi data
+
+    // Generate QR Code for Wi-Fi details
+    $qrCodeData = "WIFI:S:{$name};T:{$encryption};P:{$password};;";
+
+    // Generate a unique name for the QR code
+    $uniqueName = uniqid();
+    $fileName = 'qrcodes/' . $uniqueName . '.png';
+
+    // Generate the QR code
+    $qrCode = QrCode::format('png')
+        ->backgroundColor(255, 255, 255)
+        ->size(200)
+        ->color(0, 0, 0)
+        ->generate($qrCodeData);
+
+    // Store the QR code file
+    Storage::disk('public')->put($fileName, $qrCode);
+
+    // Update the model with the file path
+    $qrCodeModel->qrcode = $fileName;
+    $qrCodeModel->save(); // Save again after storing the file
+
+    // Generate the tracking link using the unique name
+    $trackingLink = route('qrcode.scan', ['name' => $uniqueName]);
+
+    // Return the QR code URL and the tracking link
+    return response()->json([
+        'qr_code_url' => Storage::url($fileName),
+        'tracking_link' => $trackingLink,
+        'message' => 'Wi-Fi QR code generated and saved successfully.',
+    ]);
+}
+
+
+public function generatePdfQrCode(Request $request)
+{
+    // Validate incoming request
+    $validatedData = $request->validate([
+        'pdf' => 'required|file|mimes:pdf|max:2048', // PDF file up to 2MB
+        'package_id' => 'required|integer',
+    ]);
+
+    // $user = $request->user();
+
+    // Store the PDF file in 'pdfs/' directory
+    $pdfFile = $request->file('pdf');
+    $pdfFileName = 'pdfs/' . uniqid() . '.' . $pdfFile->getClientOriginalExtension();
+    $pdfFilePath = $pdfFile->storeAs('public', $pdfFileName);
+
+    // Generate a full URL for the stored PDF
+    $pdfUrl = Storage::url($pdfFileName);
+
+    // Create new QR Code Model entry
+    $qrCodeModel = new QrCodeModel();
+    $qrCodeModel->user_id = '1';
+    $qrCodeModel->link = $pdfUrl; // Store full URL in the link field
+    $qrCodeModel->type = 'pdf';
+    $qrCodeModel->package_id = $validatedData['package_id'];
+    $qrCodeModel->save(); // Save to generate ID
+
+    // Generate a unique name for the QR code
+    $uniqueName = uniqid();
+    $qrCodeFileName = 'qrcodes/' . $uniqueName . '.png';
+
+    // Generate the QR code linking to the PDF URL
+    $qrCode = QrCode::format('png')
+        ->backgroundColor(255, 255, 255)
+        ->size(200)
+        ->color(0, 0, 0)
+        ->generate($pdfUrl);
+
+    // Store the QR code image in 'qrcodes/' directory
+    Storage::disk('public')->put($qrCodeFileName, $qrCode);
+
+    // Update the QR code model with the QR code file path
+    $qrCodeModel->qrcode = $qrCodeFileName;
+    $qrCodeModel->save();
+
+    // Create new PDF entry and link it to the QR code
+    $pdf = new pdfs();
+    $pdf->pdf_path = $pdfFileName; // Store only the relative path
+    $pdf->qrcode_id = $qrCodeModel->id;
+    $pdf->save();
+
+    // Return the PDF and QR code URLs
+    return response()->json([
+        'pdf_url' => $pdfUrl,
+        'qr_code_url' => Storage::url($qrCodeFileName),
+    ]);
+}
+
+
+
+
+
+
+public function generateWhatsappQrCode(Request $request)
+{
+    // Validate incoming data
+    $validatedData = $request->validate([
+        'phone_number' => 'required|string',
+        'message' => 'required|string',
+        'package_id' => 'required',
+    ]);
+
+    $user = $request->user();
+    $phoneNumber = $validatedData['phone_number'];
+    $message = urlencode($validatedData['message']);
+    $link = "https://wa.me/$phoneNumber?text=$message";
+
+    // Create new QR Code Model entry
+    $qrCodeModel = new QrCodeModel();
+    $qrCodeModel->link = $link;
+    $qrCodeModel->type = 'whatsapp';
+    $qrCodeModel->profile_id = null;
+    $qrCodeModel->user_id = $user->id;
+    $qrCodeModel->package_id = $validatedData['package_id'];
+    $qrCodeModel->save(); // Save model to generate ID
+
+    // Create new WhatsApp message entry
+    $whatsappMessage = new WhatsappMessage();
+    $whatsappMessage->phone_number = $phoneNumber;
+    $whatsappMessage->message = $validatedData['message'];
+    $whatsappMessage->qr_code_id = $qrCodeModel->id;
+    $whatsappMessage->save();
+
+    // Generate a unique name for the QR code
+    $uniqueName = uniqid();
+    $fileName = 'qrcodes/' . $uniqueName . '.png';
+
+    // Generate the QR code image
+    $qrCode = QrCode::format('png')
+        ->backgroundColor(255, 255, 255)
+        ->size(200)
+        ->color(0, 0, 0)
+        ->generate($link);
+
+    // Store the QR code file
+    Storage::disk('public')->put($fileName, $qrCode);
+
+    // Update the model with the file path
+    $qrCodeModel->qrcode = $fileName;
+    $qrCodeModel->save(); // Save again after storing the file
+
+    // Return the QR code URL and the WhatsApp link
+    return response()->json([
+        'qr_code_url' => Storage::url($fileName),
+        'whatsapp_link' => $link,
+    ]);
+}
 
 
 

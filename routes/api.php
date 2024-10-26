@@ -21,8 +21,12 @@ Route::post('/forget-password', [AuthController::class, 'forgetPassword']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/generate-qrcode', [QRCodeController::class, 'generateQRCode']);
+    Route::post('/generate-qrcode/whatsapp', [QRCodeController::class, 'generateWhatsappQrCode']);
+    Route::post('/generate-pdf-qrcode', [QrCodeController::class, 'generatePdfQrCode']);
+Route::post('/generate-wifi-qrcode', [QrCodeController::class, 'generatewifiQrCode']);
 });
 
+Route::post('/generate-qrcode/whatsapp', [QRCodeController::class, 'generateWhatsappQrCode']);
 
 Route::get('/qrcodes/{id}/check-visitor-count', [QRCodeController::class, 'checkVisitorCount']);
 
