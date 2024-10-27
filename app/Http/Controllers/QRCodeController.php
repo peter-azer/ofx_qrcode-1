@@ -264,59 +264,47 @@ public function generateWhatsappQrCode(Request $request)
 
 
     // QrCodeController.php
-public function trackAndRedirect($name,Request $request)
-{
-    $qrCodeModel = QrCodeModel::where('qrcode', 'like', '%/' . $name . '.png')->firstOrFail();
-    ;
+    public function trackAndRedirect($name, Request $request)
+    {
+        $qrCodeModel = QrCodeModel::where('qrcode', 'like', '%/' . $name . '.png')->firstOrFail();
 
-    if ($qrCodeModel->checkVisitorCount($qrCodeModel->scan_count,$qrCodeModel->package_id)) {
-        // Increment the scan count only if within limits
-        $qrCodeModel->scan_count += 1; // Increment scan count
-        $qrCodeModel->save(); // Save the incremented scan count
+        if ($qrCodeModel->checkVisitorCount($qrCodeModel->scan_count, $qrCodeModel->package_id)) {
+            // Increment the scan count only if within limits
+            $qrCodeModel->increment('scan_count'); // Laravel's increment method
 
+            $userLocation = Location::get($request->ip());
+            if ($userLocation) {
+                // Prepare location data
+                $locationData = [
+                    'ip' => $userLocation->ip ?? 'N/A',
+                    'country' => $userLocation->countryName ?? 'N/A',
+                    'city' => $userLocation->cityName ?? 'N/A',
+                    'latitude' => $userLocation->latitude ?? null,
+                    'longitude' => $userLocation->longitude ?? null,
+                ];
 
-        return redirect($qrCodeModel->link);
-    } else {
+                // Save location data to user_location table
+                UserLocation::create([
+                    'qrcode_id' => $qrCodeModel->id, // Link to the QR code
+                    'location' => json_encode($locationData), // Store location as JSON
+                ]);
 
-        $qrCodeModel->is_active = 0;
-        $qrCodeModel->save();
-        abort(404);
+                // Log the location data for debugging
+                Log::info('User Location saved:', $locationData);
+            }
+
+            return redirect($qrCodeModel->link);
+        } else {
+            // Deactivate the QR code and abort with a 404
+            $qrCodeModel->update(['is_active' => 0]);
+            abort(404);
+        }
     }
 
-    // Increment the scan count
-    // $qrCodeModel->scan_count += 1; // Simplified increment
 
 
-    // $userLocation = Location::get($request->ip());
-    // if ($userLocation) {
+   
 
-
-    //     if ($userLocation) {
-    //         // Store the user's location in the user_location table
-    //         $locationData = [
-    //             'ip' => $userLocation->ip ?? 'N/A',
-    //             'country' => $userLocation->countryName ?? 'N/A',
-    //             'city' => $userLocation->cityName ?? 'N/A',
-    //             'latitude' => $userLocation->latitude ?? null,
-    //             'longitude' => $userLocation->longitude ?? null,
-    //         ];
-
-            // Save location data to user_location table
-        // UserLocation::create([
-        //          // Get the authenticated user ID
-        //         'qrcode_id' => $qrCodeModel->id,// Link to the QR code
-        //          'location' => null ,
-        //         // 'location' => json_encode($locationData), // Store location as JSON
-        //     ]);
-
-            // Log the location data for debugging
-            // Log::info('User Location saved:', $locationData);
-        //}
-
-
-
-//    }
-}
 
 
 
