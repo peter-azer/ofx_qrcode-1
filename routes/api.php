@@ -83,3 +83,16 @@ Route::post('/subscriptions/update/{user_id}', [SubscriptionController::class, '
 
 Route::post('/send-money', [PaymentController::class, 'sendMoney']);
 Route::post('/payment-callback', [PaymentController::class, 'handleCallback'])->name('geidea.callback');
+###########################################################storage_link########################################################################################
+Route::get('/link', function () {
+    try {
+
+        Artisan::call('storage:link');
+
+
+        return response()->json(['message' => 'Storage linked successfully.'], 200);
+    } catch (\Exception $e) {
+
+        return response()->json(['message' => 'Failed to link storage.', 'error' => $e->getMessage()], 500);
+    }
+});
