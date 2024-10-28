@@ -15,6 +15,7 @@ protected $table= 'packages';
 
 protected $casts = [
     'features' => 'array',
+    'features_ar'=> 'array'
 ];
 
 
