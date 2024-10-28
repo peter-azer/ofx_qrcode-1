@@ -22,6 +22,11 @@ class PackageController extends Controller
             'max_visitor' => 'required|integer',
         ]);
 
+
+
+        $validatedData['features'] = json_encode($validatedData['features']);
+    
+
         $package = Package::create($validatedData);
 
         return response()->json(['message' => 'Package created successfully', 'data' => $package], 201);
