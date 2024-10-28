@@ -15,7 +15,7 @@ class PackageController extends Controller
             'name_ar' => 'required|string|max:255',
             'description' => 'required|string',
             'description_ar' => 'required|string',
-            'features' => 'required|json',
+            'features' => 'required|array',
             'features_ar' => 'required|json',
             'price_dollar' => 'required|numeric',
             'price_EGP' => 'required|numeric',
