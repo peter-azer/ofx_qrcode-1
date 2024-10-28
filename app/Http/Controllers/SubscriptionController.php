@@ -24,7 +24,7 @@ public function store(Request $request)
     // Get the user ID from the authenticated user
     $user = $request->user();
     // Check if the user already has an active subscription
-    $existingSubscription = Subscription::where('user_id', $validatedData['user_id'])
+    $existingSubscription = Subscription::where('user_id', $user->id)
                                         ->where('is_enable', true)
                                         ->first();
 
