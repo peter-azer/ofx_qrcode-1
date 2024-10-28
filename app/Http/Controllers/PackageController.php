@@ -16,7 +16,7 @@ class PackageController extends Controller
             'description' => 'required|string',
             'description_ar' => 'required|string',
             'features' => 'required|array',
-            'features_ar' => 'required|json',
+            'features_ar' => 'required|array',
             'price_dollar' => 'required|numeric',
             'price_EGP' => 'required|numeric',
             'max_visitor' => 'required|integer',
@@ -24,8 +24,6 @@ class PackageController extends Controller
 
 
 
-        $validatedData['features'] = json_encode($validatedData['features'], JSON_UNESCAPED_UNICODE);
-    
 
         $package = Package::create($validatedData);
 
