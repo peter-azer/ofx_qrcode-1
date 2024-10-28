@@ -16,7 +16,7 @@ class Smart_QRCodeController extends Controller
 {
     public function generatesmartQRCode(Request $request)
     {
-        $user = auth()->user();
+        $user = $request->user();
 
         $validatedData = $request->validate([
             'logo' => 'nullable|file|mimes:jpeg,png,jpg',

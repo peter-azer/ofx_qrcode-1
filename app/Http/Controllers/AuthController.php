@@ -78,4 +78,13 @@ class AuthController extends Controller
             ? response()->json(['message' => 'Password reset link sent'], 200)
             : response()->json(['message' => 'Error sending password reset link'], 500);
     }
+
+
+    public function logout(Request $request)
+    {
+        // Revoke the current user's token
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json(['message' => 'Logged out successfully'], 200);
+    }
 }

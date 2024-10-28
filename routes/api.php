@@ -10,14 +10,15 @@ use App\Http\Controllers\PackageController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\UserLocationController;
+use App\Http\Controllers\PaymentController;
 ###########################################################USER_AUTH########################################################################################
 
 
 Route::post('/signup', [AuthController::class, 'signup']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::post('/forget-password', [AuthController::class, 'forgetPassword']);
 ###########################################################QR-CODE########################################################################################
-
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/generate-qrcode', [QRCodeController::class, 'generateQRCode']);
@@ -78,7 +79,7 @@ Route::post('/subscriptions/update/{user_id}', [SubscriptionController::class, '
 
 
 ###########################################################GEIDEA_PAYMENT########################################################################################
-use App\Http\Controllers\PaymentController;
+
 
 Route::post('/send-money', [PaymentController::class, 'sendMoney']);
 Route::post('/payment-callback', [PaymentController::class, 'handleCallback'])->name('geidea.callback');

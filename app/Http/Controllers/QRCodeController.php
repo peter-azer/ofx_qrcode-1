@@ -325,6 +325,7 @@ public function trackAndRedirect($name,Request $request)
         // Find the QR code by ID
         $qrCodeModel = QrCodeModel::findOrFail($id);
 
+        $user = $request->user();
         // Increment the scan count
         $qrCodeModel->scans_count += 1;
         $qrCodeModel->save();
@@ -356,7 +357,7 @@ public function trackAndRedirect($name,Request $request)
 
                 // Save location data to the user_location table
                 UserLocation::create([
-                    'user_id' => auth()->id(), // Assuming the user is authenticated
+                    'user_id' => $user->id(), // Assuming the user is authenticated
                     'qrcode_id' => $qrCodeModel->id, // Reference to the QR code
                     'location' => $locationJson, // Store location as JSON
                 ]);
