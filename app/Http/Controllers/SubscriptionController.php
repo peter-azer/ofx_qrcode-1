@@ -17,11 +17,12 @@ public function store(Request $request)
 {
     // Validate the incoming request data
     $validatedData = $request->validate([
-        'user_id' => 'required|exists:users,id',
+        // 'user_id' => 'required|exists:users,id',
         'package_id' => 'required|exists:packages,id',
         'duration' => 'required|string|in:month,three_months,year',
     ]);
-
+    // Get the user ID from the authenticated user
+    $user = $request->user();
     // Check if the user already has an active subscription
     $existingSubscription = Subscription::where('user_id', $validatedData['user_id'])
                                         ->where('is_enable', true)
@@ -38,7 +39,7 @@ public function store(Request $request)
 
     // Create the new subscription for the user
     $subscription = Subscription::create([
-        'user_id' => $validatedData['user_id'],
+        'user_id' => $user->id,
         'package_id' => $validatedData['package_id'],
         'start_date' => $startDate,
         'end_date' => $endDate,
