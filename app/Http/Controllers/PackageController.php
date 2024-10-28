@@ -24,7 +24,7 @@ class PackageController extends Controller
 
 
 
-        $validatedData['features'] = json_encode($validatedData['features']);
+        $validatedData['features'] = json_encode($validatedData['features'], JSON_UNESCAPED_UNICODE);
     
 
         $package = Package::create($validatedData);
