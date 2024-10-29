@@ -16,7 +16,7 @@ class Profile extends Model
       protected $table = 'profiles';
 public $timestamps = false;
     protected $fillable = [
-        'user_id', 'cover', 'logo', 'background_color' , 'font','title','description',
+        'user_id', 'cover', 'logo', 'background_color' , 'font','title','description','phones'
     ];
 
 
