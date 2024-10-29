@@ -8,7 +8,7 @@ class images extends Model
 {
 
     public $timestamps = false;
-    protected $fillable = ['profile_id', 'event_date', 'event_time', 'location'];
+    protected $fillable = ['profile_id', 'image_path'];
 
     public function profile()
     {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\QrCodeModel;
+use App\Models\records;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Profile;
@@ -35,6 +36,8 @@ class Smart_QRCodeController extends Controller
             'images.*' => 'file|mimes:jpeg,png,jpg',
             'pdfs' => 'nullable|array',
             'pdfs.*' => 'file|mimes:pdf',
+            'mp3' => 'nullable|array',
+            'mp3.*' => 'file|mimes:pdf',
             'event_date' => 'nullable',
             'event_time' => 'nullable',
             'location' => 'nullable|string',
@@ -56,6 +59,13 @@ class Smart_QRCodeController extends Controller
                 Links::create(['profile_id' => $profile->id, 'url' => $link]);
             }
         }
+        if (!empty($validatedData['mp3'])) {
+            foreach ($validatedData['mp3'] as $mp3) {
+                records::create(['profile_id' => $profile->id, 'mp3_path' => $mp3]);
+            }
+        }
+
+
 
         if ($request->has('images')) {
             foreach ($request->file('images') as $image) {
@@ -94,7 +104,7 @@ class Smart_QRCodeController extends Controller
         Storage::disk('public')->put($fileName, $qrCodeData);
 
         $qrCode = new QrCodeModel();
-        
+
         $qrCode->profile_id = $profile->id;
         $qrCode->user_id = $user->id;
         $qrCode->qrcode = $fileName;
@@ -114,7 +124,7 @@ class Smart_QRCodeController extends Controller
             'message' => 'Validation errors occurred.',
             'errors' => $e->validator->errors()
         ], 422);
-    
+
     }}
 //////
 public function getQRCodeByUserId($user_id)

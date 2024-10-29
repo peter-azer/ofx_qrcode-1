@@ -53,4 +53,9 @@ public $timestamps = false;
     {
         return $this->hasMany(events::class);
     }
+
+    public function records()
+    {
+        return $this->hasMany(records::class);
+    }
 }
