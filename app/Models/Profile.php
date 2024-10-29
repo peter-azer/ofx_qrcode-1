@@ -19,8 +19,7 @@ public $timestamps = false;
         'user_id', 'cover', 'logo', 'background_color' , 'font','title','description','phones'
     ];
 
-
-    protected $Casts = [
+    protected $casts = [
         'phones'=> 'array',
     ];
 
