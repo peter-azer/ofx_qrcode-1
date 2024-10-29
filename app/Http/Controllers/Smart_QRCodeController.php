@@ -10,12 +10,14 @@ use App\Models\events;
 use App\Models\links;
 use App\Models\images;
 use App\Models\pdfs;
+use Illuminate\Validation\ValidationException;
 
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 class Smart_QRCodeController extends Controller
 {
     public function generatesmartQRCode(Request $request)
     {
+        try {
         $user = $request->user();
 
         $validatedData = $request->validate([
@@ -104,7 +106,13 @@ class Smart_QRCodeController extends Controller
             'qr_code' => $qrCode->qrcode,
             'link' => $qrCode->link
         ], 200);
-    }
+    } catch (ValidationException $e) {
+        return response()->json([
+            'message' => 'Validation errors occurred.',
+            'errors' => $e->validator->errors()
+        ], 422);
+    
+    }}
 //////
 public function getQRCodeByUserId($user_id)
 {
