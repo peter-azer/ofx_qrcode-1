@@ -89,7 +89,9 @@ class Smart_QRCodeController extends Controller
         Storage::disk('public')->put($fileName, $qrCodeData);
 
         $qrCode = new QrCodeModel();
+        
         $qrCode->profile_id = $profile->id;
+        $qrCode->user_id = $user->id;
         $qrCode->qrcode = $fileName;
         $qrCode->link = $qrCodeLink;
         $qrCode->package_id = $validatedData['package_id'];
