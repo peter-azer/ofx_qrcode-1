@@ -19,6 +19,8 @@ class Smart_QRCodeController extends Controller
         $user = $request->user();
 
         $validatedData = $request->validate([
+            'title' => 'nullable|string',
+            'description' => 'nullable|string',
             'logo' => 'nullable|file|mimes:jpeg,png,jpg',
             'cover' => 'nullable|file|mimes:jpeg,png,jpg',
             'color' => 'nullable|string', // Hex code
@@ -39,6 +41,8 @@ class Smart_QRCodeController extends Controller
             'logo' => $request->file('logo') ? $request->file('logo')->store('logos', 'public') : null,
             'cover' => $request->file('cover') ? $request->file('cover')->store('covers', 'public') : null,
             'background_color' => $validatedData['color'] ?? null,
+             'title'  => $validatedData['title'] ?? null,
+             'description'  => $validatedData['description'] ?? null,
             'font' => $validatedData['font'] ?? null,
         ]);
 

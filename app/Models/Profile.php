@@ -15,7 +15,7 @@ class Profile extends Model
       protected $table = 'profiles';
 public $timestamps = false;
     protected $fillable = [
-        'user_id', 'cover', 'logo', 'background_color' , 'font'
+        'user_id', 'cover', 'logo', 'background_color' , 'font','title','description',
     ];
 
     // A profile belongs to a user
