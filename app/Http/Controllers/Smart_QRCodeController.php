@@ -39,18 +39,18 @@ class Smart_QRCodeController extends Controller
             'event_time' => 'nullable',
             'location' => 'nullable|string',
         ]);
-        // $profile = Profile::create([
-        //     'user_id' => $user->id,
-        //     'logo' => $request->file('logo') ? $request->file('logo')->store('logos', 'public') : null,
-        //     'phones' => $validatedData['phones'] ?? null, // Convert array to JSON
-        //     'cover' => $request->file('cover') ? $request->file('cover')->store('covers', 'public') : null,
-        //     'background_color' => $validatedData['color'] ?? null,
-        //     'title' => $validatedData['title'] ?? null,
-        //     'description' => $validatedData['description'] ?? null,
-        //     'font' => $validatedData['font'] ?? null,
-        // ]);
+        $profile = Profile::create([
+            'user_id' => $user->id,
+            'logo' => $request->file('logo') ? $request->file('logo')->store('logos', 'public') : null,
+            'phones' => $validatedData['phones'] ?? null, // Convert array to JSON
+            'cover' => $request->file('cover') ? $request->file('cover')->store('covers', 'public') : null,
+            'background_color' => $validatedData['color'] ?? null,
+            'title' => $validatedData['title'] ?? null,
+            'description' => $validatedData['description'] ?? null,
+            'font' => $validatedData['font'] ?? null,
+        ]);
 
-        $profile = profile::create($validatedData);
+        // $profile = profile::create($validatedData);
         if (!empty($validatedData['links'])) {
             foreach ($validatedData['links'] as $link) {
                 Links::create(['profile_id' => $profile->id, 'url' => $link]);
