@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use PhpParser\Node\Expr\Cast;
 
 class Profile extends Model
 {
@@ -16,6 +17,11 @@ class Profile extends Model
 public $timestamps = false;
     protected $fillable = [
         'user_id', 'cover', 'logo', 'background_color' , 'font','title','description',
+    ];
+
+
+    protected $Casts = [
+        'phones'=> 'array',
     ];
 
     // A profile belongs to a user

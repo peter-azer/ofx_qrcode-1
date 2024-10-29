@@ -23,6 +23,7 @@ class Smart_QRCodeController extends Controller
         $validatedData = $request->validate([
             'title' => 'nullable|string',
             'description' => 'nullable|string',
+            'phones' => 'nullable|array',
             'logo' => 'nullable|file|mimes:jpeg,png,jpg',
             'cover' => 'nullable|file|mimes:jpeg,png,jpg',
             'color' => 'nullable|string', // Hex code
@@ -41,6 +42,7 @@ class Smart_QRCodeController extends Controller
         $profile = Profile::create([
             'user_id' => $user->id,
             'logo' => $request->file('logo') ? $request->file('logo')->store('logos', 'public') : null,
+            'phones' => $validatedData['phones'] ?? null,
             'cover' => $request->file('cover') ? $request->file('cover')->store('covers', 'public') : null,
             'background_color' => $validatedData['color'] ?? null,
              'title'  => $validatedData['title'] ?? null,
