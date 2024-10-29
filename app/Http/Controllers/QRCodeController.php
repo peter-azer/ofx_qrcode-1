@@ -22,7 +22,7 @@ public function generateQrCode(Request $request)
 {
     // Validate incoming data
     $validatedData = $request->validate([
-        'link' => 'required|url',
+        'link' => 'required',
         'package_id' => 'required',
     ]);
 
