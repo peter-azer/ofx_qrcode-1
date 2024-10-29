@@ -42,7 +42,7 @@ class Smart_QRCodeController extends Controller
         $profile = Profile::create([
             'user_id' => $user->id,
             'logo' => $request->file('logo') ? $request->file('logo')->store('logos', 'public') : null,
-            'phones' => $validatedData['phones'] ? json_encode($validatedData['phones']) : null, // Convert array to JSON
+            'phones' => $validatedData['phones'] ?? null, // Convert array to JSON
             'cover' => $request->file('cover') ? $request->file('cover')->store('covers', 'public') : null,
             'background_color' => $validatedData['color'] ?? null,
             'title' => $validatedData['title'] ?? null,
