@@ -379,7 +379,7 @@ class QRCodeController extends Controller
 
         try {
             // Attempt to find the QR code associated with the user's ID
-            $qrCodeModel = QrCodeModel::where('user_id', $user->id)->firstOrFail();
+            $qrCodeModel = QrCodeModel::where('user_id', $user->id)->get();
             return response()->json($qrCodeModel, 200);
         } catch (ModelNotFoundException $e) {
             // Handle the case when no QR code is found

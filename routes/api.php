@@ -27,9 +27,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/generate-qrcode/whatsapp', [QRCodeController::class, 'generateWhatsappQrCode']);
     Route::post('/generate-pdf-qrcode', [QrCodeController::class, 'generatePdfQrCode']);
 Route::post('/generate-wifi-qrcode', [QrCodeController::class, 'generatewifiQrCode']);
-Route::get('/qrcodes', [QRCodeController::class, 'getQrcodeByUserId']);
+
 
 });
+
+Route::middleware('auth:sanctum')->get('/user/qrcode', [QrCodeController::class, 'getQrcodeByUserId']);
+
 
 Route::post('/generate-qrcode/whatsapp', [QRCodeController::class, 'generateWhatsappQrCode']);
 
