@@ -38,7 +38,7 @@ public $timestamps = false;
 
     public function branches()
     {
-        return $this->belongsTo(branches::class);
+        return $this->hasMany(branches::class);
     }
     public function links()
     {

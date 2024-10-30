@@ -13,7 +13,7 @@ class branches extends Model
     'phones' => 'array ' 
     ];
 
-    public function branches()
+    public function profile()
     {
         return $this->belongsTo(Profile::class);
     }
