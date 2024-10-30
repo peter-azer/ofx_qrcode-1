@@ -64,7 +64,7 @@ class Smart_QRCodeController extends Controller
                 $mp3Path = $mp3->store('records', 'public');
                 Records::create(['profile_id' => $profile->id, 'mp3_path' => $mp3Path]);
             }
-
+        }
 
         if ($request->has('images')) {
             foreach ($request->file('images') as $image) {
