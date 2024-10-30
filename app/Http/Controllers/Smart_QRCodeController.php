@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\branches;
 use App\Models\QrCodeModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -40,6 +41,11 @@ class Smart_QRCodeController extends Controller
             'event_date' => 'nullable',
             'event_time' => 'nullable',
             'location' => 'nullable|string',
+       
+         'branches' => 'nullable|array',
+            'branches.*.name' => 'required|string',
+            'branches.*.location' => 'required|string',
+            'branches.*.phones' => 'nullable|array',
         ]);
         $profile = Profile::create([
             'user_id' => $user->id,
@@ -59,7 +65,16 @@ class Smart_QRCodeController extends Controller
             }
         }
 
-
+        if (!empty($validatedData['branches'])) {
+            foreach ($validatedData['branches'] as $branchData) {
+                branches::create([
+                    'profile_id' => $profile->id,
+                    'name' => $branchData['name'],
+                    'location' => $branchData['location'],
+                    'phones' => $branchData['phones'] ?? null, // Convert array to JSON
+                ]);
+            }
+        }
         if ($request->has('mp3')) {
             foreach ($request->file('mp3') as $mp3) {
                 $mp3path = $mp3->store('records', 'public');

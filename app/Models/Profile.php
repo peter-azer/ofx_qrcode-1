@@ -29,10 +29,16 @@ public $timestamps = false;
         return $this->belongsTo(User::class);
     }
 
-    // A profile has many QR codes
+    // A profile has many QR codes  branches
     public function qrCodes()
     {
         return $this->belongsTo(QrCodeModel::class);
+    }
+
+
+    public function branches()
+    {
+        return $this->belongsTo(branches::class);
     }
     public function links()
     {
