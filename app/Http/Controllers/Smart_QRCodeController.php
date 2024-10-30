@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\QrCodeModel;
-use App\Models\records;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Profile;
@@ -34,10 +33,10 @@ class Smart_QRCodeController extends Controller
             'links.*' => 'url',
             'images' => 'nullable|array',
             'images.*' => 'file|mimes:jpeg,png,jpg',
+            'mp3' => 'nullable|array',
+            'mp3.*' => 'file|mimes:mp3',
             'pdfs' => 'nullable|array',
             'pdfs.*' => 'file|mimes:pdf',
-            'mp3' => 'nullable|array',
-           'mp3.*' => 'file|mimes:mp3',
             'event_date' => 'nullable',
             'event_time' => 'nullable',
             'location' => 'nullable|string',
@@ -59,12 +58,16 @@ class Smart_QRCodeController extends Controller
                 Links::create(['profile_id' => $profile->id, 'url' => $link]);
             }
         }
-        if (!empty($validatedData['mp3'])) {
-            foreach ($validatedData['mp3'] as $mp3) {
-                $mp3Path = $mp3->store('records', 'public');
-                Records::create(['profile_id' => $profile->id, 'mp3_path' => $mp3Path]);
+
+
+        if ($request->has('mp3')) {
+            foreach ($request->file('mp3') as $mp3) {
+                $mp3path = $mp3->store('records', 'public');
+                images::create(['profile_id' => $profile->id, 'mp3_path' => $mp3path]);
             }
         }
+
+
 
         if ($request->has('images')) {
             foreach ($request->file('images') as $image) {
@@ -103,12 +106,12 @@ class Smart_QRCodeController extends Controller
         Storage::disk('public')->put($fileName, $qrCodeData);
 
         $qrCode = new QrCodeModel();
-
+        
         $qrCode->profile_id = $profile->id;
         $qrCode->user_id = $user->id;
         $qrCode->qrcode = $fileName;
         $qrCode->link = $qrCodeLink;
-        $qrCode->package_id = $validatedData['package_id'] ?? null;
+        $qrCode->package_id = $validatedData['package_id'];
         $qrCode->scan_count = 0;
         $qrCode->is_active = true;
         $qrCode->save();
@@ -123,7 +126,7 @@ class Smart_QRCodeController extends Controller
             'message' => 'Validation errors occurred.',
             'errors' => $e->validator->errors()
         ], 422);
-
+    
     }}
 //////
 public function getQRCodeByUserId($user_id)
