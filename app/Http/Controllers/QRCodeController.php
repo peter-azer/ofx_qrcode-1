@@ -372,7 +372,7 @@ class QRCodeController extends Controller
 
 
 
-    public function getQrcodeByUserId($request)
+    public function getQrcodeByUserId(Request $request)
     {
         // Retrieve the authenticated user
         $user = $request->user();

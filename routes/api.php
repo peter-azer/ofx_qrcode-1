@@ -31,7 +31,7 @@ Route::post('/generate-wifi-qrcode', [QrCodeController::class, 'generatewifiQrCo
 
 });
 
-Route::middleware('auth:sanctum')->post('/user/qrcode', [QrCodeController::class, 'getQrcodeByUserId']);
+Route::middleware('auth:sanctum')->get('/user/qrcode', [QrCodeController::class, 'getQrcodeByUserId']);
 
 
 Route::post('/generate-qrcode/whatsapp', [QRCodeController::class, 'generateWhatsappQrCode']);
