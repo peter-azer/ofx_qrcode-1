@@ -134,7 +134,7 @@ public function getQRCodesByUserId($user_id)
     // Fetch all QR codes for the given user ID
     $qrCodes = QrCodeModel::whereHas('profile', function($query) use ($user_id) {
         $query->where('user_id', $user_id);
-    })->get(['id', 'qr_code', 'scan_count']);
+    })->get();
 
     if ($qrCodes->isEmpty()) {
         return response()->json(['message' => 'No QR codes found for this user'], 404);
