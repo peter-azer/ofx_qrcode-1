@@ -129,7 +129,7 @@ class Smart_QRCodeController extends Controller
     
     }}
 //////
-public function getQRCodeByUserId($user_id)
+public function getQRCodesByUserId($user_id)
 {
     // Fetch all QR codes for the given user ID
     $qrCodes = QRCode::whereHas('profile', function($query) use ($user_id) {

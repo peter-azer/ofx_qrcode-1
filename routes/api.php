@@ -40,7 +40,7 @@ Route::get('/qrcodes/{id}/check-visitor-count', [QRCodeController::class, 'check
 
 ###########################################################USER_Dashboard"QR_CODE"########################################################################################
 
-Route::get('/qrcodes/{user_id}', [Smart_QRCodeController::class, 'getQRCodeByUserId']);
+Route::get('/qrcodes/{user_id}', [Smart_QRCodeController::class, 'getQRCodesByUserId']);
 Route::delete('/qrcode/{id}', [Smart_QRCodeController::class, 'deleteQRCodeById']);
 
 ###########################################################Smart_QRCode########################################################################################

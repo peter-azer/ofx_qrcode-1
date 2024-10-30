@@ -376,7 +376,7 @@ class QRCodeController extends Controller
     {
         // Retrieve the authenticated user
         $user = $request->user();
-
+    
         try {
             // Attempt to find the QR code associated with the user's ID
             $qrCodeModel = QrCodeModel::where('user_id', $user->id)->get();
