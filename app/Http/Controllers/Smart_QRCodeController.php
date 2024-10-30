@@ -37,7 +37,7 @@ class Smart_QRCodeController extends Controller
             'pdfs' => 'nullable|array',
             'pdfs.*' => 'file|mimes:pdf',
             'mp3' => 'nullable|array',
-            'mp3.*' => 'file|mimes:pdf',
+           'mp3.*' => 'file|mimes:mp3',
             'event_date' => 'nullable',
             'event_time' => 'nullable',
             'location' => 'nullable|string',
@@ -61,10 +61,9 @@ class Smart_QRCodeController extends Controller
         }
         if (!empty($validatedData['mp3'])) {
             foreach ($validatedData['mp3'] as $mp3) {
-                records::create(['profile_id' => $profile->id, 'mp3_path' => $mp3]);
+                $mp3Path = $mp3->store('records', 'public');
+                Records::create(['profile_id' => $profile->id, 'mp3_path' => $mp3Path]);
             }
-        }
-
 
 
         if ($request->has('images')) {
