@@ -71,7 +71,7 @@ class UserProfileController extends Controller
         $profileId = $qrCode->profile_id;
 
         // Fetch the associated profile details using the profile ID
-        $profile = Profile::with(['links', 'images', 'pdfs', 'events','records'.'branches'])->find($profileId);
+        $profile = Profile::with(['links', 'images', 'pdfs', 'events','records','branches'])->find($profileId);
 
         // Check if profile exists
         if (!$profile) {
