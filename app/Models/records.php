@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class records extends Model
 {
     public $timestamps = false;
-    protected $fillable = ['qrcode_id', 'mp3_path'];
+    protected $fillable = ['profile_id', 'mp3_path'];
 
     public function qrcode()
     {

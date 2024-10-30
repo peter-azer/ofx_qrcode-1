@@ -108,7 +108,7 @@ class Smart_QRCodeController extends Controller
         $qrCode->user_id = $user->id;
         $qrCode->qrcode = $fileName;
         $qrCode->link = $qrCodeLink;
-        $qrCode->package_id = $validatedData['package_id'];
+        $qrCode->package_id = $validatedData['package_id'] ?? null;
         $qrCode->scan_count = 0;
         $qrCode->is_active = true;
         $qrCode->save();
