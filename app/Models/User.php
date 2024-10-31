@@ -55,4 +55,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserLocation::class);
     }
+
+    public function codes()
+    {
+        return $this->belongsTo(Code::class);
+    }
+
 }

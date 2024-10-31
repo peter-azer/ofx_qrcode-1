@@ -30,4 +30,13 @@ protected $casts = [
         'price_EGP',
         'max_visitor',
     ];
+
+
+    public function codes()
+    {
+        return $this->hasMany(code::class);
+    }
+
+
+    
 }
