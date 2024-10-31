@@ -12,7 +12,7 @@ use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\UserLocationController;
 use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Artisan;
-
+use App\Http\Controllers\CodeController;
 ###########################################################USER_AUTH########################################################################################
 
 
@@ -107,3 +107,8 @@ Route::get('/link', function () {
         return response()->json(['message' => 'Failed to link storage.', 'error' => $e->getMessage()], 500);
     }
 });
+###########################################################code########################################################################################
+Route::post('/codes/validate', [CodeController::class, 'validateCode']);
+Route::get('/code/check/{userId}/{macaddress}/{lesson_id}', [CodeController::class, 'checkUserCodeStatus']);
+
+Route::post('/addcode', [CodeController::class, 'store']);
