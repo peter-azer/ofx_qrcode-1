@@ -99,11 +99,12 @@ class CodeController extends Controller
 
 
 
-    public function checkUserCodeStatus($userId, $lesson_id)
+    public function checkUserCodeStatus( request $request , $package_id)
     {
+        $user = $request->user();
         // Retrieve the code associated with the user and lesson
-        $code = Code::where('user_id', $userId)
-            ->where('package_id', $lesson_id)
+        $code = Code::where('user_id', $user->id)
+            ->where('package_id', $package_id)
             ->first();
 
         if (!$code) {

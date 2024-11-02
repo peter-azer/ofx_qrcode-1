@@ -114,9 +114,9 @@ Route::get('/link', function () {
 ###########################################################code########################################################################################
 Route::middleware('auth:sanctum')->group(function () {
 Route::post('/codes/validate', [CodeController::class, 'validateCode']);
-
+Route::get('/code/check/{package_id}', [CodeController::class, 'checkUserCodeStatus']);
 });
-Route::get('/code/check/{userId}/{package_id}', [CodeController::class, 'checkUserCodeStatus']);
+
 
 Route::post('/addcode', [CodeController::class, 'store']);
 
