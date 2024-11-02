@@ -336,7 +336,7 @@ class QRCodeController extends Controller
 
                 // Save location data to the user_location table
                 UserLocation::create([
-                    'user_id' => $user->id(), 
+                    'user_id' => $user->id(),
                     'qrcode_id' => $qrCodeModel->id, // Link to the QR code
                     'location' => json_encode($locationData), // Store location as JSON
                 ]);
@@ -395,7 +395,7 @@ class QRCodeController extends Controller
 
                 // Save location data to the user_location table
                 UserLocation::create([
-                    'user_id' => $user->id(), // Assuming the user is authenticated
+                    'user_id' => $user->id, // Assuming the user is authenticated
                     'qrcode_id' => $qrCodeModel->id, // Reference to the QR code
                     'location' => $locationJson, // Store location as JSON
                 ]);
