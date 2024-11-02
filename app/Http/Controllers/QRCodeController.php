@@ -451,18 +451,22 @@ class QRCodeController extends Controller
         // Prepare an array to store QR codes with their user counts by IP
         $qrCodeData = [];
 
-
         foreach ($qrCodeModels as $qrCode) {
-            // Get the count of distinct IPs for each QR code
-            $ipCount = UserLocation::where('qrcode_id', $qrCode->id)
-                ->selectRaw("JSON_UNQUOTE(JSON_EXTRACT(location, '$.ip')) as ip")
-                ->distinct()
-                ->count();
+            // Get the scan count and device count (distinct IPs) for each QR code
+            $scanData = UserLocation::where('qrcode_id', $qrCode->id)
+                ->selectRaw("location->>'$.ip' as ip")
+                ->groupBy('ip')
+                ->get();
 
-            // Add the QR code and its IP count to the result array
+            // Calculate total scans and distinct devices
+            $totalScans = $scanData->count();
+            $deviceCount = $scanData->unique('ip')->count();
+
+            // Add the QR code and its scan/device counts to the result array
             $qrCodeData[] = [
                 'qr_code' => $qrCode,
-                'ip_count' => $ipCount,
+                'scan_count' => $totalScans,
+                'device_count' => $deviceCount,
             ];
         }
 
