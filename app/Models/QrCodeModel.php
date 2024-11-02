@@ -30,6 +30,11 @@ public $timestamps = false;
         return $this->belongsTo(Package::class);
     }
 
+    public function UserLocation()
+    {
+        return $this->hasMany(UserLocation::class, 'qrcode_id');
+    }
+
     public function checkVisitorCount($scan_count,$package_id)
     {
         if ( $package_id == 1 && $scan_count >= 20) {

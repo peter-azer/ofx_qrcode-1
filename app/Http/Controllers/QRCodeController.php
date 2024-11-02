@@ -419,7 +419,7 @@ class QRCodeController extends Controller
 
 
 
-    public function getQrcodeByUserId(Request $request)
+    public function getQrcodeByUserIdv(Request $request)
     {
         // Retrieve the authenticated user
         $user = $request->user();
@@ -435,6 +435,51 @@ class QRCodeController extends Controller
             ], 404);
         }
     }
+
+
+
+
+    public function getQrcodeByUserId(Request $request)
+{
+    // Retrieve the authenticated user
+    $user = $request->user();
+
+    try {
+        // Retrieve QR codes associated with the user's ID
+        $qrCodeModels = QrCodeModel::where('user_id', $user->id)->with('userLocations')->get();
+
+        // Prepare an array to store QR codes with their user counts by IP
+        $qrCodeData = [];
+
+        foreach ($qrCodeModels as $qrCode) {
+            // Get the count of distinct users by IP for each QR code
+            $ipCounts = UserLocation::where('qrcode_id', $qrCode->id)
+                ->selectRaw("JSON_UNQUOTE(JSON_EXTRACT(location, '$.ip')) as ip")
+                ->groupBy('ip')
+                ->selectRaw('count(distinct user_id) as user_count')
+                ->get()
+                ->pluck('user_count', 'ip');
+
+            // Add the QR code and its IP counts to the result array
+            $qrCodeData[] = [
+                'qr_code' => $qrCode,
+                'ip_counts' => $ipCounts,
+            ];
+        }
+
+        // Return the QR codes with their associated user counts by IP
+        return response()->json([
+            'qr_codes' => $qrCodeData,
+        ], 200);
+
+    } catch (ModelNotFoundException $e) {
+        // Handle the case when no QR code is found
+        return response()->json([
+            'message' => 'QR code not found for this user.'
+        ], 404);
+    }
+}
+
     // public function checkVisitorCount( $id)
     // {
     //     $qrcode = QrCodeModel::findOrFail($id);
