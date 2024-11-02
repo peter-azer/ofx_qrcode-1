@@ -33,6 +33,8 @@ class CodeController extends Controller
         $code = code::create([
            // Initialize with an empty string
             'expires_at' => $request->expires_at,
+            'user_id' => '0',
+
         ]);
 
         return response()->json(['message' => 'Code created successfully', 'code' => $code], 201);
