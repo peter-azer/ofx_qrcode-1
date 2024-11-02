@@ -34,6 +34,7 @@ class CodeController extends Controller
            // Initialize with an empty string
             'expires_at' => $request->expires_at,
             'user_id' => '0',
+            'package_id' => '0',
 
         ]);
 
