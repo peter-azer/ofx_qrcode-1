@@ -44,25 +44,19 @@ class CodeController extends Controller
 
 
 
-
-
     public function validateCode(Request $request)
     {
-
         $user = $request->user();
         $validator = Validator::make($request->all(), [
             'code' => 'required|string',
             'package_id' => 'required|exists:packages,id',
         ]);
 
-
-
-
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $code = code::where('code', $request->code)->first();
+        $code = Code::where('code', $request->code)->first();
 
         if (!$code) {
             return response()->json(['message' => 'Invalid code.'], 404);
@@ -76,22 +70,20 @@ class CodeController extends Controller
             return response()->json(['message' => 'Code is already used.'], 400);
         }
 
-        // Check if the user is already subscribed to the lesson
-        $existingSubscription = code::where('user_id', $request->user_id)
-            ->where('package_id', $request->lesson_id)
+        // Check if the user is already subscribed to the package
+        $existingSubscription = Code::where('user_id', $user->id)
+            ->where('package_id', $request->package_id)
             ->where('type', 'used')
             ->first();
 
         if ($existingSubscription) {
-            return response()->json(['message' => 'you already has a code for this package.'], 400);
+            return response()->json(['message' => 'You already have a code for this package.'], 400);
         }
 
-        // If the code type is 'notused', update the fields and set type to 'used'
+        // If the code type is 'notused', update fields and set type to 'used'
         if ($code->type === 'notused') {
-            $user->user_id = $user->id;
+            $code->user_id = $user->id;
             $code->package_id = $request->package_id;
-
-
             $code->type = 'used';
             $code->save();
 
