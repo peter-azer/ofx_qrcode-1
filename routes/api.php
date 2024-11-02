@@ -51,6 +51,10 @@ Route::delete('/qrcode/{id}', [Smart_QRCodeController::class, 'deleteQRCodeById'
 Route::middleware('auth:sanctum')->group(function () {
 Route::post('/qrcode/smart', [Smart_QRCodeController::class, 'generatesmartQRCode']);
 });
+
+
+Route::post('/uploadimage', [Smart_QRCodeController::class, 'uploadMenus']);
+
 #********************************************************USER_PROFILE*************************************************************************************************
 
 
@@ -112,3 +116,14 @@ Route::post('/codes/validate', [CodeController::class, 'validateCode']);
 Route::get('/code/check/{userId}/{macaddress}/{lesson_id}', [CodeController::class, 'checkUserCodeStatus']);
 
 Route::post('/addcode', [CodeController::class, 'store']);
+
+
+
+
+
+
+
+
+use App\Http\Controllers\RecordController;
+
+Route::post('/records', [RecordController::class, 'store']);

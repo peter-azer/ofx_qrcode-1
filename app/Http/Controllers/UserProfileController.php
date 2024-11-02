@@ -60,7 +60,7 @@ class UserProfileController extends Controller
     public function getProfileByQRCodeName($qrCodeName)
     {
         // Fetch the QRCode entry by the unique QR code name
-        $qrCode = QrCodeModel::where('link', 'http://localhost:5173/qr/' . $qrCodeName)->first();
+        $qrCode = QrCodeModel::where('link', 'https://qrcode.com/' . $qrCodeName)->first();
 
         // Check if QR code exists
         if (!$qrCode) {

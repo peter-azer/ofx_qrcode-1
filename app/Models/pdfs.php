@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class pdfs extends Model
 {
     public $timestamps = false;
-    protected $fillable = ['qrcode_id', 'pdf_path'];
+    protected $fillable = ['profile_id', 'pdf_path'];
 
-    public function qrcode()
+    public function profile()
     {
-        return $this->belongsTo(QrCodeModel::class);
+        return $this->belongsTo(profile::class);
     }
 }

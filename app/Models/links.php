@@ -9,7 +9,7 @@ class links extends Model
 {
 
     public $timestamps = false;
-    protected $fillable = ['profile_id', 'url'];
+    protected $fillable = ['profile_id', 'url','type'];
 
     public function profile()
     {

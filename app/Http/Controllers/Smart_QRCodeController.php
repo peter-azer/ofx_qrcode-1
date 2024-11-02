@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\branches;
 use App\Models\QrCodeModel;
+use App\Models\records;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Profile;
@@ -18,6 +19,7 @@ class Smart_QRCodeController extends Controller
 {
     public function generatesmartQRCode(Request $request)
     {
+
         try {
         $user = $request->user();
 
@@ -30,8 +32,10 @@ class Smart_QRCodeController extends Controller
             'color' => 'nullable|string', // Hex code
             'font' => 'nullable|string',
             'package_id' => 'nullable|string',
-            'links' => 'nullable|array',
-            'links.*' => 'url',
+            'links' => 'nullable|array', // links can be null or an array
+            'links.*.url' => 'nullable|url', // Each url can be null or a valid URL
+            'links.*.type' => 'nullable|string', // Ensure each link has a type
+
             'images' => 'nullable|array',
             'images.*' => 'file|mimes:jpeg,png,jpg',
             'mp3' => 'nullable|array',
@@ -41,12 +45,15 @@ class Smart_QRCodeController extends Controller
             'event_date' => 'nullable',
             'event_time' => 'nullable',
             'location' => 'nullable|string',
-       
+
          'branches' => 'nullable|array',
             'branches.*.name' => 'required|string',
             'branches.*.location' => 'required|string',
             'branches.*.phones' => 'nullable|array',
         ]);
+
+        // Initialize an array to store uploaded image paths
+
         $profile = Profile::create([
             'user_id' => $user->id,
             'logo' => $request->file('logo') ? $request->file('logo')->store('logos', 'public') : null,
@@ -58,10 +65,16 @@ class Smart_QRCodeController extends Controller
             'font' => $validatedData['font'] ?? null,
         ]);
 
-        // $profile = profile::create($validatedData);
         if (!empty($validatedData['links'])) {
-            foreach ($validatedData['links'] as $link) {
-                Links::create(['profile_id' => $profile->id, 'url' => $link]);
+            foreach ($validatedData['links'] as $linkData) {
+                // Check if url and type are present
+                if (!empty($linkData['url']) && !empty($linkData['type'])) {
+                    links::create([
+                        'profile_id' => $profile->id,
+                        'url' => $linkData['url'],
+                        'type' => $linkData['type'], // Correct syntax for associative array
+                    ]);
+                }
             }
         }
 
@@ -78,18 +91,27 @@ class Smart_QRCodeController extends Controller
         if ($request->has('mp3')) {
             foreach ($request->file('mp3') as $mp3) {
                 $mp3path = $mp3->store('records', 'public');
-                images::create(['profile_id' => $profile->id, 'mp3_path' => $mp3path]);
+                records::create(['profile_id' => $profile->id, 'mp3_path' => $mp3path]);
             }
         }
 
+    //    dd($request->file('images'));
 
-
-        if ($request->has('images')) {
-            foreach ($request->file('images') as $image) {
+    if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $image) {
+            // Check if the file is valid before processing
+            if ($image->isValid()) {
                 $imagePath = $image->store('images', 'public');
-                images::create(['profile_id' => $profile->id, 'image_path' => $imagePath]);
+                images::create([
+                    'profile_id' => $profile->id,
+                    'image_path' => $imagePath,
+                ]);
             }
         }
+    }
+
+
+
 
         if ($request->has('pdfs')) {
             foreach ($request->file('pdfs') as $pdf) {
@@ -121,7 +143,7 @@ class Smart_QRCodeController extends Controller
         Storage::disk('public')->put($fileName, $qrCodeData);
 
         $qrCode = new QrCodeModel();
-        
+
         $qrCode->profile_id = $profile->id;
         $qrCode->user_id = $user->id;
         $qrCode->qrcode = $fileName;
@@ -141,7 +163,7 @@ class Smart_QRCodeController extends Controller
             'message' => 'Validation errors occurred.',
             'errors' => $e->validator->errors()
         ], 422);
-    
+
     }}
 //////
 public function getQRCodesByUserId($user_id)
@@ -173,6 +195,67 @@ public function deleteQRCodeById($id)
 
     return response()->json(['message' => 'QR code deleted successfully'], 200);
 }
+
+
+
+public function uploadImages(Request $request)
+{
+    try {
+
+        $validatedData = $request->validate([
+            'images' => 'required|array|min:1',
+            'images.*' => 'file|mimes:jpeg,png,jpg',
+        ]);
+        \Log::info('Validated Request Data:', $validatedData);
+        $uploadedImages = [];
+
+        // Check if images were uploaded
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $image) {
+                // Store the image and save the path
+                $imagePath = $image->store('images', 'public');
+
+                // Save the image path in the database
+                Images::create([
+                    'profile_id' => '1', // Adjust to use dynamic profile ID if needed
+                    'image_path' => $imagePath,
+                ]);
+                $uploadedImages[] = $imagePath;
+
+                // Log the details of the uploaded image
+                \Log::info('Uploaded Image ' . ($index + 1) . ':', [
+                    'image_path' => $imagePath,
+                    'original_name' => $image->getClientOriginalName(),
+                    'mime_type' => $image->getClientMimeType(),   ]);
+
+            }
+        }
+
+
+
+        return response()->json([
+            'message' => 'Images uploaded successfully',
+            'uploaded_images' => $uploadedImages,
+        ], 200);
+
+    } catch (\Exception $e) {
+        // Log the error for debugging
+        \Log::error('Error uploading images: ' . $e->getMessage());
+
+        // Return error response
+        return response()->json([
+            'message' => 'Failed to upload images',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
+
+
+
+
+
+
+
 
 
 }
