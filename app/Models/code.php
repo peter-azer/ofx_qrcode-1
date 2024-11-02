@@ -9,7 +9,7 @@ class code extends Model
     use HasFactory;
 
     protected $fillable = [
-       
+
         'expires_at',
         'code',
         'user_id',
@@ -24,8 +24,8 @@ class code extends Model
         parent::boot();
 
         static::creating(function ($model) {
-      
-            $model->code = Str::random(8);
+
+            $model->code = Str::random(10);
         });
     }
     public function user()
