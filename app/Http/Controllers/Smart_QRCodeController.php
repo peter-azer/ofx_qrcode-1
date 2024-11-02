@@ -33,7 +33,7 @@ class Smart_QRCodeController extends Controller
             'font' => 'nullable|string',
             'package_id' => 'nullable|string',
             'links' => 'nullable|array', // links can be null or an array
-            'links.*.url' => 'nullable|url', // Each url can be null or a valid URL
+            'links.*.url' => 'nullable|string', // Each url can be null or a valid URL
             'links.*.type' => 'nullable|string', // Ensure each link has a type
 
             'images' => 'nullable|array',
