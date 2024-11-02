@@ -130,7 +130,7 @@ class Smart_QRCodeController extends Controller
         }
 
         $uniqueName = uniqid();
-        $qrCodeLink = 'https://qrcode.com/' . $uniqueName; // Replace with your custom domain
+        $qrCodeLink = 'https://ofx-qrcode.com/' . $uniqueName; // Replace with your custom domain
 
 
         $qrCodeData = QrCode::format('png')
