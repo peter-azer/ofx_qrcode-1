@@ -48,11 +48,15 @@ class CodeController extends Controller
 
     public function validateCode(Request $request)
     {
+
+        $user = $request->user();
         $validator = Validator::make($request->all(), [
             'code' => 'required|string',
-            'user_id' => 'required|exists:users,id',
             'package_id' => 'required|exists:packages,id',
         ]);
+
+
+
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
@@ -84,7 +88,7 @@ class CodeController extends Controller
 
         // If the code type is 'notused', update the fields and set type to 'used'
         if ($code->type === 'notused') {
-            $code->user_id = $request->user_id;
+            $user->user_id = $user->id;
             $code->package_id = $request->package_id;
 
 
@@ -119,7 +123,7 @@ class CodeController extends Controller
             return response()->json(['message' => 'Code has expired.'], 410);
         }
 
-      
+
         return response()->json(['message' => 'User has a valid code.', 'code' => $code], 200);
     }
 }
