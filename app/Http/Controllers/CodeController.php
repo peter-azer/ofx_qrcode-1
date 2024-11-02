@@ -119,12 +119,7 @@ class CodeController extends Controller
             return response()->json(['message' => 'Code has expired.'], 410);
         }
 
-        // Normalize the MAC address for comparison
-        // $normalizedMacAddress = strtolower($macAddress);
-        // if (strtolower($code->mac_address) !== $normalizedMacAddress) {
-        //     return response()->json(['message' => 'MAC address mismatch.'], 403);
-        // }
-
+      
         return response()->json(['message' => 'User has a valid code.', 'code' => $code], 200);
     }
 }
