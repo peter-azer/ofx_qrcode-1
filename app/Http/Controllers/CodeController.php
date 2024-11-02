@@ -6,7 +6,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use App\Models\Code;
+use App\Models\code;
 
 class CodeController extends Controller
 {
