@@ -305,7 +305,54 @@ class QRCodeController extends Controller
     }
 
 
+    public function trackAndRedirectAPI($name, Request $request)
+    {
 
+        $user = $request->user();
+        // Find the QR code by its link
+        $qrCodeModel = QrCodeModel::where('link', 'https://ofx-qrcode.com/' . $name)->first();
+
+        // Check if the QR code exists
+        if (!$qrCodeModel) {
+            abort(404, 'QR Code not found');
+        }
+
+        // Verify the scan count limit with the checkVisitorCount function
+        if ($qrCodeModel->checkVisitorCount($qrCodeModel->scan_count, $qrCodeModel->package_id)) {
+            // Increment the scan count
+            $qrCodeModel->increment('scan_count');
+
+            // Retrieve the user’s location based on IP
+            $userLocation = Location::get($request->ip());
+            if ($userLocation) {
+                // Prepare location data
+                $locationData = [
+                    'ip' => $userLocation->ip ?? 'N/A',
+                    'country' => $userLocation->countryName ?? 'N/A',
+                    'city' => $userLocation->cityName ?? 'N/A',
+                    'latitude' => $userLocation->latitude ?? null,
+                    'longitude' => $userLocation->longitude ?? null,
+                ];
+
+                // Save location data to the user_location table
+                UserLocation::create([
+                    'user_id' => $user->id(), 
+                    'qrcode_id' => $qrCodeModel->id, // Link to the QR code
+                    'location' => json_encode($locationData), // Store location as JSON
+                ]);
+
+                // Log location data for debugging
+                Log::info('User Location saved:', $locationData);
+            }
+
+            // Redirect to the QR code's link
+            return redirect($qrCodeModel->link);
+        } else {
+            // If scan count exceeds limit, deactivate the QR code and return a 404 error
+            $qrCodeModel->update(['is_active' => 0]);
+            abort(404, 'QR Code is inactive');
+        }
+    }
 
 
 
@@ -376,7 +423,7 @@ class QRCodeController extends Controller
     {
         // Retrieve the authenticated user
         $user = $request->user();
-    
+
         try {
             // Attempt to find the QR code associated with the user's ID
             $qrCodeModel = QrCodeModel::where('user_id', $user->id)->get();

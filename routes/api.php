@@ -52,8 +52,10 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::post('/qrcode/smart', [Smart_QRCodeController::class, 'generatesmartQRCode']);
 });
 
+Route::middleware('auth:sanctum')->post('/track-qr-code/{id}', [QrCodeController::class, 'trackQRCode']);
 
-Route::post('/uploadimage', [Smart_QRCodeController::class, 'uploadMenus']);
+Route::get('/track-qr-code/{name}', [QrCodeController::class, 'trackAndRedirectAPI']);
+
 
 #********************************************************USER_PROFILE*************************************************************************************************
 
