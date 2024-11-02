@@ -465,7 +465,7 @@ class QRCodeController extends Controller
             // Add the QR code and its scan/device counts to the result array
             $qrCodeData[] = [
                 'qr_code' => $qrCode,
-                'scan_count' => $totalScans,
+                // 'scan_count' => $totalScans,
                 'device_count' => $deviceCount,
             ];
         }
