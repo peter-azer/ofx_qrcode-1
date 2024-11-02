@@ -30,7 +30,7 @@ class CodeController extends Controller
         }
 
         // Create the new code
-        $code = Code::create([
+        $code = code::create([
            // Initialize with an empty string
             'expires_at' => $request->expires_at,
         ]);
