@@ -38,6 +38,7 @@ class CodeController extends Controller
 
         ]);
 
+
         return response()->json(['message' => 'Code created successfully', 'code' => $code], 201);
     }
 
@@ -50,7 +51,7 @@ class CodeController extends Controller
         $validator = Validator::make($request->all(), [
             'code' => 'required|string',
             'user_id' => 'required|exists:users,id',
-            'package_id' => 'required|exists:package,id',
+            'package_id' => 'required|exists:packages,id',
         ]);
 
         if ($validator->fails()) {
@@ -72,7 +73,7 @@ class CodeController extends Controller
         }
 
         // Check if the user is already subscribed to the lesson
-        $existingSubscription = Code::where('user_id', $request->user_id)
+        $existingSubscription = code::where('user_id', $request->user_id)
             ->where('package_id', $request->lesson_id)
             ->where('type', 'used')
             ->first();
