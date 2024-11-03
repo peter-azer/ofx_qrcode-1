@@ -14,7 +14,7 @@ use App\Models\images;
 use App\Models\pdfs;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 class Smart_QRCodeController extends Controller
