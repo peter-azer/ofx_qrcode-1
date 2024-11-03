@@ -49,7 +49,7 @@ Route::delete('/qrcode/{id}', [Smart_QRCodeController::class, 'deleteQRCodeById'
 
 ###########################################################Smart_QRCode########################################################################################
 Route::middleware('auth:sanctum')->group(function () {
-Route::post('/qrcode/smart', [Smart_QRCodeController::class, 'generatesmartQRCode']);
+Route::post('/qrcode/smart', [Smart_QRCodeController::class, 'generatesmartQRCodev2']);
 Route::get('/track-qr-code/{name}', [QrCodeController::class, 'trackAndRedirectAPI']);
 });
 
