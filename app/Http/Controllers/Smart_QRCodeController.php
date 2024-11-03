@@ -14,7 +14,7 @@ use App\Models\images;
 use App\Models\pdfs;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
-use App\Jobs\ProcessProfileFilesJob;
+
 use Illuminate\Support\Facades\Queue;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 class Smart_QRCodeController extends Controller
@@ -238,36 +238,59 @@ public function generatesmartQRCode(Request $request)
             }
         }
 
-        $imagePaths = [];
-        $pdfPaths = [];
-        $mp3Paths = [];
 
-        // Store images
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $imagePaths[] = $image->store('images', 'public');
-            }
-        }
+// Initialize file paths arrays
+$imagePaths = [];
+$pdfPaths = [];
+$mp3Paths = [];
 
-        // Store PDFs
-        if ($request->hasFile('pdfs')) {
-            foreach ($request->file('pdfs') as $pdf) {
-                $pdfPaths[] = $pdf->store('pdfs', 'public');
-            }
-        }
+// Process and save images
+if ($request->hasFile('images')) {
+    foreach ($request->file('images') as $image) {
+        $path = $image->store('images', 'public');
+        $imagePaths[] = [
+            'profile_id' => $profile->id,
+            'image_path' => $path,
+        ];
+    }
+}
 
-        // Store MP3s
-        if ($request->hasFile('mp3')) {
-            foreach ($request->file('mp3') as $mp3) {
-                $mp3Paths[] = $mp3->store('records', 'public');
-            }
-        }
+// Process and save PDFs
+if ($request->hasFile('pdfs')) {
+    foreach ($request->file('pdfs') as $pdf) {
+        $path = $pdf->store('pdfs', 'public');
+        $pdfPaths[] = [
+            'profile_id' => $profile->id,
+            'pdf_path' => $path,
+        ];
+    }
+}
 
-        // Dispatch the job to process files
-        ProcessProfileFilesJob::dispatch($profile->id, $imagePaths, $pdfPaths, $mp3Paths);
+// Process and save MP3s
+if ($request->hasFile('mp3')) {
+    foreach ($request->file('mp3') as $mp3) {
+        $path = $mp3->store('records', 'public');
+        $mp3Paths[] = [
+            'profile_id' => $profile->id,
+            'mp3_path' => $path,
+        ];
+    }
+}
+ dd($imagePaths[]);
+// Queue file processing using only paths
+Queue::push(function () use ($imagePaths, $pdfPaths, $mp3Paths) {
+    if (!empty($imagePaths)) {
+        images::insert($imagePaths);
+    }
 
-        DB::commit();
+    if (!empty($pdfPaths)) {
+        Pdfs::insert($pdfPaths);
+    }
 
+    if (!empty($mp3Paths)) {
+        records::insert($mp3Paths);
+    }
+});
 
         // Insert event if provided
         if (!empty($validatedData['event_date'])) {
