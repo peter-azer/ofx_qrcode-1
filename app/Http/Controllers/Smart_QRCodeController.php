@@ -130,7 +130,7 @@ class Smart_QRCodeController extends Controller
         }
 
         $uniqueName = uniqid();
-        $qrCodeLink = 'https://ofx-qrcode.com/' . $uniqueName; // Replace with your custom domain
+        $qrCodeLink = 'https://ofx-qrcode.com/qr/' . $uniqueName; // Replace with your custom domain
 
 
         $qrCodeData = QrCode::format('png')
@@ -196,59 +196,59 @@ public function deleteQRCodeById($id)
     return response()->json(['message' => 'QR code deleted successfully'], 200);
 }
 
+////////////////////////////for test upload image ////////////////////////////////////////////////////////////////////////////
+
+// public function uploadImages(Request $request)
+// {
+//     try {
+
+//         $validatedData = $request->validate([
+//             'images' => 'required|array|min:1',
+//             'images.*' => 'file|mimes:jpeg,png,jpg',
+//         ]);
+//         Log::info('Validated Request Data:', $validatedData);
+//         $uploadedImages = [];
+
+//         // Check if images were uploaded
+//         if ($request->hasFile('images')) {
+//             foreach ($request->file('images') as $index => $image) {
+//                 // Store the image and save the path
+//                 $imagePath = $image->store('images', 'public');
+
+//                 // Save the image path in the database
+//                 Images::create([
+//                     'profile_id' => '1', // Adjust to use dynamic profile ID if needed
+//                     'image_path' => $imagePath,
+//                 ]);
+//                 $uploadedImages[] = $imagePath;
+
+//                 // Log the details of the uploaded image
+//                 Log::info('Uploaded Image ' . ($index + 1) . ':', [
+//                     'image_path' => $imagePath,
+//                     'original_name' => $image->getClientOriginalName(),
+//                     'mime_type' => $image->getClientMimeType(),   ]);
+
+//             }
+//         }
 
 
-public function uploadImages(Request $request)
-{
-    try {
 
-        $validatedData = $request->validate([
-            'images' => 'required|array|min:1',
-            'images.*' => 'file|mimes:jpeg,png,jpg',
-        ]);
-        \Log::info('Validated Request Data:', $validatedData);
-        $uploadedImages = [];
+//         return response()->json([
+//             'message' => 'Images uploaded successfully',
+//             'uploaded_images' => $uploadedImages,
+//         ], 200);
 
-        // Check if images were uploaded
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $index => $image) {
-                // Store the image and save the path
-                $imagePath = $image->store('images', 'public');
+//     } catch (\Exception $e) {
+//         // Log the error for debugging
+//         \Log::error('Error uploading images: ' . $e->getMessage());
 
-                // Save the image path in the database
-                Images::create([
-                    'profile_id' => '1', // Adjust to use dynamic profile ID if needed
-                    'image_path' => $imagePath,
-                ]);
-                $uploadedImages[] = $imagePath;
-
-                // Log the details of the uploaded image
-                \Log::info('Uploaded Image ' . ($index + 1) . ':', [
-                    'image_path' => $imagePath,
-                    'original_name' => $image->getClientOriginalName(),
-                    'mime_type' => $image->getClientMimeType(),   ]);
-
-            }
-        }
-
-
-
-        return response()->json([
-            'message' => 'Images uploaded successfully',
-            'uploaded_images' => $uploadedImages,
-        ], 200);
-
-    } catch (\Exception $e) {
-        // Log the error for debugging
-        \Log::error('Error uploading images: ' . $e->getMessage());
-
-        // Return error response
-        return response()->json([
-            'message' => 'Failed to upload images',
-            'error' => $e->getMessage(),
-        ], 500);
-    }
-}
+//         // Return error response
+//         return response()->json([
+//             'message' => 'Failed to upload images',
+//             'error' => $e->getMessage(),
+//         ], 500);
+//     }
+// }
 
 
 

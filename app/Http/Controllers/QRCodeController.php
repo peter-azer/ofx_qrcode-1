@@ -310,7 +310,7 @@ class QRCodeController extends Controller
 
         $user = $request->user();
         // Find the QR code by its link
-        $qrCodeModel = QrCodeModel::where('link', 'https://ofx-qrcode.com/' . $name)->first();
+        $qrCodeModel = QrCodeModel::where('link', 'https://ofx-qrcode.com/qr/' . $name)->first();
 
         // Check if the QR code exists
         if (!$qrCodeModel) {
