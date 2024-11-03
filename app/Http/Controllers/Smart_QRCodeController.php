@@ -37,11 +37,11 @@ class Smart_QRCodeController extends Controller
             'links.*.type' => 'nullable|string', // Ensure each link has a type
 
             'images' => 'nullable|array',
-            'images.*' => 'file|mimes:jpeg,png,jpg',
+            'images.*' => 'nullable|file|mimes:jpeg,png,jpg',
             'mp3' => 'nullable|array',
-            'mp3.*' => 'file|mimes:mp3',
+            'mp3.*' => 'nullable|file|mimes:mp3',
             'pdfs' => 'nullable|array',
-            'pdfs.*' => 'file|mimes:pdf',
+            'pdfs.*' => 'nullable|file|mimes:pdf',
             'event_date' => 'nullable',
             'event_time' => 'nullable',
             'location' => 'nullable|string',
