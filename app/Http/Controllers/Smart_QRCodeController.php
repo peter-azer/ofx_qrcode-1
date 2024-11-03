@@ -276,7 +276,7 @@ if ($request->hasFile('mp3')) {
         ];
     }
 }
- dd($imagePaths[]);
+ dd($imagePaths);
 // Queue file processing using only paths
 Queue::push(function () use ($imagePaths, $pdfPaths, $mp3Paths) {
     if (!empty($imagePaths)) {
