@@ -228,13 +228,14 @@ public function generatesmartQRCode(Request $request)
 
         // Batch insert branches
         if (!empty($validatedData['branches'])) {
-            $branchData = array_map(fn($branch) => [
-                'profile_id' => $profile->id,
-                'name' => $branch['name'],
-                'location' => $branch['location'],
-                'phones' => $branch['phones'] ?? null,
-            ], $validatedData['branches']);
-            branches::insert($branchData);
+            foreach ($validatedData['branches'] as $branchData) {
+                branches::create([
+                    'profile_id' => $profile->id,
+                    'name' => $branchData['name'],
+                    'location' => $branchData['location'],
+                    'phones' => isset($branchData['phones']) ? json_encode($branchData['phones']) : null, // Convert array to JSON
+                ]);
+            }
         }
 
         // Offload file uploads to queue if not urgent
