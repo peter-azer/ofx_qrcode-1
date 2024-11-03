@@ -190,7 +190,7 @@ public function generatesmartQRCode(Request $request)
             'links' => 'nullable|array',
             'links.*.url' => 'nullable|string',
             'links.*.type' => 'nullable|string',
-            'images' => 'nullable|array',
+            'images' => 'required|array',
             'images.*' => 'nullable|file|mimes:jpeg,png,jpg',
             'mp3' => 'nullable|array',
             'mp3.*' => 'nullable|file',
@@ -237,6 +237,8 @@ public function generatesmartQRCode(Request $request)
                 ]);
             }
         }
+
+
 // Initialize file paths arrays
 $imagePaths = [];
 $pdfPaths = [];
