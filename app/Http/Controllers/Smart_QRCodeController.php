@@ -279,6 +279,7 @@ if ($request->hasFile('mp3')) {
 
 // Queue file processing using only paths
 Queue::push(function () use ($imagePaths, $pdfPaths, $mp3Paths) {
+    Log::info('Queue job started for file uploads');
     if (!empty($imagePaths)) {
         images::insert($imagePaths);
         dd('Images saved:', $imagePaths);
