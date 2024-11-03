@@ -13,11 +13,13 @@ use App\Models\links;
 use App\Models\images;
 use App\Models\pdfs;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 
+use Illuminate\Support\Facades\Queue;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 class Smart_QRCodeController extends Controller
 {
-    public function generatesmartQRCode(Request $request)
+    public function generatesmartQRCodev2(Request $request)
     {
 
         try {
@@ -165,7 +167,198 @@ class Smart_QRCodeController extends Controller
         ], 422);
 
     }}
-//////
+
+//////////////////////////////
+
+
+public function generatesmartQRCode(Request $request)
+{
+    DB::beginTransaction();
+
+    try {
+        $user = $request->user();
+
+        $validatedData = $request->validate([
+            'title' => 'nullable|string',
+            'description' => 'nullable|string',
+            'phones' => 'nullable|array',
+            'logo' => 'nullable|file|mimes:jpeg,png,jpg',
+            'cover' => 'nullable|file|mimes:jpeg,png,jpg',
+            'color' => 'nullable|string',
+            'font' => 'nullable|string',
+            'package_id' => 'nullable|string',
+            'links' => 'nullable|array',
+            'links.*.url' => 'nullable|string',
+            'links.*.type' => 'nullable|string',
+            'images' => 'nullable|array',
+            'images.*' => 'nullable|file|mimes:jpeg,png,jpg',
+            'mp3' => 'nullable|array',
+            'mp3.*' => 'nullable|file',
+            'pdfs' => 'nullable|array',
+            'pdfs.*' => 'nullable|file|mimes:pdf',
+            'event_date' => 'nullable',
+            'event_time' => 'nullable',
+            'location' => 'nullable|string',
+            'branches' => 'nullable|array',
+            'branches.*.name' => 'required|string',
+            'branches.*.location' => 'required|string',
+            'branches.*.phones' => 'nullable|array',
+        ]);
+
+        $profile = Profile::create([
+            'user_id' => $user->id,
+            'logo' => $request->file('logo') ? $request->file('logo')->store('logos', 'public') : null,
+            'phones' => $validatedData['phones'] ?? null,
+            'cover' => $request->file('cover') ? $request->file('cover')->store('covers', 'public') : null,
+            'background_color' => $validatedData['color'] ?? null,
+            'title' => $validatedData['title'] ?? null,
+            'description' => $validatedData['description'] ?? null,
+            'font' => $validatedData['font'] ?? null,
+        ]);
+
+        // Batch insert links
+        if (!empty($validatedData['links'])) {
+            $linkData = array_map(fn($link) => [
+                'profile_id' => $profile->id,
+                'url' => $link['url'],
+                'type' => $link['type']
+            ], array_filter($validatedData['links'], fn($link) => !empty($link['url']) && !empty($link['type'])));
+            links::insert($linkData);
+        }
+
+        // Batch insert branches
+        if (!empty($validatedData['branches'])) {
+            $branchData = array_map(fn($branch) => [
+                'profile_id' => $profile->id,
+                'name' => $branch['name'],
+                'location' => $branch['location'],
+                'phones' => $branch['phones'] ?? null,
+            ], $validatedData['branches']);
+            branches::insert($branchData);
+        }
+
+        // Offload file uploads to queue if not urgent
+        Queue::push(function() use ($request, $profile) {
+            // Process images
+            if ($request->hasFile('images')) {
+                $imagePaths = [];
+                foreach ($request->file('images') as $image) {
+                    $imagePaths[] = [
+                        'profile_id' => $profile->id,
+                        'image_path' => $image->store('images', 'public'),
+                    ];
+                }
+                images::insert($imagePaths);
+            }
+
+            // Process PDFs
+            if ($request->hasFile('pdfs')) {
+                $pdfPaths = [];
+                foreach ($request->file('pdfs') as $pdf) {
+                    $pdfPaths[] = [
+                        'profile_id' => $profile->id,
+                        'pdf_path' => $pdf->store('pdfs', 'public'),
+                    ];
+                }
+                Pdfs::insert($pdfPaths);
+            }
+
+            // Process MP3s
+            if ($request->hasFile('mp3')) {
+                $mp3Paths = [];
+                foreach ($request->file('mp3') as $mp3) {
+                    $mp3Paths[] = [
+                        'profile_id' => $profile->id,
+                        'mp3_path' => $mp3->store('records', 'public'),
+                    ];
+                }
+                records::insert($mp3Paths);
+            }
+        });
+
+        // Insert event if provided
+        if (!empty($validatedData['event_date'])) {
+            events::create([
+                'profile_id' => $profile->id,
+                'event_date' => $validatedData['event_date'],
+                'event_time' => $validatedData['event_time'],
+                'location' => $validatedData['location']
+            ]);
+        }
+
+        // Generate QR code data
+        $uniqueName = uniqid();
+        $qrCodeLink = 'https://ofx-qrcode.com/qr/' . $uniqueName;
+
+        $qrCodeData = QrCode::format('png')
+            ->backgroundColor(255, 255, 255)
+            ->size(200)
+            ->color(0, 0, 0)
+            ->generate($qrCodeLink);
+
+        $fileName = 'qrcodes/' . uniqid() . '.png';
+        Storage::disk('public')->put($fileName, $qrCodeData);
+
+        // Create QR code record
+        $qrCode = QrCodeModel::create([
+            'profile_id' => $profile->id,
+            'user_id' => $user->id,
+            'qrcode' => $fileName,
+            'link' => $qrCodeLink,
+            'package_id' => $validatedData['package_id'] ?? null,
+            'scan_count' => 0,
+            'is_active' => true,
+        ]);
+
+        DB::commit();
+
+        return response()->json([
+            'message' => 'QR code generated successfully',
+            'qr_code' => $qrCode->qrcode,
+            'link' => $qrCode->link
+        ], 200);
+    } catch (ValidationException $e) {
+        DB::rollBack();
+        return response()->json([
+            'message' => 'Validation errors occurred.',
+            'errors' => $e->validator->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'message' => 'An error occurred while generating the QR code.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+///////////////////////////////////////////////
 public function getQRCodesByUserId($user_id)
 {
     // Fetch all QR codes for the given user ID
