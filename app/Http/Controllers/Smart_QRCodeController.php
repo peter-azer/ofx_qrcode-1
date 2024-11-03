@@ -238,44 +238,53 @@ public function generatesmartQRCode(Request $request)
             }
         }
 
-        // Offload file uploads to queue if not urgent
-        Queue::push(function() use ($request, $profile) {
-            // Process images
-            if ($request->hasFile('images')) {
-                $imagePaths = [];
-                foreach ($request->file('images') as $image) {
-                    $imagePaths[] = [
-                        'profile_id' => $profile->id,
-                        'image_path' => $image->store('images', 'public'),
-                    ];
-                }
-                images::insert($imagePaths);
-            }
+       // Offload file uploads to queue if not urgent
+if ($request->hasFile('images') || $request->hasFile('pdfs') || $request->hasFile('mp3')) {
+    $filesData = [
+        'images' => $request->file('images') ?? [],
+        'pdfs' => $request->file('pdfs') ?? [],
+        'mp3' => $request->file('mp3') ?? [],
+    ];
+    $profileId = $profile->id;
 
-            // Process PDFs
-            if ($request->hasFile('pdfs')) {
-                $pdfPaths = [];
-                foreach ($request->file('pdfs') as $pdf) {
-                    $pdfPaths[] = [
-                        'profile_id' => $profile->id,
-                        'pdf_path' => $pdf->store('pdfs', 'public'),
-                    ];
-                }
-                Pdfs::insert($pdfPaths);
+    Queue::push(function () use ($filesData, $profileId) {
+        // Process images
+        if (!empty($filesData['images'])) {
+            $imagePaths = [];
+            foreach ($filesData['images'] as $image) {
+                $imagePaths[] = [
+                    'profile_id' => $profileId,
+                    'image_path' => $image->store('images', 'public'),
+                ];
             }
+            images::insert($imagePaths);
+        }
 
-            // Process MP3s
-            if ($request->hasFile('mp3')) {
-                $mp3Paths = [];
-                foreach ($request->file('mp3') as $mp3) {
-                    $mp3Paths[] = [
-                        'profile_id' => $profile->id,
-                        'mp3_path' => $mp3->store('records', 'public'),
-                    ];
-                }
-                records::insert($mp3Paths);
+        // Process PDFs
+        if (!empty($filesData['pdfs'])) {
+            $pdfPaths = [];
+            foreach ($filesData['pdfs'] as $pdf) {
+                $pdfPaths[] = [
+                    'profile_id' => $profileId,
+                    'pdf_path' => $pdf->store('pdfs', 'public'),
+                ];
             }
-        });
+            Pdfs::insert($pdfPaths);
+        }
+
+        // Process MP3s
+        if (!empty($filesData['mp3'])) {
+            $mp3Paths = [];
+            foreach ($filesData['mp3'] as $mp3) {
+                $mp3Paths[] = [
+                    'profile_id' => $profileId,
+                    'mp3_path' => $mp3->store('records', 'public'),
+                ];
+            }
+            records::insert($mp3Paths);
+        }
+    });
+}
 
         // Insert event if provided
         if (!empty($validatedData['event_date'])) {
