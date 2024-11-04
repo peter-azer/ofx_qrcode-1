@@ -43,7 +43,7 @@ class Smart_QRCodeController extends Controller
             'mp3' => 'nullable|array',
             'mp3.*' => 'nullable|file',
             'pdfs' => 'nullable|array',
-            'pdfs.*' => 'nullable|file|mimes:pdf',
+            'pdfs.*' => 'nullable|file',
             'event_date' => 'nullable',
             'event_time' => 'nullable',
             'location' => 'nullable|string',
