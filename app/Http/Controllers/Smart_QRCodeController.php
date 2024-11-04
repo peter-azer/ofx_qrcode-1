@@ -49,8 +49,8 @@ class Smart_QRCodeController extends Controller
             'location' => 'nullable|string',
 
          'branches' => 'nullable|array',
-            'branches.*.name' => 'required|string',
-            'branches.*.location' => 'required|string',
+            'branches.*.name' => 'nullable|string',
+            'branches.*.location' => 'nullable|string',
             'branches.*.phones' => 'nullable|array',
         ]);
 
