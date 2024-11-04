@@ -446,7 +446,7 @@ class QRCodeController extends Controller
 
     try {
         // Retrieve QR codes associated with the user's ID
-        $qrCodeModels = QrCodeModel::where('user_id', $user->id)->with('UserLocation')->get();
+        $qrCodeModels = QrCodeModel::where('user_id', $user->id)->with('UserLocation','profile')->get();
 
         // Prepare an array to store QR codes with their user counts by IP
         $qrCodeData = [];
