@@ -8,4 +8,4 @@ Route::get('/', function () {
 });
 
 
-Route::get('/qrcode/{name}', [QrCodeController::class, 'trackAndRedirect'])->name('qrcode.scan');
+Route::get('/qrcode/{name}', [QrCodeController::class, 'trackAndRedirectweb'])->name('qrcode.scan');

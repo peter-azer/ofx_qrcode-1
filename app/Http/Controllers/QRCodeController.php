@@ -266,17 +266,69 @@ class QRCodeController extends Controller
 
 
 
+
+
+
+    public function trackAndRedirectweb($name, Request $request)
+    {
+        $qrCodeModel = QrCodeModel::where('qrcode', 'qrcodes/' . $name.'.png')->first();
+
+            if (!$qrCodeModel || $qrCodeModel->is_active == 0) {
+                abort(404, 'QR code not found or is inactive.');
+            }
+
+        if ($qrCodeModel->checkVisitorCount($qrCodeModel->scan_count, $qrCodeModel->package_id)) {
+            // Increment the scan count only if within limits
+            $qrCodeModel->increment('scan_count'); // Laravel's increment method
+
+            $userLocation = Location::get($request->ip());
+            if ($userLocation) {
+                // Prepare location data
+                $locationData = [
+                    'ip' => $userLocation->ip ?? 'N/A',
+                    'country' => $userLocation->countryName ?? 'N/A',
+                    'city' => $userLocation->cityName ?? 'N/A',
+                    'latitude' => $userLocation->latitude ?? null,
+                    'longitude' => $userLocation->longitude ?? null,
+                ];
+
+                // Save location data to user_location table
+                UserLocation::create([
+                    'qrcode_id' => $qrCodeModel->id, // Link to the QR code
+                    'location' => json_encode($locationData), // Store location as JSON
+                ]);
+
+                // Log the location data for debugging
+                Log::info('User Location saved:', $locationData);
+            }
+
+            return redirect($qrCodeModel->link);
+        } else {
+            // Deactivate the QR code and abort with a 404
+            $qrCodeModel->update(['is_active' => 0]);
+            abort(404);
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
     // QrCodeController.php
     public function trackAndRedirect($name, Request $request)
     {
         $qrCodeModel = QrCodeModel::where('link', 'https://ofx-qrcode.com/qr/' . $name)->first();
 
-
-   // Check if the QR code is inactive
-   if (!$qrCodeModel || $qrCodeModel->is_active == 0) {
-    abort(404, 'QR code not found or is inactive.');
-}
-
+            if (!$qrCodeModel || $qrCodeModel->is_active == 0) {
+                abort(404, 'QR code not found or is inactive.');
+            }
 
         if ($qrCodeModel->checkVisitorCount($qrCodeModel->scan_count, $qrCodeModel->package_id)) {
             // Increment the scan count only if within limits
