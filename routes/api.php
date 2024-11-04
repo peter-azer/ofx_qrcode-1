@@ -31,7 +31,7 @@ Route::post('/generate-wifi-qrcode', [QrCodeController::class, 'generatewifiQrCo
 
 });
 
-Route::post('/scan_qrcode/{name}', [QrCodeController::class, 'trackAndRedirect']);
+Route::get('/scan_qrcode/{name}', [QrCodeController::class, 'trackAndRedirect']);
 
 
 
