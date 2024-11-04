@@ -271,6 +271,13 @@ class QRCodeController extends Controller
     {
         $qrCodeModel = QrCodeModel::where('link', 'https://ofx-qrcode.com/qr/' . $name)->first();
 
+
+   // Check if the QR code is inactive
+   if (!$qrCodeModel || $qrCodeModel->is_active == 0) {
+    abort(404, 'QR code not found or is inactive.');
+}
+
+
         if ($qrCodeModel->checkVisitorCount($qrCodeModel->scan_count, $qrCodeModel->package_id)) {
             // Increment the scan count only if within limits
             $qrCodeModel->increment('scan_count'); // Laravel's increment method

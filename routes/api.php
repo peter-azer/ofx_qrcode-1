@@ -87,9 +87,9 @@ Route::delete('/packages/{id}', [PackageController::class, 'destroy']); // Delet
 ###########################################################USER_SUBSCRIPTION########################################################################################
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/subscriptions', [SubscriptionController::class, 'store']); //create subscription
-    Route::get('/subscriptions/validate', [SubscriptionController::class, 'validateUserSubscription']);    // Validate and disable expired subscriptions
+    Route::get('/subscriptions/validate', [SubscriptionController::class, 'validateUserSubscription']);    // Validate and disable expired subscriptions and related qrcode
     Route::get('/subscriptions/user', [SubscriptionController::class, 'getByUserId']);
-    Route::post('/subscriptions/update', [SubscriptionController::class, 'updateSubscriptionDuration']);
+    Route::post('/subscriptions/update', [SubscriptionController::class, 'updateSubscriptionDuration']);   //renew  packagee
 });
 
  // Get subscriptions by user ID
