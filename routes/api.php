@@ -86,14 +86,16 @@ Route::delete('/packages/{id}', [PackageController::class, 'destroy']); // Delet
 
 ###########################################################USER_SUBSCRIPTION########################################################################################
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/subscriptions', [SubscriptionController::class, 'store']);  // Create a subscription
-
+    Route::post('/subscriptions', [SubscriptionController::class, 'store']); //create subscription
+    Route::get('/subscriptions/validate', [SubscriptionController::class, 'validateUserSubscription']);    // Validate and disable expired subscriptions
+    Route::get('/subscriptions/user', [SubscriptionController::class, 'getByUserId']);
+    Route::post('/subscriptions/update', [SubscriptionController::class, 'updateSubscriptionDuration']);
 });
 
-Route::get('/subscriptions/user/{userId}', [SubscriptionController::class, 'getByUserId']);  // Get subscriptions by user ID
-Route::get('/subscriptions/package/{packageId}', [SubscriptionController::class, 'getByPackageId']);  // Get subscriptions by package ID
-Route::get('/subscriptions/validate/{user_id}', [SubscriptionController::class, 'validateUserSubscription']);  // Validate and disable expired subscriptions
-Route::post('/subscriptions/update/{user_id}', [SubscriptionController::class, 'updateSubscriptionDuration']);
+ // Get subscriptions by user ID
+Route::get('/subscriptions/package/{packageId}', [SubscriptionController::class, 'getByPackageId']);  // Get subscriptions by package ID    //for admin
+
+
 
 
 ###########################################################GEIDEA_PAYMENT########################################################################################

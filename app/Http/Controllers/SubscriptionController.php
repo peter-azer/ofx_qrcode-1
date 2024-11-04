@@ -52,10 +52,10 @@ public function store(Request $request)
 }
 
     // Get subscriptions by user ID
-    public function getByUserId($userId)
-    {
-        $subscriptions = Subscription::where('user_id', $userId)->get();
-
+    public function getByUserId(Request $request)
+    {      $user= $request->user();
+        $subscriptions = Subscription::where('user_id', $user->id)->get();
+     
         if ($subscriptions->isEmpty()) {
             return response()->json(['message' => 'No subscriptions found for this user'], 404);
         }
@@ -76,9 +76,10 @@ public function store(Request $request)
     }
 
     // Validate and disable subscriptions if the end date has passed
-    public function validateUserSubscription($user_id)
+    public function validateUserSubscription(Request $request)
     {
-        $subscription = Subscription::where('user_id', $user_id)->where('is_enable', true)->first();
+        $user = $request->user();
+        $subscription = Subscription::where('user_id', $user->id)->where('is_enable', true)->first();
 
         if (!$subscription) {
             return response()->json(['message' => 'User not subscribed yet.'], 404);
@@ -97,15 +98,17 @@ public function store(Request $request)
 
 
 
-public function updateSubscriptionDuration(Request $request, $user_id)
+public function updateSubscriptionDuration(Request $request)
 {
+
+    $user=$request->user();
     // Validate request input for duration
     $validatedData = $request->validate([
         'duration' => 'required|string|in:month,three_months,year',
     ]);
 
     // Find the subscription by ID
-    $subscription = Subscription::where('user_id', $user_id)
+    $subscription = Subscription::where('user_id', $user->id)
                                 ->first();
 
     if (!$subscription) {
