@@ -269,7 +269,7 @@ class QRCodeController extends Controller
     // QrCodeController.php
     public function trackAndRedirect($name, Request $request)
     {
-        $qrCodeModel = QrCodeModel::where('qrcode', 'like', '%/' . $name . '.png')->firstOrFail();
+        $qrCodeModel = QrCodeModel::where('link', 'https://ofx-qrcode.com/qr/' . $name)->first();
 
         if ($qrCodeModel->checkVisitorCount($qrCodeModel->scan_count, $qrCodeModel->package_id)) {
             // Increment the scan count only if within limits
