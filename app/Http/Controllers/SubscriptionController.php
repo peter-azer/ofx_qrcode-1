@@ -57,7 +57,7 @@ class SubscriptionController extends Controller
     {
         $user = $request->user();
         $subscriptions = Subscription::where('user_id', $user->id)->get();
-
+                dd($request);
         if ($subscriptions->isEmpty()) {
             return response()->json(['message' => 'No subscriptions found for this user'], 404);
         }
