@@ -564,7 +564,20 @@ public function deleteQRCodeById($id)
 
 
 
+public function downloadQRCode($fileName)
+{
+    // Get the file path from the public storage
+    $filePath = storage_path('app/public/qrcodes/' . $fileName);
 
+    // Check if the file exists
+    if (file_exists($filePath)) {
+        // Trigger download
+        return response()->download($filePath);
+    } else {
+        // Return a 404 error if the file is not found
+        return response()->json(['error' => 'File not found'], 404);
+    }
+}
 
 
 
