@@ -135,20 +135,19 @@ if ($request->has('pdfs')) {
     if (is_array($pdfFiles)) {
         // Loop through each file and type
         foreach ($pdfFiles as $index => $pdf) {
-            if ($pdf instanceof \Illuminate\Http\UploadedFile) { 
-                // Ensure that type exists for this PDF
-                $type = $pdfTypes[$index]['type'] ?? null; // Get the type of the current PDF from the types array
-
-                // Store the PDF file
+            if (isset($pdfData['pdf']) ) {
+                $pdf = $pdfData['pdf']; // This will be an instance of UploadedFile
                 $pdfPath = $pdf->store('pdfs', 'public');
-                
-                // Log the file path and type for debugging
+
+                // Retrieve the 'type' for the specific PDF
+                $type = $pdfData['type'] ?? null;
+
                 Log::info("Storing PDF", [
                     'pdf_path' => $pdfPath,
                     'type' => $type,
                 ]);
 
-                // Store the data in the database
+                // Store the PDF data in the database
                 Pdfs::create([
                     'profile_id' => $profile->id,
                     'pdf_path' => $pdfPath,
