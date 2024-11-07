@@ -42,8 +42,9 @@ class Smart_QRCodeController extends Controller
             'images.*' => 'nullable|file|mimes:jpeg,png,jpg',
             'mp3' => 'nullable|array',
             'mp3.*' => 'nullable|file',
-            'pdfs' => 'nullable|array',
-            'pdfs.*' => 'nullable|file',
+         'pdfs' => 'nullable|array',
+            'pdfs.*.pdf' => 'nullable|file',
+            'pdfs.*.type' => 'nullable|string',
             'event_date' => 'nullable',
             'event_time' => 'nullable',
             'location' => 'nullable|string',
@@ -115,13 +116,20 @@ class Smart_QRCodeController extends Controller
 
 
 
-        if ($request->has('pdfs')) {
-            foreach ($request->file('pdfs') as $pdf) {
-                $pdfPath = $pdf->store('pdfs', 'public');
-                Pdfs::create(['profile_id' => $profile->id, 'pdf_path' => $pdfPath]);
-            }
+    if ($request->has('pdfs')) {
+        foreach ($request->file('pdfs') as $index => $pdf) {
+            $pdfPath = $pdf->store('pdfs', 'public');
+            
+         
+            $type = $request->input("pdfs.$index.type"); 
+    
+            Pdfs::create([
+                'profile_id' => $profile->id,
+                'pdf_path' => $pdfPath,
+                'type' => $type, 
+            ]);
         }
-
+    }
         if (!empty($validatedData['event_date'])) {
             events::create([
                 'profile_id' => $profile->id,
