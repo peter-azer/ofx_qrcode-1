@@ -116,7 +116,7 @@ class Smart_QRCodeController extends Controller
 
    Log::info("Full request data:", $request->all());
 
-  if ($request->hasFile('pdfs')) {
+  if ($request->File('pdfs')) {
     Log::info('PDFs exist:', $request->file('pdfs'));
 } else {
     Log::info('No files found under "pdfs".');
@@ -126,7 +126,7 @@ class Smart_QRCodeController extends Controller
 
 
 
-if ($request->hasFile('pdfs')) {
+if ($request->has('pdfs')) {
     Log::info("Request pdfs data:", ['pdfs' => $request->input('pdfs')]);
     $pdfFiles = $request->file('pdfs');
     $pdfTypes = $request->input('pdfs'); 
