@@ -69,9 +69,11 @@ class CodeController extends Controller
         if ($code->type === 'used') {
             return response()->json(['message' => 'Code is already used.'], 400);
         }
-        Log::info('Code package_id: ' . $code->package_id);
-        Log::info('Request package_id: ' . $request->package_id);
-        if ($code->package_id !== $request->package_id) {
+        // Log::info('Code package_id: ' . $code->package_id);
+        // Log::info('Request package_id: ' . $request->package_id);
+
+
+        if ((int)$code->package_id !== (int)$request->package_id) {
             return response()->json(['message' => 'Package mismatch.'], 400);
         }
 
