@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\code;
-
+use Illuminate\Support\Facades\Log;
 class CodeController extends Controller
 {
 
