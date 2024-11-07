@@ -114,12 +114,12 @@ class Smart_QRCodeController extends Controller
     }
 
 
-    Log::info("Full request data:", $request->all());
+  
 // Assuming $validatedData contains the validated request data and $request is the original request object
 if ($request->hasFile('pdfs')) {
     Log::info("Request pdfs data:", ['pdfs' => $request->input('pdfs')]);
     $pdfFiles = $request->file('pdfs');
-    $pdfTypes = $request->input('pdfs');  // Get the 'type' values as well
+    $pdfTypes = $request->input('pdfs'); 
     
     foreach ($pdfFiles as $index => $pdf) {
         if ($pdf) { 
