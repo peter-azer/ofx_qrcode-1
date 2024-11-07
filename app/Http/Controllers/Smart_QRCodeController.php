@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 // use Barryvdh\DomPDF\Facade as PDF;
-use barryvdh\DomPDF\Facade\Pdf ;
+use barryvdh\DomPDF\Facade as PDF ;
 use Barryvdh\DomPDF\PDF as DomPDFPDF;
 
 class Smart_QRCodeController extends Controller
@@ -256,7 +256,7 @@ class Smart_QRCodeController extends Controller
 
 
 
-        $pdf = Pdf::loadView('pdf.qrcode', ['qrCodeImage' => $fileName]);
+        $pdf = PDF::loadView('pdf.qrcode', ['qrCodeImage' => $fileName]);
 
         // Define the path for the PDF file
         $pdfFileName = 'qrcodes/' . uniqid() . '.pdf';
