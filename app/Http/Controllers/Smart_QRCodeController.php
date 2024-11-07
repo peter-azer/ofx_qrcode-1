@@ -44,7 +44,8 @@ class Smart_QRCodeController extends Controller
             'mp3.*' => 'nullable|file',
          'pdfs' => 'nullable|array',
             'pdfs.*' => 'nullable|file',
-            // 'pdfs.*.type' => 'nullable|string',
+        
+            'type.*' => 'required|string|max:255', 
             'event_date' => 'nullable',
             'event_time' => 'nullable',
             'location' => 'nullable|string',
@@ -115,18 +116,39 @@ class Smart_QRCodeController extends Controller
     }
 
 
+    // if ($request->hasFile('pdfs')) {
+    //     foreach ($request->file('pdfs') as $pdf) {
+    //         // Check if the file is valid before processing
+    //         if ($pdf->isValid()) {
+    //             // Store the PDF file in the 'pdfs' folder under the 'public' disk
+    //             $pdfpath = $pdf->store('pdfs', 'public');
+                
+    //             // Create a new record in the 'images' table with the profile_id and pdf_path
+    //             pdfs::create([
+    //                 'profile_id' => $profile->id,
+    //                 'pdf_path' => $pdfpath,
+    //                 'type' => "menue",
+    //             ]);
+    //         }
+    //     }
+    // }
+
+
+
     if ($request->hasFile('pdfs')) {
-        foreach ($request->file('pdfs') as $pdf) {
-            // Check if the file is valid before processing
+        foreach ($request->file('pdfs') as $key => $pdf) {
             if ($pdf->isValid()) {
+                // Get the type for each specific PDF
+                $type = $request->input("type.{$key}");
+
                 // Store the PDF file in the 'pdfs' folder under the 'public' disk
                 $pdfpath = $pdf->store('pdfs', 'public');
-                
-                // Create a new record in the 'images' table with the profile_id and pdf_path
-                pdfs::create([
+
+                // Create a new record in the 'images' table with the profile_id, pdf_path, and type
+                Images::create([
                     'profile_id' => $profile->id,
                     'pdf_path' => $pdfpath,
-                    'type' => "menue",
+                    'type' => $type, // Store the 'type' sent by the user
                 ]);
             }
         }
