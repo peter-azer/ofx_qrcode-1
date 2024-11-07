@@ -134,10 +134,12 @@ if ($request->has('pdfs')) {
     foreach ($pdfFiles as $index => $pdf) {
         if ($pdf) { 
             // Store the file
-            $pdfPath = $pdf->store('pdfs', 'public');
-
-            // Retrieve 'type' using the correct index from the 'pdfs' input
-            $type = $pdfTypes[$index]['type'] ?? null;  
+            if (isset($pdfData['pdf']) && $request->hasFile("pdfs.$index.pdf")) {
+                $pdf = $request->file("pdfs.$index.pdf");
+                $pdfPath = $pdf->store('pdfs', 'public');
+                
+                // Retrieve the 'type' for the specific PDF file
+                $type = $pdfData['type'] ?? null; 
 
             // Log the file path and type for debugging
             Log::info("Storing PDF", [
