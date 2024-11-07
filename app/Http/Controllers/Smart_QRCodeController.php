@@ -116,11 +116,23 @@ class Smart_QRCodeController extends Controller
 
 
 // Assuming $validatedData contains the validated request data and $request is the original request object
-if ($request->has('pdfs')) {
-    foreach ($request->file('pdfs') as $pdf) {
-        $pdfPath = $pdf->store('pdfs', 'public');
-        Pdfs::create([
-            'profile_id' => $profile->id, 'pdf_path' => $pdfPath ,'type'=>$validatedData['type']]);
+if ($request->hasFile('pdfs')) {
+    $pdfFiles = $request->file('pdfs');
+
+    // Loop through each uploaded file
+    foreach ((array) $pdfFiles as $index => $pdf) {
+        if ($pdf) { // Check if file exists at this index
+            $pdfPath = $pdf->store('pdfs', 'public');
+
+            // Retrieve 'type' for the specific PDF file
+            $type = $request->input("pdfs.$index.type") ?? null;
+       log($pdf);
+            Pdfs::create([
+                'profile_id' => $profile->id,
+                'pdf_path' => $pdfPath,
+                'type' => $type,
+            ]);
+        }
     }
 }
 
