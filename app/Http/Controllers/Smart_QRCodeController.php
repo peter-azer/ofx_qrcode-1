@@ -228,13 +228,13 @@ class Smart_QRCodeController extends Controller
         $qrCodeLink = 'https://ofx-qrcode.com/qr/' . $uniqueName; // Replace with your custom domain
 
 
-        $qrCodeData = QrCode::format('png')
+        $qrCodeData = QrCode::format('pdf')
             ->backgroundColor(255, 255, 255)
             ->size(200)
             ->color(0, 0, 0)
             ->generate($qrCodeLink);
 
-        $fileName = 'qrcodes/' . uniqid() . '.png';
+        $fileName = 'qrcodes/' . uniqid() . '.pdf';
         Storage::disk('public')->put($fileName, $qrCodeData);
 
         $qrCode = new QrCodeModel();
