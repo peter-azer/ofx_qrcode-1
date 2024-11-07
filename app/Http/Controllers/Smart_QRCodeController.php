@@ -119,21 +119,23 @@ class Smart_QRCodeController extends Controller
 if ($request->hasFile('pdfs')) {
     Log::info("Request pdfs data:", ['pdfs' => $request->input('pdfs')]);
     $pdfFiles = $request->file('pdfs');
+    $pdfTypes = $request->input('pdfs');  // Get the 'type' values as well
+    
+    foreach ($pdfFiles as $index => $pdf) {
+        if ($pdf) { 
+            // Store the file
+            $pdfPath = $pdf->store('pdfs', 'public');
 
-   foreach ($pdfFiles as $index => $pdf) {
-    if ($pdf) { 
-      
-        $pdfPath = $pdf->store('pdfs', 'public');
+            // Retrieve 'type' using the correct index from the 'pdfs' input
+            $type = $pdfTypes[$index]['type'] ?? null;  
 
-        $type = $pdfTypes[$index]['type'] ?? null;  
+            // Log the file path and type for debugging
+            Log::info("Storing PDF", [
+                'pdf_path' => $pdfPath,
+                'type' => $type,
+            ]);
 
-        // Log the file path and type for debugging
-        Log::info("Storing PDF", [
-            'pdf_path' => $pdfPath,
-            'type' => $type,
-        ]);
-
-     
+            // Store the data in the database
             Pdfs::create([
                 'profile_id' => $profile->id,
                 'pdf_path' => $pdfPath,
@@ -142,6 +144,9 @@ if ($request->hasFile('pdfs')) {
         }
     }
 }
+
+
+    
 
         if (!empty($validatedData['event_date'])) {
             events::create([
