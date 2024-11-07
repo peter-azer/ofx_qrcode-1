@@ -115,24 +115,28 @@ class Smart_QRCodeController extends Controller
 
 
 
+// Assuming $validatedData contains the validated request data and $request is the original request object
+if ($request->has('pdfs') && is_array($request->file('pdfs'))) {
+    foreach ($request->file('pdfs') as $index => $pdf) {
+        $pdfPath = $pdf->store('pdfs', 'public');
+        
+        // Retrieve 'type' for each file from validated data
+        $type = $validatedData['pdfs'][$index]['type'] ?? null;
 
-    if ($request->has('pdfs') && is_array($request->file('pdfs'))) {
-        foreach ($request->file('pdfs') as $index => $pdf) {
-            $pdfPath = $pdf->store('pdfs', 'public');
-            
-            // Access 'type' using array syntax
-            $type = $request->input("pdfs.$index.type");
-            Log::info("Storing PDF", [
-                'pdf_path' => $pdfPath,
-                'type' => $type,
-            ]);
-            Pdfs::create([
-                'profile_id' => $profile->id,
-                'pdf_path' => $pdfPath,
-                'type' => $type,
-            ]);
-        }
+        // Log the file path and type
+        Log::info("Storing PDF", [
+            'pdf_path' => $pdfPath,
+            'type' => $type,
+        ]);
+
+        Pdfs::create([
+            'profile_id' => $profile->id,
+            'pdf_path' => $pdfPath,
+            'type' => $type,
+        ]);
     }
+}
+
         if (!empty($validatedData['event_date'])) {
             events::create([
                 'profile_id' => $profile->id,
