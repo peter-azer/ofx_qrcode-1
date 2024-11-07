@@ -120,14 +120,20 @@ if ($request->hasFile('pdfs')) {
     Log::info("Request pdfs data:", ['pdfs' => $request->input('pdfs')]);
     $pdfFiles = $request->file('pdfs');
 
-    // Loop through each uploaded file
-    foreach ((array) $pdfFiles as $index => $pdf) {
-        if ($pdf) { // Check if file exists at this index
-            $pdfPath = $pdf->store('pdfs', 'public');
+   foreach ($pdfFiles as $index => $pdf) {
+    if ($pdf) { 
+      
+        $pdfPath = $pdf->store('pdfs', 'public');
 
-            // Retrieve 'type' for the specific PDF file
-            $type = $request->input("pdfs.$index.type") ?? null;
-       log($pdf);
+        $type = $pdfTypes[$index]['type'] ?? null;  
+
+        // Log the file path and type for debugging
+        Log::info("Storing PDF", [
+            'pdf_path' => $pdfPath,
+            'type' => $type,
+        ]);
+
+     
             Pdfs::create([
                 'profile_id' => $profile->id,
                 'pdf_path' => $pdfPath,
