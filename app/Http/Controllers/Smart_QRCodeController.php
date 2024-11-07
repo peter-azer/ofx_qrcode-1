@@ -122,7 +122,10 @@ class Smart_QRCodeController extends Controller
             
             // Access 'type' using array syntax
             $type = $request->input("pdfs.$index.type");
-    
+            Log::info("Storing PDF", [
+                'pdf_path' => $pdfPath,
+                'type' => $type,
+            ]);
             Pdfs::create([
                 'profile_id' => $profile->id,
                 'pdf_path' => $pdfPath,
