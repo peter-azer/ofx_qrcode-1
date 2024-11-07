@@ -43,7 +43,7 @@ class Smart_QRCodeController extends Controller
             'mp3' => 'nullable|array',
             'mp3.*' => 'nullable|file',
          'pdfs' => 'nullable|array',
-            'pdfs.*.pdf' => 'nullable|file',
+            'pdfs.*.pdf' => 'required|file',
             'pdfs.*.type' => 'nullable|string',
             'event_date' => 'nullable',
             'event_time' => 'nullable',
@@ -114,7 +114,7 @@ class Smart_QRCodeController extends Controller
     }
 
     Log::info("Request pdfs data:", ['pdfs' => $request->input('pdfs')]);
-
+    Log::info("Received pdf files:", ['pdf_files' => $request->file('pdfs')]);
 // Assuming $validatedData contains the validated request data and $request is the original request object
 if ($request->hasFile('pdfs')) {
     $pdfFiles = $request->file('pdfs');
