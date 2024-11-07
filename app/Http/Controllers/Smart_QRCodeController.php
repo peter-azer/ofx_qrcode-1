@@ -108,6 +108,7 @@ class Smart_QRCodeController extends Controller
                 images::create([
                     'profile_id' => $profile->id,
                     'image_path' => $imagePath,
+
                 ]);
             }
         }
@@ -125,6 +126,7 @@ class Smart_QRCodeController extends Controller
                 pdfs::create([
                     'profile_id' => $profile->id,
                     'pdf_path' => $pdfpath,
+                    'type' => "menue",
                 ]);
             }
         }
