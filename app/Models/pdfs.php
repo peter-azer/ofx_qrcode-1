@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class pdfs extends Model
 {
     public $timestamps = false;
-    protected $fillable = ['profile_id', 'pdf_path'];
+    protected $fillable = ['profile_id', 'pdf_path','type'];
 
     public function profile()
     {
