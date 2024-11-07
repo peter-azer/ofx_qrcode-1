@@ -126,7 +126,7 @@ class Smart_QRCodeController extends Controller
 
 
 if ($request->has('pdfs')) {
-    Log::info("Request pdfs data:", ['pdfs' => $request->input('pdfs')]);
+    Log::info("Request pdfs data:", ['pdfs' => $request->file('pdfs')]);
 
     // Get both files and types from the request
     $pdfFiles = $request->file('pdfs'); // Files (uploaded PDFs)
@@ -135,8 +135,8 @@ if ($request->has('pdfs')) {
     // Loop through each file and type
     foreach ($pdfFiles as $index => $pdf) {
         if ($pdf) { 
-            // Ensure that type exists for this PDF
-            $type = $pdfTypes[$index]['type'] ?? null; // Get the type of the current PDF from the types array
+           
+            $type = $pdfTypes[$index]['type'] ?? null; 
 
             // Store the PDF file
             $pdfPath = $pdf->store('pdfs', 'public');
