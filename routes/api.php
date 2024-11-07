@@ -18,7 +18,7 @@ use App\Http\Controllers\CodeController;
 
 Route::post('/signup', [AuthController::class, 'signup']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::get('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::post('/forget-password', [AuthController::class, 'forgetPassword']);
 ###########################################################QR-CODE########################################################################################
 
