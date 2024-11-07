@@ -43,8 +43,8 @@ class Smart_QRCodeController extends Controller
             'mp3' => 'nullable|array',
             'mp3.*' => 'nullable|file',
          'pdfs' => 'nullable|array',
-            'pdfs.*.pdf' => 'required|file',
-            'pdfs.*.type' => 'nullable|string',
+            'pdfs.*' => 'nullable|file',
+            // 'pdfs.*.type' => 'nullable|string',
             'event_date' => 'nullable',
             'event_time' => 'nullable',
             'location' => 'nullable|string',
@@ -112,9 +112,28 @@ class Smart_QRCodeController extends Controller
             }
         }
     }
+
+
+    if ($request->hasFile('pdfs')) {
+        foreach ($request->file('pdfs') as $pdf) {
+            // Check if the file is valid before processing
+            if ($pdf->isValid()) {
+                // Store the PDF file in the 'pdfs' folder under the 'public' disk
+                $pdfpath = $pdf->store('pdfs', 'public');
+                
+                // Create a new record in the 'images' table with the profile_id and pdf_path
+                pdfs::create([
+                    'profile_id' => $profile->id,
+                    'pdf_path' => $pdfpath,
+                ]);
+            }
+        }
+    }
+
+
     // Log::info("File data from request:", ['pdfs' => $request->file('pdfs')]);
 
-   Log::info("Full request data:", $request->all());
+//    Log::info("Full request data:", $request->all());
 
 //   if ($request->File('pdfs')) {
 //     Log::info('PDFs exist:', $request->file('pdfs'));
@@ -125,44 +144,53 @@ class Smart_QRCodeController extends Controller
 
 
 
-if ($request->has('pdfs')) {
-    Log::info("Request pdfs data:", ['pdfs' => $request->file('pdfs')]);
 
-    // Get both files and types from the request
-    $pdfFiles = $request->file('pdfs'); // Files (uploaded PDFs)
-    $pdfTypes = $request->input('pdfs'); // Type data (type for each PDF)
 
-    if (is_array($pdfFiles)) {
-        // Loop through each file and type
-        foreach ($pdfFiles as $index => $pdf) {
-            if (isset($pdfData['pdf']) ) {
-                $pdf = $pdfData['pdf']; // This will be an instance of UploadedFile
-                $pdfPath = $pdf->store('pdfs', 'public');
 
-                // Retrieve the 'type' for the specific PDF
-                $type = $pdfData['type'] ?? null;
 
-                Log::info("Storing PDF", [
-                    'pdf_path' => $pdfPath,
-                    'type' => $type,
-                ]);
 
-                // Store the PDF data in the database
-                Pdfs::create([
-                    'profile_id' => $profile->id,
-                    'pdf_path' => $pdfPath,
-                    'type' => $type,
-                ]);
-            } else {
-                Log::warning("The provided file is not an instance of UploadedFile.", ['file' => $pdf]);
-            }
-        }
-    } else {
-        Log::warning("pdfs is not an array.");
-    }
-} else {
-    Log::warning("No 'pdfs' found in the request.");
-}
+
+
+
+
+// if ($request->has('pdfs')) {
+//     Log::info("Request pdfs data:", ['pdfs' => $request->file('pdfs')]);
+
+//     // Get both files and types from the request
+//     $pdfFiles = $request->file('pdfs'); // Files (uploaded PDFs)
+//     $pdfTypes = $request->input('pdfs'); // Type data (type for each PDF)
+
+//     if (is_array($pdfFiles)) {
+//         // Loop through each file and type
+//         foreach ($pdfFiles as $index => $pdf) {
+//             if (isset($pdfData['pdf']) ) {
+//                 $pdf = $pdfData['pdf']; // This will be an instance of UploadedFile
+//                 $pdfPath = $pdf->store('pdfs', 'public');
+
+//                 // Retrieve the 'type' for the specific PDF
+//                 $type = $pdfData['type'] ?? null;
+
+//                 Log::info("Storing PDF", [
+//                     'pdf_path' => $pdfPath,
+//                     'type' => $type,
+//                 ]);
+
+//                 // Store the PDF data in the database
+//                 Pdfs::create([
+//                     'profile_id' => $profile->id,
+//                     'pdf_path' => $pdfPath,
+//                     'type' => $type,
+//                 ]);
+//             } else {
+//                 Log::warning("The provided file is not an instance of UploadedFile.", ['file' => $pdf]);
+//             }
+//         }
+//     } else {
+//         Log::warning("pdfs is not an array.");
+//     }
+// } else {
+//     Log::warning("No 'pdfs' found in the request.");
+// }
 
         if (!empty($validatedData['event_date'])) {
             events::create([
