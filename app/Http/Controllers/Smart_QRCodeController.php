@@ -145,7 +145,7 @@ class Smart_QRCodeController extends Controller
                 $pdfpath = $pdf->store('pdfs', 'public');
 
                 // Create a new record in the 'images' table with the profile_id, pdf_path, and type
-                Images::create([
+                pdfs::create([
                     'profile_id' => $profile->id,
                     'pdf_path' => $pdfpath,
                     'type' => $type, // Store the 'type' sent by the user
