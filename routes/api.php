@@ -123,7 +123,7 @@ Route::get('/code/check/{package_id}', [CodeController::class, 'checkUserCodeSta
 });
 
 
-Route::post('/addcode', [CodeController::class, 'store']);
+Route::post('/addcode/{package_id}', [CodeController::class, 'store']);
 
 
 

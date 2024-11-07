@@ -11,7 +11,7 @@ use App\Models\code;
 class CodeController extends Controller
 {
 
-    public function store(Request $request)
+    public function store(Request $request,$packege )
     {
         // Custom validation messages
         $messages = [
@@ -34,7 +34,7 @@ class CodeController extends Controller
            // Initialize with an empty string
             'expires_at' => $request->expires_at,
             'user_id' => '0',
-            'package_id' => '0',
+            'package_id' => $packege,
 
         ]);
 
