@@ -70,6 +70,10 @@ class CodeController extends Controller
             return response()->json(['message' => 'Code is already used.'], 400);
         }
 
+        if ($code->package_id !== $request->package_id) {
+            return response()->json(['message' => 'Package mismatch.'], 400);
+        }
+
         // Check if the user is already subscribed to the package
         $existingSubscription = Code::where('user_id', $user->id)
             ->where('package_id', $request->package_id)
@@ -83,7 +87,7 @@ class CodeController extends Controller
         // If the code type is 'notused', update fields and set type to 'used'
         if ($code->type === 'notused') {
             $code->user_id = $user->id;
-            $code->package_id = $request->package_id;
+            // $code->package_id = $request->package_id;
             $code->type = 'used';
             $code->save();
 
