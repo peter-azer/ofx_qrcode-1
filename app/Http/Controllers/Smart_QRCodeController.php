@@ -17,6 +17,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+// use Barryvdh\DomPDF\Facade as PDF;
+use barryvdh\DomPDF\Facade\Pdf ;
+use Barryvdh\DomPDF\PDF as DomPDFPDF;
+
 class Smart_QRCodeController extends Controller
 {
     public function generatesmartQRCodev2(Request $request)
@@ -228,25 +232,43 @@ class Smart_QRCodeController extends Controller
         $qrCodeLink = 'https://ofx-qrcode.com/qr/' . $uniqueName; // Replace with your custom domain
 
 
-        $qrCodeData = QrCode::format('pdf')
+        $qrCodeData = QrCode::format('png')
             ->backgroundColor(255, 255, 255)
             ->size(200)
             ->color(0, 0, 0)
             ->generate($qrCodeLink);
 
-        $fileName = 'qrcodes/' . uniqid() . '.pdf';
-        Storage::disk('public')->put($fileName, $qrCodeData);
+        $fileName = 'qrcodes/' . uniqid() . '.png';
+        // Storage::disk('public')->put($fileName, $qrCodeData);
 
         $qrCode = new QrCodeModel();
 
         $qrCode->profile_id = $profile->id;
         $qrCode->user_id = $user->id;
-        $qrCode->qrcode = $fileName;
+        // $qrCode->qrcode = $fileName;
         $qrCode->link = $qrCodeLink;
         $qrCode->package_id = $validatedData['package_id']?? null;
         $qrCode->scan_count = 0;
         $qrCode->is_active = true;
+
+
+
+
+
+
+        $pdf = Pdf::loadView('pdf.qrcode', ['qrCodeImage' => $fileName]);
+
+        // Define the path for the PDF file
+        $pdfFileName = 'qrcodes/' . uniqid() . '.pdf';
+    
+        // Save the generated PDF to public storage
+        $pdf->save(storage_path('app/public/' . $pdfFileName));
+    
+        // Save the PDF path instead of the image file path in the database
+        $qrCode->qrcode = $pdfFileName; // Save the PDF path here
         $qrCode->save();
+    
+       
 
         return response()->json([
             'message' => 'QR code generated successfully',
