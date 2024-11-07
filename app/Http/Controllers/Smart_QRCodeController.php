@@ -120,7 +120,7 @@ class Smart_QRCodeController extends Controller
         foreach ($request->file('pdfs') as $index => $pdf) {
             $pdfPath = $pdf->store('pdfs', 'public');
             
-            // Retrieve the 'type' value for each PDF file
+            // Access 'type' using array syntax
             $type = $request->input("pdfs.$index.type");
     
             Pdfs::create([
