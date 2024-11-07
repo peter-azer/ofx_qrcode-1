@@ -132,34 +132,38 @@ if ($request->has('pdfs')) {
     $pdfFiles = $request->file('pdfs'); // Files (uploaded PDFs)
     $pdfTypes = $request->input('pdfs'); // Type data (type for each PDF)
 
-    // Loop through each file and type
-    foreach ($pdfFiles as $index => $pdf) {
-        if ($pdf) { 
-           
-            $type = $pdfTypes[$index]['type'] ?? null; 
+    if (is_array($pdfFiles)) {
+        // Loop through each file and type
+        foreach ($pdfFiles as $index => $pdf) {
+            if ($pdf instanceof \Illuminate\Http\UploadedFile) { 
+                // Ensure that type exists for this PDF
+                $type = $pdfTypes[$index]['type'] ?? null; // Get the type of the current PDF from the types array
 
-            // Store the PDF file
-            $pdfPath = $pdf->store('pdfs', 'public');
-            
-            // Log the file path and type for debugging
-            Log::info("Storing PDF", [
-                'pdf_path' => $pdfPath,
-                'type' => $type,
-            ]);
+                // Store the PDF file
+                $pdfPath = $pdf->store('pdfs', 'public');
+                
+                // Log the file path and type for debugging
+                Log::info("Storing PDF", [
+                    'pdf_path' => $pdfPath,
+                    'type' => $type,
+                ]);
 
-            // Store the data in the database
-            Pdfs::create([
-                'profile_id' => $profile->id,
-                'pdf_path' => $pdfPath,
-                'type' => $type,
-            ]);
+                // Store the data in the database
+                Pdfs::create([
+                    'profile_id' => $profile->id,
+                    'pdf_path' => $pdfPath,
+                    'type' => $type,
+                ]);
+            } else {
+                Log::warning("The provided file is not an instance of UploadedFile.", ['file' => $pdf]);
+            }
         }
+    } else {
+        Log::warning("pdfs is not an array.");
     }
 } else {
     Log::warning("No 'pdfs' found in the request.");
 }
-
-    
 
         if (!empty($validatedData['event_date'])) {
             events::create([
