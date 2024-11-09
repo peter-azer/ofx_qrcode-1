@@ -14,7 +14,117 @@ class SubscriptionController extends Controller
 {
     // Post a new subscription
 
-    public function store(Request $request)
+
+
+
+
+
+public function store(Request $request)
+{
+    // Validate the incoming request data
+    $validatedData = $request->validate([
+        'package_id' => 'required|exists:packages,id',
+        'duration' => 'required|string|in:month,three_months,year',
+    ]);
+
+    // Get the user ID from the authenticated user
+    $user = $request->user();
+
+    // Define the QR code limits for each package
+    $qrCodeLimits = [
+        1 => 10,   // Package 1 has a limit of 10 QR codes
+        2 => 50,   // Package 2 has a limit of 50 QR codes
+        3 => 100,  // Package 3 has a limit of 100 QR codes
+    ];
+
+    // Get the QR code limit for the selected package
+    $qrcodeLimit = $qrCodeLimits[$validatedData['package_id']] ?? 0; // Default to 0 if no limit is found
+
+    // Calculate the start and end dates based on the subscription duration
+    $startDate = Carbon::now();
+    $endDate = $this->calculateEndDate(clone $startDate, $validatedData['duration']);
+
+    // Check if the user already has an active package in the 'user_packages' pivot table
+    $existingPackage = $user->packages()->where('package_id', $validatedData['package_id'])->first();
+
+    if ($existingPackage) {
+        return response()->json(['message' => 'User is already subscribed to this package'], 400);
+    }
+
+    // Attach the new package to the user with the provided duration and QR code limit
+    $user->packages()->attach($validatedData['package_id'], [
+        'duration' => $validatedData['duration'],
+        'qrcode_limit' => $qrcodeLimit,
+        'start_date' => $startDate,
+        'end_date' => $endDate,
+    ]);
+
+    // Return a success message with the new package details
+    return response()->json([
+        'message' => 'Package subscribed successfully.',
+        'data' => [
+            'user_id' => $user->id,
+            'package_id' => $validatedData['package_id'],
+            'duration' => $validatedData['duration'],
+            'qrcode_limit' => $qrcodeLimit,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+        ]
+    ], 201);
+}
+
+
+
+
+private function calculateEndDate(Carbon $startDate, string $duration)
+{
+    switch ($duration) {
+        case 'month':
+            return $startDate->addMonth();
+        case 'three_months':
+            return $startDate->addMonths(3);
+        case 'year':
+            return $startDate->addYear();
+        default:
+            return $startDate; // Return the start date if no duration is provided
+    }
+}
+
+
+
+
+
+public function updateQrCodeLimit(Request $request)
+{
+    $user = $request->user();
+
+    $validatedData = $request->validate([
+        'qrcode_limit' => 'required|integer|min:0', // Ensure it's a positive integer
+    ]);
+
+    // Get the user's package (package_id = 3)
+    $userPackage = $user->packages()->where('user_id' , 1)->first();
+    \Log::info('User Package:', ['user_package' => $userPackage]);
+    if (!$userPackage) {
+        return response()->json([
+            'message' => 'User does not have Package 3.',
+        ], 400);
+    }
+
+    // Update the qrcode_limit in the pivot table
+    $userPackage->pivot->qrcode_limit = $validatedData['qrcode_limit'];
+    $userPackage->pivot->save();
+
+    return response()->json([
+        'message' => 'QR code limit updated successfully.',
+        'data' => [
+            'user_id' => $user->id,
+            'package_id' => 3,
+            'qrcode_limit' => $validatedData['qrcode_limit'],
+        ],
+    ], 200);
+}
+    public function stores(Request $request)
     {
         // Validate the incoming request data
         $validatedData = $request->validate([
@@ -57,7 +167,7 @@ class SubscriptionController extends Controller
     {
         $user = $request->user();
         $subscriptions = Subscription::where('user_id', $user->id)->get();
-           
+
         if ($subscriptions->isEmpty()) {
             return response()->json(['message' => 'No subscriptions found for this user'], 404);
         }

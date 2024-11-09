@@ -94,8 +94,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/subscriptions', [SubscriptionController::class, 'store']); //create subscription
     Route::get('/subscriptions/validate', [SubscriptionController::class, 'validateUserSubscription']);    // Validate and disable expired subscriptions and related qrcode
     Route::get('/subscriptions/user', [SubscriptionController::class, 'getByUserId']);
-    Route::post('/subscriptions/update', [SubscriptionController::class, 'updateSubscriptionDuration']);   //renew  packagee
+    Route::post('/subscriptions/update', [SubscriptionController::class, 'updateSubscriptionDuration']);    //renew  packagee
+    Route::post('/update-qr-code-limit', [SubscriptionController::class, 'updateQrCodeLimit']);
+
 });
+
+
+
 
  // Get subscriptions by user ID
 Route::get('/subscriptions/package/{packageId}', [SubscriptionController::class, 'getByPackageId']);  // Get subscriptions by package ID    //for admin

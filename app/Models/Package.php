@@ -38,5 +38,13 @@ protected $casts = [
     }
 
 
-    
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_packages')
+                    ->withPivot('qrcode_limit') // Add pivot data like qrcode_limit
+                    ->withTimestamps(); // Automatically manage created_at and updated_at timestamps
+    }
+
+
 }

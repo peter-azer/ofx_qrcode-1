@@ -30,6 +30,20 @@ class QRCodeController extends Controller
         ]);
 
         $user = $request->user();
+
+
+        $packageId = $request->input('package_id');
+
+   $userQrCodeWithMaxScan = QrCodeModel::where('user_id', $user->id)
+   ->where('scan_count', '>=', 20)
+   ->exists();
+
+// If the user has exceeded the limit, return an error response
+if ($userQrCodeWithMaxScan) {
+   return response()->json([
+       'message' => 'You have reached the maximum scan limit of 20 for one of your QR codes.',
+   ], 400);
+}
         $link = $validatedData['link'];
 
         // Create new QR Code Model entry
@@ -412,6 +426,85 @@ class QRCodeController extends Controller
             abort(404, 'QR Code is inactive');
         }
     }
+
+
+    public function trackAndRedirectAPIv2($name, Request $request)
+{
+    $user = $request->user();
+    // Find the QR code by its link
+    $qrCodeModel = QrCodeModel::where('link', 'https://ofx-qrcode.com/qr/' . $name)->first();
+
+    // Check if the QR code exists
+    if (!$qrCodeModel) {
+        abort(404, 'QR Code not found');
+    }
+
+    // Retrieve the user's package information (assuming user has a `packages` relationship)
+    $userPackage = $user->packages()->where('package_id', $qrCodeModel->package_id)->first();
+
+    // If the user does not have the package associated with the QR code, return an error
+    if (!$userPackage) {
+        return response()->json([
+            'message' => 'User does not have the associated package for this QR code.',
+        ], 400);
+    }
+
+    // Get the qrcode_limit for the user's package
+    $qrcodeLimit = $userPackage->pivot->qrcode_limit;
+
+    // Count how many QR codes the user has created for this package
+    $userProfileCount = QrCodeModel::where('user_id', $user->id)
+        ->where('package_id', $qrCodeModel->package_id)
+        ->count();
+
+    // Check if the user has reached the QR code limit for the selected package
+    if ($userProfileCount >= $qrcodeLimit) {
+        // Deactivate the QR code if the limit is reached
+        $qrCodeModel->update(['is_active' => 0]);
+        abort(404, 'QR Code is inactive');
+        // Return a message about the profile limit being reached
+        return response()->json([
+            'message' => "You have reached the maximum profile limit of QR codes for this package.",
+        ], 400);
+    }
+
+    // Verify the scan count limit with the checkVisitorCount function
+    if ($qrCodeModel->checkVisitorCount($qrCodeModel->scan_count, $qrCodeModel->package_id)) {
+        // Increment the scan count
+        $qrCodeModel->increment('scan_count');
+
+        // Retrieve the user’s location based on IP
+        $userLocation = Location::get($request->ip());
+        if ($userLocation) {
+            // Prepare location data
+            $locationData = [
+                'ip' => $userLocation->ip ?? 'N/A',
+                'country' => $userLocation->countryName ?? 'N/A',
+                'city' => $userLocation->cityName ?? 'N/A',
+                'latitude' => $userLocation->latitude ?? null,
+                'longitude' => $userLocation->longitude ?? null,
+            ];
+
+            // Save location data to the user_location table
+            UserLocation::create([
+                'user_id' => $user->id,
+                'qrcode_id' => $qrCodeModel->id, // Link to the QR code
+                'location' => json_encode($locationData), // Store location as JSON
+            ]);
+
+            // Log location data for debugging
+            Log::info('User Location saved:', $locationData);
+        }
+
+        // Redirect to the QR code's link
+        return redirect($qrCodeModel->link);
+    } else {
+        // If scan count exceeds limit, deactivate the QR code and return a 404 error
+        $qrCodeModel->update(['is_active' => 0]);
+        abort(404, 'QR Code is inactive');
+    }
+}
+
 
 
 

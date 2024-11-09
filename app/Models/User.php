@@ -49,7 +49,12 @@ class User extends Authenticatable
         ];
     }
 
-
+   public function packages()
+    {
+        return $this->belongsToMany(Package::class, 'user_packages')
+                    ->withPivot('qrcode_limit') // Add pivot data like qrcode_limit
+                    ->withTimestamps(); // Automatically manage created_at and updated_at timestamps
+    }
 
     public function userLocations()
     {
