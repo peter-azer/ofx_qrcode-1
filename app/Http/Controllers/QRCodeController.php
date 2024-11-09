@@ -439,7 +439,6 @@ if ($userQrCodeWithMaxScan) {
         abort(404, 'QR Code not found');
     }
 
-    // Retrieve the user's package information (assuming user has a `packages` relationship)
     $userPackage = $user->packages()->where('package_id', $qrCodeModel->package_id)->first();
 
     // If the user does not have the package associated with the QR code, return an error
