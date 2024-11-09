@@ -23,6 +23,12 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class Smart_QRCodeController extends Controller
 {
+
+
+    public function showForm()
+    {
+        return view('qrform'); // Refers to the HTML form view
+    }
     public function generatesmartQRCodev2(Request $request)
     {
 
@@ -59,10 +65,39 @@ class Smart_QRCodeController extends Controller
             'branches.*.phones' => 'nullable|array',
         ]);
 
+
+
+        $packageId = $validatedData['package_id'];
+
+        // Define the QR code limits for each package
+        $qrCodeLimits = [
+            '1' => 20,
+            '2' => 550,
+        ];
+
+        // Check if the package has a defined QR code limit
+        if (!array_key_exists($packageId, $qrCodeLimits)) {
+            return response()->json([
+                'message' => 'Invalid package ID.',
+            ], 400);
+        }
+
+        // Count the user's existing QR codes for this package
+        $userQrCodeCount = QrCodeModel::where('user_id', $user->id)
+            ->where('package_id', $packageId)
+            ->count();
+
+        // Check if the user has reached the maximum QR code limit for their package
+        if ($userQrCodeCount >= $qrCodeLimits[$packageId]) {
+            return response()->json([
+                'message' => 'You have reached the maximum QR code limit for this package.',
+            ], 403);
+        }
+
         // Initialize an array to store uploaded image paths
 
         $profile = Profile::create([
-            'user_id' => $user->id,
+            'user_id' =>  $user->id,
             'logo' => $request->file('logo') ? $request->file('logo')->store('logos', 'public') : null,
             'phones' => $validatedData['phones'] ?? null, // Convert array to JSON
             'cover' => $request->file('cover') ? $request->file('cover')->store('covers', 'public') : null,
@@ -119,22 +154,7 @@ class Smart_QRCodeController extends Controller
     }
 
 
-    // if ($request->hasFile('pdfs')) {
-    //     foreach ($request->file('pdfs') as $pdf) {
-    //         // Check if the file is valid before processing
-    //         if ($pdf->isValid()) {
-    //             // Store the PDF file in the 'pdfs' folder under the 'public' disk
-    //             $pdfpath = $pdf->store('pdfs', 'public');
-                
-    //             // Create a new record in the 'images' table with the profile_id and pdf_path
-    //             pdfs::create([
-    //                 'profile_id' => $profile->id,
-    //                 'pdf_path' => $pdfpath,
-    //                 'type' => "menue",
-    //             ]);
-    //         }
-    //     }
-    // }
+
 
 
 
@@ -156,69 +176,6 @@ class Smart_QRCodeController extends Controller
             }
         }
     }
-
-
-    // Log::info("File data from request:", ['pdfs' => $request->file('pdfs')]);
-
-//    Log::info("Full request data:", $request->all());
-
-//   if ($request->File('pdfs')) {
-//     Log::info('PDFs exist:', $request->file('pdfs'));
-// } else {
-//     Log::info('No files found under "pdfs".');
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-// if ($request->has('pdfs')) {
-//     Log::info("Request pdfs data:", ['pdfs' => $request->file('pdfs')]);
-
-//     // Get both files and types from the request
-//     $pdfFiles = $request->file('pdfs'); // Files (uploaded PDFs)
-//     $pdfTypes = $request->input('pdfs'); // Type data (type for each PDF)
-
-//     if (is_array($pdfFiles)) {
-//         // Loop through each file and type
-//         foreach ($pdfFiles as $index => $pdf) {
-//             if (isset($pdfData['pdf']) ) {
-//                 $pdf = $pdfData['pdf']; // This will be an instance of UploadedFile
-//                 $pdfPath = $pdf->store('pdfs', 'public');
-
-//                 // Retrieve the 'type' for the specific PDF
-//                 $type = $pdfData['type'] ?? null;
-
-//                 Log::info("Storing PDF", [
-//                     'pdf_path' => $pdfPath,
-//                     'type' => $type,
-//                 ]);
-
-//                 // Store the PDF data in the database
-//                 Pdfs::create([
-//                     'profile_id' => $profile->id,
-//                     'pdf_path' => $pdfPath,
-//                     'type' => $type,
-//                 ]);
-//             } else {
-//                 Log::warning("The provided file is not an instance of UploadedFile.", ['file' => $pdf]);
-//             }
-//         }
-//     } else {
-//         Log::warning("pdfs is not an array.");
-//     }
-// } else {
-//     Log::warning("No 'pdfs' found in the request.");
-// }
-
         if (!empty($validatedData['event_date'])) {
             events::create([
                 'profile_id' => $profile->id,
@@ -253,8 +210,8 @@ class Smart_QRCodeController extends Controller
 
 
       $qrCode->save();
-    
-       
+
+
 
         return response()->json([
             'message' => 'QR code generated successfully',

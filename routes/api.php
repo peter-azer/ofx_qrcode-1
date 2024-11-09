@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\qrcodev2Controller;
 use App\Http\Controllers\Smart_QRCodeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -54,8 +55,12 @@ Route::get('/track-qr-code/{name}', [QrCodeController::class, 'trackAndRedirectA
 });
 
 Route::middleware('auth:sanctum')->post('/track-qr-code/{id}', [QrCodeController::class, 'trackQRCode']);
+#********************************************************qr-code v2*************************************************************************************************
 
-
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/profile', [qrcodev2Controller::class, 'saveProfileData']);
+    Route::post('/qr-code/{profile_id}', [qrcodev2Controller::class, 'generateQRCodeByProfileId']);
+    });
 
 
 #********************************************************USER_PROFILE*************************************************************************************************
