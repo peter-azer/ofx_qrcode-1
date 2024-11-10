@@ -589,55 +589,56 @@ if ($userQrCodeWithMaxScan) {
 
 
 
+
     public function getQrcodeByUserId(Request $request)
-    {
-        // Retrieve the authenticated user
-        $user = $request->user();
-    
-        try {
-            // Retrieve QR codes associated with the user's ID
-            $qrCodeModels = QrCodeModel::where('user_id', $user->id)->with('UserLocation', 'profile')->get();
-    
-            // Prepare an array to store QR codes with their user counts by city
-            $qrCodeData = [];
-    
-            foreach ($qrCodeModels as $qrCode) {
-                // Get scan data for each QR code grouped by city, country, and IP
-                $scanData = UserLocation::where('qrcode_id', $qrCode->id)
-                    ->selectRaw("location->>'$.ip' as ip, location->>'$.country' as country, location->>'$.city' as city")
-                    ->get();
-    
-                // Group by city and count unique devices for each city
-                $cityDeviceCounts = $scanData->groupBy('city')->map(function ($cityScans) {
-                    return $cityScans->unique('ip')->count();
-                });
-    
-                // Format the city counts as "from City: count"
-                $formattedLocations = $cityDeviceCounts->map(function ($count, $city) {
-                    return "from $city: $count";
-                })->values();
-    
-                // Add the QR code, formatted city device counts, and device count to the result array
-                $qrCodeData[] = [
-                    'qr_code' => $qrCode,
-                    'location_counts' => $formattedLocations,
-                    'device_count' => $scanData->unique('ip')->count(),  // Total unique device count
+{
+    // Retrieve the authenticated user
+    $user = $request->user();
+
+    try {
+        // Retrieve QR codes associated with the user's ID
+        $qrCodeModels = QrCodeModel::where('user_id', $user->id)->with('UserLocation','profile')->get();
+
+        // Prepare an array to store QR codes with their user counts by IP
+        $qrCodeData = [];
+        foreach ($qrCodeModels as $qrCode) {
+            // Get the scan data grouped by unique city and country
+            $scanData = UserLocation::where('qrcode_id', $qrCode->id)
+                ->selectRaw("location->>'$.ip' as ip, location->>'$.country' as country, location->>'$.city' as city")
+                ->groupBy('ip', 'country', 'city')
+                ->get();
+
+            // Calculate the unique device count (based on IP)
+            $deviceCount = $scanData->unique('ip')->count();
+
+            // Map scan data to include only city and country for each location
+            $locationData = $scanData->map(function ($scan) {
+                return [
+                    'country' => $scan->country,
+                    'city' => $scan->city,
                 ];
-            }
-    
-            // Return the QR codes with their associated user location counts by city
-            return response()->json([
-                'qr_codes' => $qrCodeData,
-            ], 200);
-    
-        } catch (ModelNotFoundException $e) {
-            // Handle the case when no QR code is found
-            return response()->json([
-                'message' => 'QR code not found for this user.'
-            ], 404);
+            });
+
+            // Add the QR code, location data, and device count to the result array
+            $qrCodeData[] = [
+                'qr_code' => $qrCode,
+                'locations' => $locationData,
+                'device_count' => $deviceCount,
+            ];
         }
+
+        // Return the QR codes with their associated user locations by city and country
+        return response()->json([
+            'qr_codes' => $qrCodeData,
+        ], 200);
+
+    } catch (ModelNotFoundException $e) {
+        // Handle the case when no QR code is found
+        return response()->json([
+            'message' => 'QR code not found for this user.'
+        ], 404);
     }
-    
+}
     // public function checkVisitorCount( $id)
     // {
     //     $qrcode = QrCodeModel::findOrFail($id);
