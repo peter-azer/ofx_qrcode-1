@@ -136,12 +136,12 @@ public function updateQrCodeLimit(Request $request)
         // Access the packages related to the user through the many-to-many relationship
         $subscriptions = $user->packages()->get();
     
-        // Check if the user has any subscriptions
+   
         if ($subscriptions->isEmpty()) {
             return response()->json(['message' => 'No subscriptions found for this user'], 404);
         }
     
-        // Return the subscriptions in JSON format
+   
         return response()->json($subscriptions);
     }
 

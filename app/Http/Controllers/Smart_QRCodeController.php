@@ -72,7 +72,7 @@ class Smart_QRCodeController extends Controller
         // Define the QR code limits for each package
         $qrCodeLimits = [
             '1' => 20,
-            '2' => 550,
+            '3' => 550,
         ];
 
         // Check if the package has a defined QR code limit
