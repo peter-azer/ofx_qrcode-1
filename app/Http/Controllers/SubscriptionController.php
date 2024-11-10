@@ -130,13 +130,18 @@ public function updateQrCodeLimit(Request $request)
     // Get subscriptions by user ID
     public function getByUserId(Request $request)
     {
+        // Retrieve the authenticated user
         $user = $request->user();
-        $subscriptions = Subscription::where('user_id', $user->id)->get();
-
+    
+        // Access the packages related to the user through the many-to-many relationship
+        $subscriptions = $user->packages()->get();
+    
+        // Check if the user has any subscriptions
         if ($subscriptions->isEmpty()) {
             return response()->json(['message' => 'No subscriptions found for this user'], 404);
         }
-
+    
+        // Return the subscriptions in JSON format
         return response()->json($subscriptions);
     }
 
