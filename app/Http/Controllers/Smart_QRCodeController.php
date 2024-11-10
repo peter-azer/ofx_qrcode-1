@@ -39,8 +39,8 @@ class Smart_QRCodeController extends Controller
             'title' => 'nullable|string',
             'description' => 'nullable|string',
             'phones' => 'nullable|array',
-            'logo' => 'nullable|file|mimes:jpeg,png,jpg,',
-            'cover' => 'nullable|file|mimes:jpeg,png,jpg',
+            'logo' => 'nullable|file',
+            'cover' => 'nullable|file',
             'color' => 'nullable|string', // Hex code
             'font' => 'nullable|string',
             'package_id' => 'nullable|string',
@@ -49,7 +49,7 @@ class Smart_QRCodeController extends Controller
             'links.*.type' => 'nullable|string', // Ensure each link has a type
 
             'images' => 'nullable|array',
-            'images.*' => 'nullable|file|mimes:jpeg,png,jpg',
+            'images.*' => 'nullable|file',
             'mp3' => 'nullable|array',
             'mp3.*' => 'nullable|file',
          'pdfs' => 'nullable|array',
