@@ -39,7 +39,7 @@ class Smart_QRCodeController extends Controller
             'title' => 'nullable|string',
             'description' => 'nullable|string',
             'phones' => 'nullable|array',
-            'logo' => 'nullable|file|mimes:jpeg,png,jpg',
+            'logo' => 'nullable|file|mimes:jpeg,png,jpg,',
             'cover' => 'nullable|file|mimes:jpeg,png,jpg',
             'color' => 'nullable|string', // Hex code
             'font' => 'nullable|string',
