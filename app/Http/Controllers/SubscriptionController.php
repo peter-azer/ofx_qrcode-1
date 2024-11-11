@@ -31,25 +31,25 @@ public function store(Request $request)
     $user = $request->user();
 
     // Define the QR code limits for each package
-    $qrCodeLimits = [
-        1 => 10,   // Package 1 has a limit of 10 QR codes
-        2 => 50,   // Package 2 has a limit of 50 QR codes
-        3 => 100,  // Package 3 has a limit of 100 QR codes
-    ];
+    // $qrCodeLimits = [
+    //     1 => 10,   // Package 1 has a limit of 10 QR codes
+    //     2 => 50,   // Package 2 has a limit of 50 QR codes
+    //     3 => 100,  // Package 3 has a limit of 100 QR codes
+    // ];
 
     // Get the QR code limit for the selected package
-    $qrcodeLimit = $qrCodeLimits[$validatedData['package_id']] ?? 0; // Default to 0 if no limit is found
-
+    $package = Package::find($validatedData['package_id']);// Default to 0 if no limit is found
+    $qrcodeLimit = $package->max_qrcode ?? 0;
     // Calculate the start and end dates based on the subscription duration
     $startDate = Carbon::now();
     $endDate = $this->calculateEndDate(clone $startDate, $validatedData['duration']);
 
-    // Check if the user already has an active package in the 'user_packages' pivot table
-    $existingPackage = $user->packages()->where('package_id', $validatedData['package_id'])->first();
+   // Check if the user already has an active package in the 'user_packages' pivot table
+   $existingPackage = $user->packages()->first();
 
-    if ($existingPackage) {
-        return response()->json(['message' => 'User is already subscribed to this package'], 400);
-    }
+   if ($existingPackage) {
+       return response()->json(['message' => 'User is already subscribed'], 400);
+   }
 
     // Attach the new package to the user with the provided duration and QR code limit
     $user->packages()->attach($validatedData['package_id'], [

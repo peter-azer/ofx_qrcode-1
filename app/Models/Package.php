@@ -28,7 +28,7 @@ protected $casts = [
         'features_ar',
         'price_dollar',
         'price_EGP',
-        'max_visitor',
+        'max_qrcode',
     ];
 
 
