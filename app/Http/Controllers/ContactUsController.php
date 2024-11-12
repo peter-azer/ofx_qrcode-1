@@ -17,7 +17,7 @@ class ContactUsController extends Controller
 
         Mail::raw($validatedData['message'], function ($message) use ($validatedData) {
             $message->to('ofxqrcod@ofx-qrcode.com')
-                    ->from(config('mail.from.address'), config('mail.from.name')) // Use the 'from' address from .env
+                    ->from($validatedData['email']) // Use the 'from' address from .env
                     ->replyTo($validatedData['email']) // Set reply-to as the user's email
                     ->subject('Contact Us Message');
         });
