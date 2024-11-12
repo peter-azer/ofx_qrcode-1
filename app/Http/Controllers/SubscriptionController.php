@@ -102,7 +102,7 @@ public function updateQrCodeLimit(Request $request)
     ]);
 
     // Get the user's package (package_id = 3)
-    $userPackage = $user->packages()->where('user_id' , 1)->first();
+    $userPackage = $user->packages()->where('user_id' , $user->id)->first();
     // \Log::info('User Package:', ['user_package' => $userPackage]);
     if (!$userPackage) {
         return response()->json([
@@ -119,12 +119,66 @@ public function updateQrCodeLimit(Request $request)
         'message' => 'QR code limit updated successfully.',
         'data' => [
             'user_id' => $user->id,
-            'package_id' => 3,
+            'package_id' =>   $userPackage->pivot->package_id,
             'is_enable' => 1,
             'qrcode_limit' => $validatedData['qrcode_limit'],
         ],
     ], 200);
 }
+
+
+
+
+
+public function renewUserPackage(Request $request)
+{
+    $user = $request->user();
+
+    // Validate the request data
+    $validatedData = $request->validate([
+        'package_id' => 'required|integer|exists:packages,id',
+    ]);
+
+    // Find the new package by ID
+    $newPackage = Package::find($validatedData['package_id']);
+
+    if (!$newPackage) {
+        return response()->json([
+            'message' => 'The specified package does not exist.',
+        ], 400);
+    }
+
+    // Update or attach the package to the user
+    $userPackage = $user->packages()->where('user_id', $user->id)->first();
+
+    if ($userPackage) {
+        // Update the existing pivot entry if the user already has a package
+        $userPackage->pivot->package_id = $newPackage->id;
+        $userPackage->pivot->qrcode_limit = $newPackage->max_qrcode; // Reset to new package's max QR code limit
+        $userPackage->pivot->is_enable = '1';
+        $userPackage->pivot->save();
+    } else {
+        // Attach the package if no package exists for this user
+        $user->packages()->attach($newPackage->id, [
+            'qrcode_limit' => $newPackage->max_qrcode,
+            'is_enable' => '1'
+        ]);
+    }
+
+    // Update the user's QR codes to be active
+    QrCodeModel::where('user_id', $user->id)->update(['is_active' => 1]);
+
+    return response()->json([
+        'message' => 'User package renewed successfully.',
+        'data' => [
+            'user_id' => $user->id,
+            'package_id' => $newPackage->id,
+            'is_enable' => 1,
+            'qrcode_limit' => $newPackage->max_qrcode,
+        ],
+    ], 200);
+}
+
 
 
     // Get subscriptions by user ID

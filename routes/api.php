@@ -14,6 +14,8 @@ use App\Http\Controllers\UserLocationController;
 use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\CodeController;
+use App\Http\Controllers\ContactUsController;
+
 ###########################################################USER_AUTH########################################################################################
 
 
@@ -73,6 +75,7 @@ Route::get('/profile/qrcode/{qrCodeName}', [UserProfileController::class, 'getPr
 #********************************************************USER_location*************************************************************************************************
 
 
+
 Route::get('user-locations/{user_id}/{qrcode_id}', [UserLocationController::class, 'getUserLocationByUserIdAndQRCodeId']);
 Route::post('/track/{id}', [UserLocationController::class, 'trackQRCode']);
 ###########################################################Package########################################################################################
@@ -96,6 +99,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/subscriptions/user', [SubscriptionController::class, 'getByUserId']);
     Route::post('/Upgrade-QR-Duration', [SubscriptionController::class, 'updateSubscriptionDuration']);    //renew  packagee
     Route::post('/Upgrade-QRlimit', [SubscriptionController::class, 'updateQrCodeLimit']);
+    Route::post('/Upgrade-package', [SubscriptionController::class, 'renewUserPackage']);
+  
 
 });
 
@@ -145,3 +150,8 @@ Route::post('/addcode/{package_id}', [CodeController::class, 'store']);
 use App\Http\Controllers\RecordController;
 
 Route::post('/records', [RecordController::class, 'store']);
+
+
+
+
+Route::post('/contact-us', [ContactUsController::class, 'store']);
