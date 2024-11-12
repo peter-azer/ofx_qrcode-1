@@ -17,7 +17,7 @@ class ContactUsController extends Controller
 
         // Send an email to fayezmostafa@gmail.com
         Mail::raw($validatedData['message'], function ($message) use ($validatedData) {
-            $message->to('mainaccount@ofx-qrcode.com')
+            $message->to('fayezmostafa51@gmail.com')
                     ->from($validatedData['email'])
                     ->subject('Contact Us Message');
         });
