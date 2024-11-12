@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\contact_us;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -17,9 +18,9 @@ class ContactUsController extends Controller
 
         Mail::raw($validatedData['message'], function ($message) use ($validatedData) {
             $message->to('ofxqrcod@ofx-qrcode.com')
-                    ->from($validatedData['email']) // Use the 'from' address from .env
-                    ->replyTo($validatedData['email']) // Set reply-to as the user's email
-                    ->subject('Contact Us Message');
+                ->from($validatedData['email']) // Use the 'from' address from .env
+                ->replyTo($validatedData['email']) // Set reply-to as the user's email
+                ->subject('OFX_QrCode Contact Us ');
         });
 
         // Save the message to the ContactUs model
