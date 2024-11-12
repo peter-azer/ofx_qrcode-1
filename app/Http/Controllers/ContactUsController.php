@@ -15,10 +15,10 @@ class ContactUsController extends Controller
             'message' => 'required|string',
         ]);
 
-        // Send an email to fayezmostafa@gmail.com
         Mail::raw($validatedData['message'], function ($message) use ($validatedData) {
             $message->to('ofxqrcod@ofx-qrcode.com')
-                    ->from($validatedData['email'])
+                    ->from(config('mail.from.address'), config('mail.from.name')) // Use the 'from' address from .env
+                    ->replyTo($validatedData['email']) // Set reply-to as the user's email
                     ->subject('Contact Us Message');
         });
 
