@@ -39,17 +39,17 @@ use Illuminate\Support\Facades\URL;
             // Logo URL
             $logoUrl = 'https://backend.ofx-qrcode.com/storage/ofxqr-logo/OFX-QR%20logo.png'; // The logo URL
     
-            // Return the email content directly using MailMessage
-            return (new MailMessage)
-                ->from('no-reply@ofx-qrcode.com', 'OFXQRCode') // Set the sender email and name
-                ->subject('Reset Password Notification')
-                ->line('You are receiving this email because we received a password reset request for your account.')
-                ->line('Click the button below to reset your password:')
-                ->action('Reset Password', $resetUrl)
-                ->line('If you did not request a password reset, no further action is required.')
-                ->line('Thanks,')
-                ->line('OFXQRCode')
-                ->line("<img src='{$logoUrl}' alt='OFX QR Code Logo' style='max-width: 200px; height: auto;'>"); // Embed logo directly
-        }
-
+           // Return the email content with your custom logo and reset password link
+           return (new MailMessage)
+           ->from('no-reply@ofx-qrcode.com', 'OFXQRCode')
+           ->subject('Reset Password Notification')
+           // Remove default Laravel logo and greeting
+           ->line("<img src='{$logoUrl}' alt='OFX QR Code Logo' style='max-width: 200px; height: auto;'>")
+           ->line('You are receiving this email because we received a password reset request for your account.')
+           ->line('Click the button below to reset your password:')
+           ->action('Reset Password', $resetUrl) // Button that links to the reset URL
+           ->line('If you did not request a password reset, no further action is required.')
+           ->line('Thanks,')
+           ->line('OFXQRCode');
+   }
     }
