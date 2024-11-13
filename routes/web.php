@@ -28,3 +28,6 @@ Route::post('/save-profile', [qrcodev2Controller::class, 'saveProfileData'])->na
 use Illuminate\Support\Facades\Auth;
 
 Auth::routes();
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
