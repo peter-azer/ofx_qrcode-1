@@ -1,4 +1,4 @@
-php>
+
 
 <!-- resources/views/vendor/notifications/email.blade.php -->
 
