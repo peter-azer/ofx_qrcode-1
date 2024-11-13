@@ -15,7 +15,7 @@ use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\CodeController;
 use App\Http\Controllers\ContactUsController;
-
+use App\Http\Controllers\ForgotPasswordController;
 ###########################################################USER_AUTH########################################################################################
 
 
@@ -27,6 +27,8 @@ Route::post('/forget-password', [AuthController::class, 'forgetPassword']);
 Route::post('/signup', [AuthController::class, 'sendVerificationCode']);
 // Route::get('/verify-code', [AuthController::class, 'verifyCode']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
 
 ###########################################################QR-CODE########################################################################################
 
@@ -162,7 +164,5 @@ Route::post('/records', [RecordController::class, 'store']);
 Route::post('/contact-us', [ContactUsController::class, 'store']);
 // routes/api.php
 
-use App\Http\Controllers\ForgotPasswordController;
 
-Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
-Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
+
