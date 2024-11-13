@@ -23,3 +23,8 @@ Route::get('/profile', function () {
 })->name('profile');
 
 Route::post('/save-profile', [qrcodev2Controller::class, 'saveProfileData'])->name('saveProfileData');
+
+
+use Illuminate\Support\Facades\Auth;
+
+Auth::routes();
