@@ -23,15 +23,16 @@ class AuthController extends Controller
 
 
 
-
     public function verifyCode(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
             'verification_code' => 'required|string',
+            'phone' => 'required|string|unique:users',  // Ensure phone is unique
+            'password' => 'required|string|min:6',      // Password validation
         ]);
     
-        // Check if the verification code is valid and not expired
+        // Verify if the code is valid and not expired
         $record = DB::table('email_verifications')
                     ->where('email', $request->email)
                     ->where('verification_code', $request->verification_code)
@@ -42,11 +43,17 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid or expired verification code'], 400);
         }
     
-        // Verification successful
-        // (Optionally, you can delete the code from the table here if it's a one-time use code)
+        // Create user account after successful verification
+        $user = User::create([
+            'phone' => $request->phone,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+    
+        // Optionally delete the verification record after use
         DB::table('email_verifications')->where('email', $request->email)->delete();
     
-        return response()->json(['message' => 'Email verified successfully'], 200);
+        return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);
     }
     
 
@@ -54,31 +61,35 @@ class AuthController extends Controller
 
 
 
-
-
-public function sendVerificationCode(Request $request)
-{
-    $request->validate([
-        'email' => 'required|email|unique:users,email',
-    ]);
-
-    $code = Str::random(6);
-    // Store the code in the email_verifications table
-    DB::table('email_verifications')->updateOrInsert(
-        ['email' => $request->email],
-        [
-            'verification_code' => $code,
-            'expires_at' => Carbon::now()->addMinutes(10),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-        ]
-    );
-
-    // Send the verification code via email
-    Mail::to($request->email)->send(new EmailVerificationCode($code));
-
-    return response()->json(['message' => 'Verification code sent to your email'], 200);
-}
+    public function sendVerificationCode(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|unique:users,email',
+            'phone' => 'required|string|unique:users',
+            'password' => 'required|string|min:6',
+        ]);
+    
+        $code = Str::random(6);
+    
+        // Store the code and temporary user data in the email_verifications table
+        DB::table('email_verifications')->updateOrInsert(
+            ['email' => $request->email],
+            [
+                'verification_code' => $code,
+                'expires_at' => Carbon::now()->addMinutes(10),
+                'phone' => $request->phone,
+                'password' => Hash::make($request->password),  // Store hashed password
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]
+        );
+    
+        // Send the verification code via email
+        Mail::to($request->email)->send(new EmailVerificationCode($code));
+    
+        return response()->json(['message' => 'Verification code sent to your email'], 200);
+    }
+    
 
 
 public function signup(Request $request)
