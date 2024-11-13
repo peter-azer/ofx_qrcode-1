@@ -1,9 +1,12 @@
-// resources/views/emails/reset_password.blade.php
+php>
+
+<!-- resources/views/vendor/notifications/email.blade.php -->
 
 @component('mail::message')
 # Password Reset
 
-![Logo]({{ $logoUrl }})
+<!-- Replace the default Laravel logo with your custom logo -->
+![Logo](https://backend.ofx-qrcode.com/storage/ofxqr-logo/OFX-QR%20logo.png)
 
 You are receiving this email because we received a password reset request for your account.
 
@@ -13,6 +16,6 @@ Reset Password
 
 If you did not request a password reset, no further action is required.
 
-Thanks,<br>
+Thanks,  
 OFXQRCode
 @endcomponent
