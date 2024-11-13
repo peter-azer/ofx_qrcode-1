@@ -8,11 +8,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Notifications\ResetPasswordNotification;
 
+use Illuminate\Support\Facades\DB;
 class ForgotPasswordController extends Controller
 {
     // Step 1: Send Password Reset Link
-    public function sendResetLinkEmail(Request $request)
+    public function sendRwesetLinkEmail(Request $request)
     {
         $request->validate(['email' => 'required|email|exists:users,email']);
 
@@ -48,4 +50,28 @@ class ForgotPasswordController extends Controller
             ? response()->json(['message' => 'Password reset successful.'], 200)
             : response()->json(['message' => 'Invalid token or email.'], 400);
     }
+
+
+
+
+
+
+    
+    public function sendResetLinkEmail(Request $request)
+    {
+        $request->validate(['email' => 'required|email|exists:users,email']);
+    
+        // Get the user by email
+        $user = User::where('email', $request->email)->first();
+    
+        // Generate the password reset token
+        $token = Password::createToken($user);
+    
+        // Send the custom reset password notification
+        $user->notify(new ResetPasswordNotification($token, $request->email));
+    
+        return response()->json(['message' => 'Password reset link sent.'], 200);
+    }
+    
+
 }
