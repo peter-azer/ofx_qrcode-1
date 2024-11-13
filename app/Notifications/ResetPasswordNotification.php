@@ -24,6 +24,11 @@ use Illuminate\Support\Facades\URL;
          $this->email = $email;
      }
  
+
+     public function via($notifiable)
+     {
+         return ['mail'];  // Send this notification via email
+     }
      public function toMail($notifiable)
      {
          // Custom reset URL with your desired base URL
