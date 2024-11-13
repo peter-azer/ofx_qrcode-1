@@ -28,11 +28,9 @@ class AuthController extends Controller
         $request->validate([
             'email' => 'required|email',
             'verification_code' => 'required|string',
-            'phone' => 'required|string|unique:users',  // Ensure phone is unique
-            'password' => 'required|string|min:6',      // Password validation
         ]);
     
-        // Verify if the code is valid and not expired
+        // Check if the verification code is valid and not expired
         $record = DB::table('email_verifications')
                     ->where('email', $request->email)
                     ->where('verification_code', $request->verification_code)
@@ -43,19 +41,18 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid or expired verification code'], 400);
         }
     
-        // Create user account after successful verification
+        // Verification successful, create the user with the stored data
         $user = User::create([
-            'phone' => $request->phone,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'email' => $record->email,
+            'phone' => $record->phone,
+            'password' => $record->password,  // Already hashed
         ]);
     
-        // Optionally delete the verification record after use
+        // Optionally delete the verification record after successful verification
         DB::table('email_verifications')->where('email', $request->email)->delete();
     
         return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);
     }
-    
 
 
 
