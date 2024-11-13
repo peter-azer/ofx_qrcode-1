@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 // app/Http/Controllers/AuthController.php
 
 
+use App\Mail\EmailVerificationCode;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -15,8 +19,93 @@ use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
+
+
+
+
+
+    public function verifyCode(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'verification_code' => 'required|string',
+        ]);
+    
+        // Check if the verification code is valid and not expired
+        $record = DB::table('email_verifications')
+                    ->where('email', $request->email)
+                    ->where('verification_code', $request->verification_code)
+                    ->where('expires_at', '>', Carbon::now())
+                    ->first();
+    
+        if (!$record) {
+            return response()->json(['message' => 'Invalid or expired verification code'], 400);
+        }
+    
+        // Verification successful
+        // (Optionally, you can delete the code from the table here if it's a one-time use code)
+        DB::table('email_verifications')->where('email', $request->email)->delete();
+    
+        return response()->json(['message' => 'Email verified successfully'], 200);
+    }
+    
+
+
+
+
+
+
+
+public function sendVerificationCode(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email|unique:users,email',
+    ]);
+
+    $code = Str::random(6);
+    // Store the code in the email_verifications table
+    DB::table('email_verifications')->updateOrInsert(
+        ['email' => $request->email],
+        [
+            'verification_code' => $code,
+            'expires_at' => Carbon::now()->addMinutes(10),
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]
+    );
+
+    // Send the verification code via email
+    Mail::to($request->email)->send(new EmailVerificationCode($code));
+
+    return response()->json(['message' => 'Verification code sent to your email'], 200);
+}
+
+
+public function signup(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'phone' => 'required|string|unique:users',
+        'email' => 'required|string|email|unique:users',
+        'password' => 'required|string|min:6',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation Error',
+            'errors' => $validator->errors(),
+        ], 400);
+    }
+
+    // Send verification code to the user's email
+    $this->sendVerificationCode($request);
+
+    return response()->json(['message' => 'Verification code sent to your email. Please verify to complete registration.'], 200);
+}
+
+
     // Sign up method
-    public function signup(Request $request)
+    public function signsup(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'phone' => 'required|string|unique:users',
