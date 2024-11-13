@@ -64,13 +64,12 @@ class ForgotPasswordController extends Controller
         // Get the user by email
         $user = User::where('email', $request->email)->first();
     
-        // Generate the password reset token
         $token = Password::createToken($user);
     
-        // Send the custom reset password notification
+      
         $user->notify(new ResetPasswordNotification($token, $request->email));
-    
-        return response()->json(['message' => 'Password reset link sent.'], 200);
+      
+        return response()->json(['message' => 'Password reset link sent.', '$token' =>$token], 200);
     }
     
 
