@@ -14,19 +14,21 @@ use Illuminate\Support\Facades\DB;
 class ForgotPasswordController extends Controller
 {
     // Step 1: Send Password Reset Link
-    public function sendRwesetLinkEmail(Request $request)
+    public function sendResetLinkEmail(Request $request)
     {
         $request->validate(['email' => 'required|email|exists:users,email']);
-
-        // Send reset link to the user's email
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
-
-        return $status === Password::RESET_LINK_SENT
-            ? response()->json(['message' => 'Password reset link sent.'], 200)
-            : response()->json(['message' => 'Unable to send reset link.'], 500);
+    
+        // Get the user by email
+        $user = User::where('email', $request->email)->first();
+    
+        $token = Password::createToken($user);
+    
+      
+        $user->notify(new ResetPasswordNotification($token, $request->email));
+      
+        return response()->json(['message' => 'Password reset link sent.', 'token' =>$token], 200);
     }
+    
 
     // Step 2: Reset the Password
     public function resetPassword(Request $request)
@@ -57,20 +59,6 @@ class ForgotPasswordController extends Controller
 
 
     
-    public function sendResetLinkEmail(Request $request)
-    {
-        $request->validate(['email' => 'required|email|exists:users,email']);
-    
-        // Get the user by email
-        $user = User::where('email', $request->email)->first();
-    
-        $token = Password::createToken($user);
-    
-      
-        $user->notify(new ResetPasswordNotification($token, $request->email));
-      
-        return response()->json(['message' => 'Password reset link sent.', '$token' =>$token], 200);
-    }
-    
+ 
 
 }

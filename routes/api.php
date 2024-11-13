@@ -29,9 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/generate-qrcode', [QRCodeController::class, 'generateQRCode']);
     Route::post('/generate-qrcode/whatsapp', [QRCodeController::class, 'generateWhatsappQrCode']);
     Route::post('/generate-pdf-qrcode', [QrCodeController::class, 'generatePdfQrCode']);
-Route::post('/generate-wifi-qrcode', [QrCodeController::class, 'generatewifiQrCode']);
-
-
+    Route::post('/generate-wifi-qrcode', [QrCodeController::class, 'generatewifiQrCode']);
 });
 
 Route::get('/scan_qrcode/{name}', [QrCodeController::class, 'trackAndRedirect']);
@@ -52,8 +50,8 @@ Route::delete('/qrcode/{id}', [Smart_QRCodeController::class, 'deleteQRCodeById'
 
 ###########################################################Smart_QRCode########################################################################################
 Route::middleware('auth:sanctum')->group(function () {
-Route::post('/qrcode/smart', [Smart_QRCodeController::class, 'generatesmartQRCodev2']);///unused 
-Route::get('/track-qr-code/{name}', [QrCodeController::class, 'trackAndRedirectAPI']);
+    Route::post('/qrcode/smart', [Smart_QRCodeController::class, 'generatesmartQRCodev2']); ///unused 
+    Route::get('/track-qr-code/{name}', [QrCodeController::class, 'trackAndRedirectAPI']);
 });
 
 Route::middleware('auth:sanctum')->post('/track-qr-code/{id}', [QrCodeController::class, 'trackQRCode']);
@@ -62,7 +60,7 @@ Route::middleware('auth:sanctum')->post('/track-qr-code/{id}', [QrCodeController
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profile', [qrcodev2Controller::class, 'saveProfileData']);
     Route::post('/qr-code/{profile_id}', [qrcodev2Controller::class, 'generateQRCodeByProfileId']);
-    });
+});
 
 
 #********************************************************USER_PROFILE*************************************************************************************************
@@ -100,14 +98,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/Upgrade-QR-Duration', [SubscriptionController::class, 'updateSubscriptionDuration']);    //renew  packagee
     Route::post('/Upgrade-QRlimit', [SubscriptionController::class, 'updateQrCodeLimit']);
     Route::post('/Upgrade-package', [SubscriptionController::class, 'renewUserPackage']);
-  
-
 });
 
 
 
 
- // Get subscriptions by user ID
+// Get subscriptions by user ID
 Route::get('/subscriptions/package/{packageId}', [SubscriptionController::class, 'getByPackageId']);  // Get subscriptions by package ID    //for admin
 
 
@@ -133,8 +129,8 @@ Route::get('/link', function () {
 });
 ###########################################################code########################################################################################
 Route::middleware('auth:sanctum')->group(function () {
-Route::post('/codes/validate', [CodeController::class, 'validateCode']);
-Route::get('/code/check/{package_id}', [CodeController::class, 'checkUserCodeStatus']);
+    Route::post('/codes/validate', [CodeController::class, 'validateCode']);
+    Route::get('/code/check/{package_id}', [CodeController::class, 'checkUserCodeStatus']);
 });
 
 
@@ -160,4 +156,4 @@ Route::post('/contact-us', [ContactUsController::class, 'store']);
 use App\Http\Controllers\ForgotPasswordController;
 
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
-Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
+Route::post('', [ForgotPasswordController::class, 'resetPassword']);

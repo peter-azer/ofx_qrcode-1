@@ -36,9 +36,14 @@ use Illuminate\Support\Facades\URL;
             $resetUrl = "https://ofx-qrcode.com/resetpassword?token={$this->token}&email={$this->email}";
     
             return (new MailMessage)
-                ->subject('Reset Password Notification')
-                ->line('You are receiving this email because we received a password reset request for your account.')
-                ->action('Reset Password', $resetUrl)
-                ->line('If you did not request a password reset, no further action is required.');
-        }
+            ->from('no-reply@ofx-qrcode.com', 'OFXQRCode') // Set the sender email and name
+            ->subject('Reset Password Notification')
+            ->line('You are receiving this email because we received a password reset request for your account.')
+            ->action('Reset Password', $resetUrl)
+            ->line('If you did not request a password reset, no further action is required.')
+            // Add the logo here using the Markdown format
+            ->line('Our logo:')
+            ->markdown('emails.reset_password', ['logoUrl' => asset('storage/ofxqr-logo/OFX-QR logo.png')]);
+    }
+    
     }
