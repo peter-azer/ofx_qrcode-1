@@ -25,7 +25,7 @@ Route::get('/logout', [AuthController::class, 'logout'])->middleware('auth:sanct
 Route::post('/forget-password', [AuthController::class, 'forgetPassword']);
 
 Route::post('/send-verification-code', [AuthController::class, 'sendVerificationCode']);
-Route::post('/verify-code', [AuthController::class, 'verifyCode']);
+Route::get('/verify-code', [AuthController::class, 'verifyCode']);
 
 ###########################################################QR-CODE########################################################################################
 
