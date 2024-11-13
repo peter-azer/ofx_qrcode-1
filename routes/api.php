@@ -24,9 +24,9 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::post('/forget-password', [AuthController::class, 'forgetPassword']);
 
-Route::post('/send-verification-code', [AuthController::class, 'verifyCode']);
+Route::post('/send-verification-code', [AuthController::class, 'sendVerificationCode']);
 // Route::get('/verify-code', [AuthController::class, 'verifyCode']);
-Route::post('/test', [AuthController::class, 'verifyCode']);
+Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 
 ###########################################################QR-CODE########################################################################################
 
