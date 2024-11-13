@@ -155,3 +155,9 @@ Route::post('/records', [RecordController::class, 'store']);
 
 
 Route::post('/contact-us', [ContactUsController::class, 'store']);
+// routes/api.php
+
+use App\Http\Controllers\ForgotPasswordController;
+
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
