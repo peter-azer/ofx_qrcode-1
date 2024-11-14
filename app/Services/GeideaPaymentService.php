@@ -80,7 +80,7 @@ class GeideaPaymentService
      {
          try {
              // Log the request data before sending to make sure everything is correct
-             Log::info('Geidea Payment Session Request Data:', $data);
+            //  Log::info('Geidea Payment Session Request Data:', $data);
 
              // Send the request using Basic Authentication
              $response = \Http::withBasicAuth($this->publicKey, $this->apiPassword)
