@@ -38,7 +38,8 @@ class GeideaPaymentService
     public function createSession($amount, $currency, $orderId, $callbackUrl)
     {
         // Ensure the amount has exactly two decimal places as a double
-        $amount = (double) number_format((double)$amount, 2, '.', '');
+        $amount = number_format((double)$amount, 2, '.', ''); // This keeps it as "139.00" (string)
+
 
         // Generate the timestamp and unique merchant reference ID
         $timestamp = now()->toIso8601String();
