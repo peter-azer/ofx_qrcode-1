@@ -40,6 +40,8 @@ class GeideaPaymentService
 
 public function createSession($amount, $currency, $orderId, $callbackUrl)
 {
+
+    $formattedAmount = number_format($amount, 2, '.', '');
     // Generate the timestamp and merchant reference ID
     $timestamp = now()->toIso8601String();
     $merchantReferenceId = uniqid();
@@ -49,7 +51,7 @@ public function createSession($amount, $currency, $orderId, $callbackUrl)
 
     // Prepare the payload for the API request
     $payload = [
-        'amount' => $amount,
+        'amount' => $formattedAmount,
         'timestamp' => $timestamp,
         'merchantReferenceId' => $merchantReferenceId,
         'signature' => $signature,
