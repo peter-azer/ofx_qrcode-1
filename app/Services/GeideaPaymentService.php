@@ -84,7 +84,9 @@ class GeideaPaymentService
              // Log the request data before sending to make sure everything is correct
              Log::info('Geidea Payment Session Request Data:', $data);
 
-             $response = \Http::post($url, $data);
+             // Send the request using Basic Authentication
+             $response = \Http::withBasicAuth($this->publicKey, $this->apiPassword)
+                              ->post($url, $data);
 
              // Check if the response is successful
              if ($response->successful()) {
@@ -109,6 +111,7 @@ class GeideaPaymentService
              return ['error' => 'Exception occurred: ' . $e->getMessage()];
          }
      }
+
 
     }
 
