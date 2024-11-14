@@ -25,9 +25,15 @@ Route::get('/profile', function () {
 Route::post('/save-profile', [qrcodev2Controller::class, 'saveProfileData'])->name('saveProfileData');
 
 
-use Illuminate\Support\Facades\Auth;
-
-Auth::routes();
-Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+
+
+
+use App\Http\Controllers\PaymentController;
+
+// Route to initiate the payment
+Route::post('/payment/initiate', [PaymentController::class, 'initiatePayment'])->name('payment.initiate');
+
+Route::get('/payment/callback', [PaymentController::class, 'paymentCallback'])->name('payment.callback');
