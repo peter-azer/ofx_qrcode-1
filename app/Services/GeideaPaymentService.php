@@ -14,10 +14,10 @@ class GeideaPaymentService
 
     public function __construct()
     {
-        $this->baseUrl = 'https://api.merchant.geidea.net'; // Base URL for Geidea Egypt
+        $this->baseUrl = 'https://api.merchant.geidea.net/payment-intent/api/v2/direct'; // Correct URL for payment session
         $this->publicKey = env('GEIDEA_PUBLIC_KEY');
         $this->apiPassword = env('GEIDEA_API_PASSWORD');
-        $this->secretKey = env('GEIDEA_SECRET_KEY');
+        // $this->secretKey = env('GEIDEA_SECRET_KEY');
     }
 
     /**
@@ -70,7 +70,7 @@ class GeideaPaymentService
         try {
             // Make the API request to Geidea to create a session
             $response = Http::withBasicAuth($this->publicKey, $this->apiPassword)
-                ->post("{$this->baseUrl}/v2/session", $payload);
+            ->post("{$this->baseUrl}/session", $payload);  // Correct API endpoint
 
             // Check if the response is successful
             if ($response->successful()) {
