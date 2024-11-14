@@ -78,6 +78,8 @@ class GeideaPaymentService
                 Log::info('Geidea Payment Session Response:', $response->json());
                 return $response->json();
             } else {
+                Log::error('Geidea API Error: ' . $response->body());
+                Log::error('Geidea API Response: ', $response->json());
                 // Log and return an error if the response is not successful
                 Log::error('Geidea API Error: ' . $response->body());
                 return ['error' => 'Failed to initiate payment session', 'details' => $response->body()];
