@@ -23,7 +23,7 @@ class GeideaPaymentService
     /**
      * Generate the signature using the provided data.
      */
-    public function generateSignature($merchantPublicKey, $amount, $orderCurrency, $orderMerchantReferenceId, $apiPassword, $timestamp)
+    public function generateSignature($merchantPublicKey, $amount, $orderCurrency, $orderMerchantReferenceId, $timestamp)
     {
         // Format amount to 2 decimal places
         $amountStr = number_format($amount, 2, '.', '');
@@ -31,7 +31,7 @@ class GeideaPaymentService
         $data = "{$merchantPublicKey}{$amountStr}{$orderCurrency}{$orderMerchantReferenceId}{$timestamp}";
 
         // Generate HMAC SHA256 hash and encode it in Base64
-        $hash = hash_hmac('sha256', $data, $apiPassword, true);
+        $hash = hash_hmac('sha256', $data,  true);
         return base64_encode($hash);
     }
 
@@ -45,36 +45,62 @@ class GeideaPaymentService
      * @return array - The response from the API.
      */
 
-     public function createSession($amount, $orderCurrency, $callbackUrl)
-     {
-         $merchantPublicKey = $this->publicKey;
-         $apiPassword = $this->apiPassword;
-         $timestamp = time();
+     public function createSession($amount, $currency, $orderId, $callbackUrl)
+{
+    // Ensure the amount is a valid number (float)
+    if (!is_numeric($amount) || $amount === null) {
+        Log::error('Invalid amount: ' . $amount);
+        return ['error' => 'Invalid amount provided'];
+    }
 
-         $orderMerchantReferenceId = Str::uuid()->toString();
+    // Format the amount to 2 decimal places and ensure it's a string
+    $formattedAmount = number_format($amount, 2, '.', '');
 
-         $signature = $this->generateSignature($merchantPublicKey, $amount, $orderCurrency, $orderMerchantReferenceId, $apiPassword, $timestamp);
-         $timestamp = now()->toDateTimeString();
-         $data = json_encode([
-            'amount' => "100.00",
-            'currency' => $orderCurrency,
-            'timestamp' => $timestamp,
-            'merchantReferenceId' => $orderMerchantReferenceId,
-            'signature' => $signature,
-            'callbackUrl' => $callbackUrl,
-        ]);
-        //  Log::info('Geidea Payment Session Request:', $data);
+    // Generate the timestamp and merchant reference ID
+    $timestamp = now()->toIso8601String();  // Use ISO 8601 format (e.g., '2024-11-14T12:21:48+00:00')
+    $merchantReferenceId = uniqid();
 
-         $url = $this->baseUrl;
+    // Generate the signature (without API password)
+    $signature = $this->generateSignature($this->publicKey, $formattedAmount, $currency, $merchantReferenceId, $timestamp);
 
-         $response = $this->sendPostRequest($url, $data);
+    // Prepare the payload for the API request
+    $payload = [
+        'amount' => $formattedAmount,
+        'currency' => $currency,
+        'timestamp' => $timestamp,
+        'merchantReferenceId' => $merchantReferenceId,
+        'signature' => $signature,
+        'callbackUrl' => $callbackUrl,
+    ];
 
-         if (isset($response['error'])) {
-             return ['error' => 'Session creation failed', 'details' => $response];
-         }
+    // Add the orderId to the payload if it's provided
+    if ($orderId) {
+        $payload['orderId'] = $orderId;
+    }
 
-         return $response;
-     }
+    // Log the request payload for debugging (wrap the payload in an array as context)
+    Log::info('Geidea Payment Session Request:', ['payload' => $payload]);
+
+    try {
+        // Send the POST request to Geidea API with basic authentication
+        $response = Http::withBasicAuth($this->publicKey, $this->apiPassword)
+            ->post($this->baseUrl, $payload);
+
+        // Check if the response was successful
+        if ($response->successful()) {
+            Log::info('Geidea Payment Session Response:', ['response' => $response->json()]);
+            return $response->json();
+        } else {
+            // Log the error response for debugging
+            Log::error('Geidea API Error: ', ['error' => $response->body()]);
+            return ['error' => 'Failed to initiate payment session', 'details' => $response->body()];
+        }
+    } catch (\Exception $e) {
+        // Log any exceptions that occur during the API request
+        Log::error('Geidea API Exception: ', ['exception' => $e->getMessage()]);
+        return ['error' => 'Error initiating payment session', 'exception' => $e->getMessage()];
+    }
+}
 
      protected function sendPostRequest($url, $data)
      {
