@@ -56,7 +56,7 @@ class GeideaPaymentService
          $signature = $this->generateSignature($merchantPublicKey, $amount, $orderCurrency, $orderMerchantReferenceId, $apiPassword, $timestamp);
          $timestamp = now()->toDateTimeString();
          $data = json_encode([
-            'amount' => $amount,
+            'amount' => "100.00",
             'currency' => $orderCurrency,
             'timestamp' => $timestamp,
             'merchantReferenceId' => $orderMerchantReferenceId,
