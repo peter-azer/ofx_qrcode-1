@@ -23,7 +23,7 @@ class GeideaPaymentService
     /**
      * Generate the signature using the provided data.
      */
-    private function generateSignature($merchantPublicKey, $amount, $currency, $orderMerchantReferenceId,  $timestamp)
+    private function generateSignature($merchantPublicKey, $amount, $currency, $orderMerchantReferenceId, $timestamp)
 {
     // Format the amount to 2 decimal places
     $amountStr = number_format($amount, 2, '.', '');  // Ensure 2 decimal places
@@ -31,8 +31,8 @@ class GeideaPaymentService
     // Concatenate the necessary fields to create the base string for the signature
     $data = "{$merchantPublicKey}{$amountStr}{$currency}{$orderMerchantReferenceId}{$timestamp}";
 
-    // Generate the signature using HMAC with SHA256 and the API password
-    $hash = hash_hmac('sha256', $data, true);
+    // Generate the signature using HMAC with SHA256 without using the API password
+    $hash = hash_hmac('sha256', $data, '', true);  // Empty string as the key
 
     // Return the base64 encoded hash as the signature
     return base64_encode($hash);
@@ -40,27 +40,23 @@ class GeideaPaymentService
 
 public function createSession($amount, $currency, $orderId, $callbackUrl)
 {
-    // Ensure the amount has exactly two decimal places as a double
-    $amount = number_format((double)$amount, 2, '.', '');  // Ensure 2 decimal places
-
     // Generate the timestamp and merchant reference ID
     $timestamp = now()->toIso8601String();
     $merchantReferenceId = uniqid();
 
-    // Generate the signature
+    // Generate the signature (without API password)
     $signature = $this->generateSignature($this->publicKey, $amount, $currency, $merchantReferenceId, $timestamp);
 
     // Prepare the payload for the API request
     $payload = [
-        'amount' => $amount,
-        'currency' => $currency,
+        'amount' => number_format($amount, 2, '.', ''),  
         'timestamp' => $timestamp,
         'merchantReferenceId' => $merchantReferenceId,
         'signature' => $signature,
         'callbackUrl' => $callbackUrl,
     ];
 
-    // Add the orderId to the payload if it's provided
+
     if ($orderId) {
         $payload['orderId'] = $orderId;
     }
@@ -88,4 +84,5 @@ public function createSession($amount, $currency, $orderId, $callbackUrl)
         return ['error' => 'Error initiating payment session', 'exception' => $e->getMessage()];
     }
 }
+
 }
