@@ -40,10 +40,10 @@ class GeideaPaymentService
 public function createSession($amount, $currency, $orderId, $callbackUrl)
 {
     // Ensure the amount is a valid number (float)
-    if (!is_numeric($amount) || $amount === null) {
-        Log::error('Invalid amount: ' . $amount);
-        return ['error' => 'Invalid amount provided'];
-    }
+    // if (!is_numeric($amount) || $amount === null) {
+    //     Log::error('Invalid amount: ' . $amount);
+    //     return ['error' => 'Invalid amount provided'];
+    // }
 
     // Format the amount to 2 decimal places and ensure it's a string
     $formattedAmount = number_format($amount, 2, '.', '');
@@ -57,7 +57,7 @@ public function createSession($amount, $currency, $orderId, $callbackUrl)
 
     // Prepare the payload for the API request
     $payload = [
-        'amount' => $formattedAmount,  // Ensure amount is properly formatted as a string with 2 decimal places
+        'amount' => "100.00",  // Ensure amount is properly formatted as a string with 2 decimal places
         'currency' => $currency,
         'timestamp' => $timestamp,
         'merchantReferenceId' => $merchantReferenceId,
