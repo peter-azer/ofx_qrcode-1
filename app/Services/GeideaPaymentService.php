@@ -37,29 +37,35 @@ class GeideaPaymentService
     // Return the base64 encoded hash as the signature
     return base64_encode($hash);
 }
-
 public function createSession($amount, $currency, $orderId, $callbackUrl)
 {
+    // Ensure the amount is a valid number (float)
+    if (!is_numeric($amount) || $amount === null) {
+        Log::error('Invalid amount: ' . $amount);
+        return ['error' => 'Invalid amount provided'];
+    }
 
+    // Format the amount to 2 decimal places and ensure it's a string
     $formattedAmount = number_format($amount, 2, '.', '');
+
     // Generate the timestamp and merchant reference ID
     $timestamp = now()->toIso8601String();
     $merchantReferenceId = uniqid();
 
     // Generate the signature (without API password)
-    $signature = $this->generateSignature($this->publicKey, $amount, $currency, $merchantReferenceId, $timestamp);
+    $signature = $this->generateSignature($this->publicKey, $formattedAmount, $currency, $merchantReferenceId, $timestamp);
 
     // Prepare the payload for the API request
     $payload = [
-        'amount' => "100.00",
+        'amount' => $formattedAmount,  // Ensure amount is properly formatted as a string with 2 decimal places
         'currency' => $currency,
         'timestamp' => $timestamp,
-        'merchantReferenceId' =>  "6735eb5cd3696",
-        'signature' => "SfU4a3l+g7rb1TzF3GW6XqALm4akoo+ay0oaC+Cv7/Q=",
+        'merchantReferenceId' => $merchantReferenceId,
+        'signature' => $signature,
         'callbackUrl' => $callbackUrl,
     ];
 
-
+    // Add the orderId to the payload if it's provided
     if ($orderId) {
         $payload['orderId'] = $orderId;
     }
@@ -68,7 +74,7 @@ public function createSession($amount, $currency, $orderId, $callbackUrl)
     Log::info('Geidea Payment Session Request:', $payload);
 
     try {
-
+        // Send the POST request to Geidea API with basic authentication
         $response = Http::withBasicAuth($this->publicKey, $this->apiPassword)
             ->post($this->baseUrl, $payload);
 
@@ -87,5 +93,4 @@ public function createSession($amount, $currency, $orderId, $callbackUrl)
         return ['error' => 'Error initiating payment session', 'exception' => $e->getMessage()];
     }
 }
-
 }
