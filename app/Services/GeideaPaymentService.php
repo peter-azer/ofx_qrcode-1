@@ -67,18 +67,27 @@ class GeideaPaymentService
         try {
             $response = Http::withBasicAuth($this->publicKey, $this->apiPassword)
                 ->post("{$this->baseUrl}/session", $payload);
+                if ($response->successful()) {
+                    Log::info('Geidea Payment Session Response:', $response->json());
+                    return $response->json();
+                } else {
+                    $responseData = $response->json();
 
-            if ($response->successful()) {
-                Log::info('Geidea Payment Session Response:', $response->json());
-                return $response->json();
-            } else {
-                Log::error('Geidea API Error: ' . $response->body());
-                return ['error' => 'Failed to initiate payment session', 'details' => $response->body()];
+                    // Check for specific error code
+                    if ($responseData['detailedResponseCode'] === '003') {
+                        Log::error('Geidea API Error: Invalid amount format or unsupported currency');
+                        return [
+                            'error' => 'Invalid amount. Please ensure the amount is formatted correctly and try again.',
+                            'details' => $responseData
+                        ];
+                    } else {
+                        Log::error('Geidea API Error: ' . $response->body());
+                        return ['error' => 'Failed to initiate payment session', 'details' => $response->body()];
+                    }  // Closing brace added here for the 'else' block
+                }
+            } catch (\Exception $e) {
+                Log::error('Geidea API Exception: ' . $e->getMessage());
+                return ['error' => 'Error initiating payment session', 'exception' => $e->getMessage()];
             }
-        } catch (\Exception $e) {
-            Log::error('Geidea API Exception: ' . $e->getMessage());
-            return ['error' => 'Error initiating payment session', 'exception' => $e->getMessage()];
-        }
-    }
-
+}
 }
