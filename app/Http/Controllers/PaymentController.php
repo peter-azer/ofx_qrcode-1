@@ -21,31 +21,34 @@ class PaymentController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function initializePayment(Request $request)
-    {
-        // Get payment details from the request
-        $amount = $request->input('amount');
-        $orderId = $request->input('orderId');
-        $currency = 'EGP'; // Egyptian Pound for this example
-        $callbackUrl = route('payment.callback'); // Define your callback route
+{
+    // Get payment details from the request
+    $amount = $request->input('amount');
+    $currency = 'EGP'; 
 
-        // Call the GeideaPaymentService to create a session
-        $response = $this->geideaService->createSession($amount, $currency, $orderId, $callbackUrl);
 
-        // Check if the session creation was successful and return the session ID and redirect URL
-        if (isset($response['session']['id'])) {
-            return response()->json([
-                'status' => 'success',
-                'sessionId' => $response['session']['id'],  // Return session ID
-                'redirectUrl' => $response['session']['redirectUrl']  // Return redirect URL (for Geidea Checkout)
-            ]);
-        } else {
-            // If session creation fails, return an error response
-            return response()->json([
-                'status' => 'error',
-                'message' => $response['message'] ?? 'Failed to create session.'
-            ], 500);
-        }
+
+
+    $callbackUrl = route('payment.callback');
+
+    $response = $this->geideaService->createSession($amount, $currency,  $callbackUrl);
+
+    // Check if the session creation was successful and return the session ID and redirect URL
+    if (isset($response['session']['id'])) {
+        return response()->json([
+            'status' => 'success',
+            'sessionId' => $response['session']['id'],  // Return session ID
+            'redirectUrl' => $response['session']['redirectUrl']  // Return redirect URL (for Geidea Checkout)
+        ]);
+    } else {
+        // If session creation fails, return an error response
+        return response()->json([
+            'status' => 'error',
+            'message' => $response['message'] ?? 'Failed to create session.'
+        ], 500);
     }
+}
+
 
     /**
      * Handle the callback from Geidea after payment completion.
