@@ -51,7 +51,7 @@ public function createSession($amount, $currency, $orderId, $callbackUrl)
 
     // Prepare the payload for the API request
     $payload = [
-        'amount' => $formattedAmount,
+        'amount' => "100.00",
         'timestamp' => $timestamp,
         'merchantReferenceId' => $merchantReferenceId,
         'signature' => $signature,
