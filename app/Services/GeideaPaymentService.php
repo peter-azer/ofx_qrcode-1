@@ -23,7 +23,7 @@ class GeideaPaymentService
     /**
      * Generate the signature using the provided data.
      */
-    public function generateSignature($merchantPublicKey, $amount, $orderCurrency, $orderMerchantReferenceId, $timestamp)
+    public function generateSignature($merchantPublicKey, $amount, $orderCurrency, $orderMerchantReferenceId,$apiPassword, $timestamp)
     {
         // Format amount to 2 decimal places
         $amountStr = number_format($amount, 2, '.', '');
@@ -61,7 +61,7 @@ class GeideaPaymentService
     $merchantReferenceId = uniqid();
 
     // Generate the signature (without API password)
-    $signature = $this->generateSignature($this->publicKey, $formattedAmount, $currency, $merchantReferenceId, $timestamp);
+    $signature = $this->generateSignature($this->publicKey, $formattedAmount, $currency, $merchantReferenceId,$this->apiPassword, $timestamp);
 
     // Prepare the payload for the API request
     $payload = [
