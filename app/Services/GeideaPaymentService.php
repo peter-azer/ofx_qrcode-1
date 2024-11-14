@@ -45,88 +45,61 @@ class GeideaPaymentService
      * @return array - The response from the API.
      */
 
-public function createSession($amount, $orderCurrency, $callbackUrl)
-{
-    // Get the necessary data from the environment
-    $merchantPublicKey = $this->publicKey;
-    $apiPassword = $this->apiPassword;
-    $timestamp = time();  // Current timestamp for the session creation
+     public function createSession($amount, $orderCurrency, $callbackUrl)
+     {
+         $merchantPublicKey = $this->publicKey;
+         $apiPassword = $this->apiPassword;
+         $timestamp = time();
 
-    // Generate a unique order reference ID (UUID)
-    $orderMerchantReferenceId = Str::uuid()->toString();  // Generate UUID
+         $orderMerchantReferenceId = Str::uuid()->toString();
 
-    // Generate the signature
-    $signature = $this->generateSignature($merchantPublicKey, $amount, $orderCurrency, $orderMerchantReferenceId, $apiPassword, $timestamp);
+         $signature = $this->generateSignature($merchantPublicKey, $amount, $orderCurrency, $orderMerchantReferenceId, $apiPassword, $timestamp);
 
-    // Prepare the request data
-    $data = [
-        'merchantPublicKey' => $merchantPublicKey,
-        'orderAmount' => number_format($amount, 2, '.', ''),
-        'orderCurrency' => $orderCurrency,
-        'orderMerchantReferenceId' => $orderMerchantReferenceId,  // Use UUID as reference ID
-        'timestamp' => $timestamp,
-        'signature' => $signature,
-        'callbackUrl' => $callbackUrl,  // Add the callback URL here
-    ];
+         $data = [
+             'merchantPublicKey' => $merchantPublicKey,
+             'orderAmount' => number_format($amount, 2, '.', ''),
+             'orderCurrency' => $orderCurrency,
+             'orderMerchantReferenceId' => $orderMerchantReferenceId,
+             'timestamp' => $timestamp,
+             'signature' => $signature,
+             'callbackUrl' => $callbackUrl,
+         ];
 
-  Log::info('Geidea Payment Session Request:', $data);
-    // Set the endpoint URL
-    $url = $this->baseUrl;  // Use the class base URL to make the code flexible
+         Log::info('Geidea Payment Session Request:', $data);
 
-    // Send the request and handle the response
-    $response = $this->sendPostRequest($url, $data);
+         $url = $this->baseUrl;
 
-    // Check if the response is valid and return it
-    if (isset($response['error'])) {
-        // If the response contains an error, you can handle it here
-        return ['error' => 'Session creation failed', 'details' => $response];
+         $response = $this->sendPostRequest($url, $data);
+
+         if (isset($response['error'])) {
+             return ['error' => 'Session creation failed', 'details' => $response];
+         }
+
+         return $response;
+     }
+
+     protected function sendPostRequest($url, $data)
+     {
+         try {
+             $response = \Http::post($url, $data);
+
+             if ($response->successful()) {
+                 Log::info('Geidea Payment Session Response:', $response->json());
+                 return $response->json();
+             } else {
+                 Log::error('Geidea API Error: ' . $response->body());
+                 return [
+                     'error' => 'Request failed',
+                     'status' => $response->status(),
+                     'message' => $response->body()
+                 ];
+             }
+         } catch (\Exception $e) {
+             Log::error('Geidea API Exception: ' . $e->getMessage());
+             return ['error' => 'Exception occurred: ' . $e->getMessage()];
+         }
+     }
     }
-
-    return $response;  // Return the response from the API
-}
-    /**
-     * Send a POST request with the given data.
-     *
-     * @param string $url - The URL to send the POST request to.
-     * @param array $data - The data to send in the POST request.
-     *
-     * @return array - The API response.
-     */
-    protected function sendPostRequest($url, $data)
-    {
-        try {
-            // Send the POST request using Laravel's HTTP client
-            $response = \Http::post($url, $data);
-
-            // Check if the response is successful
-            if ($response->successful()) {
-                Log::info('Geidea Payment Session Response:', $response->json());
-                return $response->json();  // Return the JSON response from the API
-            } else {
-
-
-                    //
-                    //             return $response->json();
-                    //         } else {
-                    //             // Log the error response for debugging
-                    //             Log::error('Geidea API Error: ' . $response->body());
-                    //             return ['error' => 'Failed to initiate payment session', 'details' => $response->body()];
-
-
-                return [
-                    'error' => 'Request failed',
-                    'status' => $response->status(),
-                    'message' => $response->body()
-                ];
-            }
-        } catch (\Exception $e) {
-            // Handle any exceptions that occur during the request
-            return ['error' => 'Exception occurred: ' . $e->getMessage()];
-        }
-    }
-
-}
-
 
     // public function __construct()
     // {
