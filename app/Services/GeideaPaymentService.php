@@ -35,12 +35,12 @@ class GeideaPaymentService
     /**
      * Initiate a payment session using Geidea API.
      */
-    public function initiatePayment($amount, $currency, $orderId, $callbackUrl)
+    public function createSession($amount, $currency, $orderId, $callbackUrl)
     {
         // Ensure the amount has two decimal places
         $amount = number_format((float)$amount, 2, '.', '');
 
-    
+
         $timestamp = now()->toIso8601String();
         $merchantReferenceId = uniqid();
 

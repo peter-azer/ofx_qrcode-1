@@ -5,82 +5,61 @@ namespace App\Http\Controllers;
 use App\Services\GeideaPaymentService;
 use Illuminate\Http\Request;
 
-
-
-
-
 class PaymentController extends Controller
 {
     protected $geideaService;
 
-    // Constructor to inject the GeideaPaymentService
     public function __construct(GeideaPaymentService $geideaService)
     {
         $this->geideaService = $geideaService;
     }
 
     /**
-     * Initiate the payment process.
+     * Initialize the payment by creating a session.
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function initiatePayment(Request $request)
+    public function initializePayment(Request $request)
     {
-        // Get the amount from the request
+        // Get payment details from the request
         $amount = $request->input('amount');
+        $orderId = $request->input('orderId');
+        $currency = 'EGP'; // Egyptian Pound for this example
+        $callbackUrl = route('payment.callback'); // Define your callback route
 
-        // Assuming Egyptian Pound (EGP) as the currency
-        $currency = 'EGP';
+        // Call the GeideaPaymentService to create a session
+        $response = $this->geideaService->createSession($amount, $currency, $orderId, $callbackUrl);
 
-        // Generate a unique order ID
-        $orderId = uniqid();
-
-        // Define the callback URL (This should be the route that Geidea will call after the transaction)
-        $callbackUrl = route('payment.callback');
-
-        // Call the service method to initiate payment
-        $response = $this->geideaService->initiatePayment($amount, $currency, $orderId, $callbackUrl);
-
-        // Check if the response contains a redirect URL
-        if (isset($response['redirectUrl'])) {
-            // If successful, return the redirect URL to the frontend
+        // Check if the session creation was successful and return the session ID and redirect URL
+        if (isset($response['session']['id'])) {
             return response()->json([
                 'status' => 'success',
-                'redirectUrl' => $response['redirectUrl']
+                'sessionId' => $response['session']['id'],  // Return session ID
+                'redirectUrl' => $response['session']['redirectUrl']  // Return redirect URL (for Geidea Checkout)
             ]);
         } else {
-            // If there was an error, return a failure response
+            // If session creation fails, return an error response
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to initiate payment.'
+                'message' => $response['message'] ?? 'Failed to create session.'
             ], 500);
         }
     }
 
     /**
-     * Handle the callback after payment completion.
+     * Handle the callback from Geidea after payment completion.
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function paymentCallback(Request $request)
     {
-        // Here, we assume the response will include a status and order ID
-        $status = $request->input('status');
-        $orderId = $request->input('orderId');
-        $message = $request->input('message');
-
-        // Log or process the payment details as needed (e.g., store payment status, send confirmation)
-        // Example: log the response for debugging
-        \Log::info('Payment Callback: ', ['status' => $status, 'orderId' => $orderId, 'message' => $message]);
-
-        // Respond with the details to the frontend
+        // Process the payment details returned from Geidea
         return response()->json([
-            'status' => $status,
-            'orderId' => $orderId,
-            'message' => $message,
+            'status' => $request->input('status'),
+            'orderId' => $request->input('orderId'),
+            'message' => $request->input('message'),
         ]);
     }
 }
-
