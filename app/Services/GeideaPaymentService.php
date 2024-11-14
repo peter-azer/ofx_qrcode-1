@@ -69,6 +69,7 @@ public function createSession($amount, $orderCurrency, $callbackUrl)
         'callbackUrl' => $callbackUrl,  // Add the callback URL here
     ];
 
+  Log::info('Geidea Payment Session Request:', $data);
     // Set the endpoint URL
     $url = $this->baseUrl;  // Use the class base URL to make the code flexible
 
@@ -99,9 +100,19 @@ public function createSession($amount, $orderCurrency, $callbackUrl)
 
             // Check if the response is successful
             if ($response->successful()) {
+                Log::info('Geidea Payment Session Response:', $response->json());
                 return $response->json();  // Return the JSON response from the API
             } else {
-                // Handle unsuccessful response status
+
+
+                    //
+                    //             return $response->json();
+                    //         } else {
+                    //             // Log the error response for debugging
+                    //             Log::error('Geidea API Error: ' . $response->body());
+                    //             return ['error' => 'Failed to initiate payment session', 'details' => $response->body()];
+
+
                 return [
                     'error' => 'Request failed',
                     'status' => $response->status(),
