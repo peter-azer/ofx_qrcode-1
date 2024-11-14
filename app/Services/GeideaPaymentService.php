@@ -38,7 +38,7 @@ class GeideaPaymentService
     public function createSession($amount, $currency, $orderId, $callbackUrl)
     {
         // Ensure the amount has two decimal places
-        $amount = number_format((float)$amount, 2, '.', '');  // Format amount to 2 decimals
+        $amount = number_format((double)$amount, 2, '.', '');  // Format amount to 2 decimals
 
         // Generate the timestamp and unique merchant reference ID
         $timestamp = now()->toIso8601String();  // Use UTC time for consistency
