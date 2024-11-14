@@ -29,7 +29,8 @@ class GeideaPaymentService
         $signatureBase = $this->publicKey . $amount . $currency . $timestamp . $merchantReferenceId;
 
         // Generate the signature using HMAC with SHA256 and the secret key
-        return hash_hmac('sha256', $signatureBase, $this->secretKey);
+      $hash= hash_hmac('sha256', $signatureBase, $this->secretKey,true);
+      return base64_encode($hash);
     }
 
     /**
@@ -51,23 +52,23 @@ class GeideaPaymentService
 
 
 
-        $payload = [
-            'amount' => "100.00",
-            'currency' => "EGP",
-            'timestamp' => "2024-11-14T12:21:48+00:00",
-            'merchantReferenceId' => "6735eb5cd3696",
-            'signature' => "SfU4a3l+g7rb1TzF3GW6XqALm4akoo+ay0oaC+Cv7/Q=",
-            'callbackUrl' => "https://backend.ofx-qrcode.com/payment/callback",
-        ];
-
         // $payload = [
-        //     'amount' => $amount,
-        //     'currency' => $currency,
-        //     'timestamp' => $timestamp,
-        //     'merchantReferenceId' => $merchantReferenceId,
-        //     'signature' => $signature,
-        //     'callbackUrl' => $callbackUrl,
+        //     'amount' => "100.00",
+        //     'currency' => "EGP",
+        //     'timestamp' => "2024-11-14T12:21:48+00:00",
+        //     'merchantReferenceId' => "6735eb5cd3696",
+        //     'signature' => "SfU4a3l+g7rb1TzF3GW6XqALm4akoo+ay0oaC+Cv7/Q=",
+        //     'callbackUrl' => "https://backend.ofx-qrcode.com/payment/callback",
         // ];
+
+        $payload = [
+            'amount' => $amount,
+            'currency' => $currency,
+            'timestamp' => $timestamp,
+            'merchantReferenceId' => $merchantReferenceId,
+            'signature' => $signature,
+            'callbackUrl' => $callbackUrl,
+        ];
 
         if ($orderId) {
             $payload['orderId'] = $orderId;
