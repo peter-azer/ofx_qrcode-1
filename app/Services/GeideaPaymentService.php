@@ -81,24 +81,35 @@ class GeideaPaymentService
      protected function sendPostRequest($url, $data)
      {
          try {
+             // Log the request data before sending to make sure everything is correct
+             Log::info('Geidea Payment Session Request Data:', $data);
+
              $response = \Http::post($url, $data);
 
+             // Check if the response is successful
              if ($response->successful()) {
                  Log::info('Geidea Payment Session Response:', $response->json());
                  return $response->json();
              } else {
+                 // Log the response body for debugging
                  Log::error('Geidea API Error: ' . $response->body());
+
+                 // Handle specific error response to help with debugging
+                 $errorMessage = $response->json()['message'] ?? 'Request failed';
                  return [
-                     'error' => 'Request failed',
+                     'error' => $errorMessage,
                      'status' => $response->status(),
                      'message' => $response->body()
                  ];
              }
          } catch (\Exception $e) {
+             // Log exception details
              Log::error('Geidea API Exception: ' . $e->getMessage());
+
              return ['error' => 'Exception occurred: ' . $e->getMessage()];
          }
      }
+
     }
 
     // public function __construct()
