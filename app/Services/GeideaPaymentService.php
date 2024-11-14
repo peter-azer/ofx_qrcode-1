@@ -14,7 +14,7 @@ class GeideaPaymentService
 
     public function __construct()
     {
-        $this->baseUrl = 'https://api.merchant.geidea.net/payment-intent/api/v2/direct'; // Correct URL for payment session
+        $this->baseUrl = 'https://api.merchant.geidea.net/payment-intent/api/v2/direct/session'; // Correct URL for payment session
         $this->publicKey = env('GEIDEA_PUBLIC_KEY');
         $this->apiPassword = env('GEIDEA_API_PASSWORD');
         // $this->secretKey = env('GEIDEA_SECRET_KEY');
@@ -66,28 +66,18 @@ class GeideaPaymentService
 
         try {
             $response = Http::withBasicAuth($this->publicKey, $this->apiPassword)
-                ->post("{$this->baseUrl}/session", $payload);
-                if ($response->successful()) {
-                    Log::info('Geidea Payment Session Response:', $response->json());
-                    return $response->json();
-                } else {
-                    $responseData = $response->json();
-
-                    // Check for specific error code
-                    if ($responseData['detailedResponseCode'] === '003') {
-                        Log::error('Geidea API Error: Invalid amount format or unsupported currency');
-                        return [
-                            'error' => 'Invalid amount. Please ensure the amount is formatted correctly and try again.',
-                            'details' => $responseData
-                        ];
-                    } else {
-                        Log::error('Geidea API Error: ' . $response->body());
-                        return ['error' => 'Failed to initiate payment session', 'details' => $response->body()];
-                    }  // Closing brace added here for the 'else' block
-                }
-            } catch (\Exception $e) {
-                Log::error('Geidea API Exception: ' . $e->getMessage());
-                return ['error' => 'Error initiating payment session', 'exception' => $e->getMessage()];
+            ->post($this->baseUrl, $payload); 
+            if ($response->successful()) {
+                Log::info('Geidea Payment Session Response:', $response->json());
+                return $response->json();
+            } else {
+                Log::error('Geidea API Error: ' . $response->body());
+                return ['error' => 'Failed to initiate payment session', 'details' => $response->body()];
             }
-}
+        } catch (\Exception $e) {
+            Log::error('Geidea API Exception: ' . $e->getMessage());
+            return ['error' => 'Error initiating payment session', 'exception' => $e->getMessage()];
+        }
+    }
+
 }
