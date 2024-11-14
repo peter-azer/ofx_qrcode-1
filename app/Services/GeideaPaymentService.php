@@ -25,14 +25,14 @@ class GeideaPaymentService
      */
     private function generateSignature($merchantPublicKey, $amount, $currency, $orderMerchantReferenceId, $timestamp)
 {
-    // Format the amount to 2 decimal places
+
     $amountStr = number_format($amount, 2, '.', '');  // Ensure 2 decimal places
 
-    // Concatenate the necessary fields to create the base string for the signature
+
     $data = "{$merchantPublicKey}{$amountStr}{$currency}{$orderMerchantReferenceId}{$timestamp}";
 
-    // Generate the signature using HMAC with SHA256 without using the API password
-    $hash = hash_hmac('sha256', $data, '', true);  // Empty string as the key
+
+    $hash = hash_hmac('sha256', $data, '', true);
 
     // Return the base64 encoded hash as the signature
     return base64_encode($hash);
@@ -49,7 +49,7 @@ public function createSession($amount, $currency, $orderId, $callbackUrl)
 
     // Prepare the payload for the API request
     $payload = [
-        'amount' => number_format($amount, 2, '.', ''),  
+        'amount' => $amount,
         'timestamp' => $timestamp,
         'merchantReferenceId' => $merchantReferenceId,
         'signature' => $signature,
@@ -65,7 +65,7 @@ public function createSession($amount, $currency, $orderId, $callbackUrl)
     Log::info('Geidea Payment Session Request:', $payload);
 
     try {
-        // Send the POST request to Geidea API with basic authentication
+
         $response = Http::withBasicAuth($this->publicKey, $this->apiPassword)
             ->post($this->baseUrl, $payload);
 
