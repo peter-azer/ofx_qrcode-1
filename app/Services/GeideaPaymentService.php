@@ -45,7 +45,7 @@ class GeideaPaymentService
      * @return array - The response from the API.
      */
 
-     public function createSession($amount, $currency, $orderId, $callbackUrl)
+     public function createSession($amount, $currency, $callbackUrl)
 {
     // Ensure the amount is a valid number (float)
     if (!is_numeric($amount) || $amount === null) {
@@ -74,9 +74,9 @@ class GeideaPaymentService
     ];
 
     // Add the orderId to the payload if it's provided
-    if ($orderId) {
-        $payload['orderId'] = $orderId;
-    }
+    // if ($orderId) {
+    //     $payload['orderId'] = $orderId;
+    // }
 
     // Log the request payload for debugging (wrap the payload in an array as context)
     Log::info('Geidea Payment Session Request:', ['payload' => $payload]);
