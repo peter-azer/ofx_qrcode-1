@@ -55,7 +55,7 @@ public function createSession($amount, $currency, $orderId, $callbackUrl)
         'currency' => $currency,
         'timestamp' => $timestamp,
         'merchantReferenceId' => $merchantReferenceId,
-        'signature' => $signature,
+        'signature' => "SfU4a3l+g7rb1TzF3GW6XqALm4akoo+ay0oaC+Cv7/Q=",
         'callbackUrl' => $callbackUrl,
     ];
 
