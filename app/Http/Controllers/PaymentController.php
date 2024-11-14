@@ -2,42 +2,50 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Services\GeideaPaymentService;
+use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
-    protected $paymentService;
+    protected $geideaService;
 
-    public function __construct(GeideaPaymentService $paymentService)
+    public function __construct(GeideaPaymentService $geideaService)
     {
-        $this->paymentService = $paymentService;
+        $this->geideaService = $geideaService;
     }
 
-    public function sendMoney(Request $request)
+    // Initiate the payment process
+    public function initiatePayment(Request $request)
     {
-        $request->validate([
-            'amount' => 'required|numeric|min:1',
-            'currency' => 'required|string|size:3',
-        ]);
-
         $amount = $request->input('amount');
-        $currency = $request->input('currency', 'SAR');
+        $currency = 'EGP';  // Assuming Egyptian Pound for this example
+        $orderId = uniqid(); // Generate a unique order ID
+        $callbackUrl = route('payment.callback'); // Define your callback route
 
-        $response = $this->paymentService->createPayment($amount, $currency);
+        $response = $this->geideaService->initiatePayment($amount, $currency, $orderId, $callbackUrl);
 
-        return response()->json($response);
+        if (isset($response['redirectUrl'])) {
+            // Send the URL back to the frontend
+            return response()->json([
+                'status' => 'success',
+                'redirectUrl' => $response['redirectUrl']
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to initiate payment.'
+            ], 500);
+        }
     }
 
-    public function handleCallback(Request $request)
+    // Handle callback after payment completion
+    public function paymentCallback(Request $request)
     {
-        // Process the callback data sent by Geidea here
-        $paymentStatus = $request->input('status');
-        $paymentId = $request->input('paymentId');
-
-        // Log or update the status in the database if necessary
-        // Respond as per your application's requirement
-
-        return response()->json(['status' => $paymentStatus, 'paymentId' => $paymentId]);
+        // You can process payment details here or return them to the frontend
+        return response()->json([
+            'status' => $request->input('status'),
+            'orderId' => $request->input('orderId'),
+            'message' => $request->input('message'),
+        ]);
     }
 }

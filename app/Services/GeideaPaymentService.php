@@ -1,35 +1,35 @@
 <?php
 
 namespace App\Services;
+use Illuminate\Support\Facades\Http;
 
 use GuzzleHttp\Client;
 
 class GeideaPaymentService
 {
-    protected $client;
+
+
+    protected $baseUrl;
+    protected $publicKey;
+    protected $apiPassword;
 
     public function __construct()
     {
-        $this->client = new Client([
-            'base_uri' => env('GEIDEA_API_BASE_URL'),
-            'headers' => [
-                'Authorization' => 'Bearer ' . env('GEIDEA_API_KEY'),
-                'Accept' => 'application/json',
-            ],
-        ]);
+        $this->baseUrl = 'https://api.merchant.geidea.net';
+        $this->publicKey = config('services.geidea.public_key');
+        $this->apiPassword = config('services.geidea.api_password');
     }
 
-    public function createPayment(float $amount, string $currency = 'SAR')
+    public function initiatePayment($amount, $currency, $orderId, $callbackUrl)
     {
-        $response = $this->client->post('/v1/payments', [
-            'json' => [
-                'merchantId' => env('GEIDEA_MERCHANT_ID'),
+        $response = Http::withBasicAuth($this->publicKey, $this->apiPassword)
+            ->post("{$this->baseUrl}/v2/checkout", [
                 'amount' => $amount,
                 'currency' => $currency,
-                'callbackUrl' => route('geidea.callback'), // URL for callback after payment
-            ]
-        ]);
+                'orderId' => $orderId,
+                'callbackUrl' => $callbackUrl,
+            ]);
 
-        return json_decode($response->getBody()->getContents(), true);
+        return $response->json();
     }
 }

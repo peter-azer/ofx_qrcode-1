@@ -59,7 +59,7 @@ Route::delete('/qrcode/{id}', [Smart_QRCodeController::class, 'deleteQRCodeById'
 
 ###########################################################Smart_QRCode########################################################################################
 Route::middleware('auth:sanctum')->group(function () {
-Route::post('/qrcode/smart', [Smart_QRCodeController::class, 'generatesmartQRCodev2']);///unused 
+Route::post('/qrcode/smart', [Smart_QRCodeController::class, 'generatesmartQRCodev2']);///unused
 Route::get('/track-qr-code/{name}', [QrCodeController::class, 'trackAndRedirectAPI']);
 });
 
@@ -107,7 +107,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/Upgrade-QR-Duration', [SubscriptionController::class, 'updateSubscriptionDuration']);    //renew  packagee
     Route::post('/Upgrade-QRlimit', [SubscriptionController::class, 'updateQrCodeLimit']);
     Route::post('/Upgrade-package', [SubscriptionController::class, 'renewUserPackage']);
-  
+
 
 });
 
@@ -121,6 +121,9 @@ Route::get('/subscriptions/package/{packageId}', [SubscriptionController::class,
 
 
 ###########################################################GEIDEA_PAYMENT########################################################################################
+
+Route::post('/payment/initiate', [PaymentController::class, 'initiatePayment']);
+Route::post('/payment/callback', [PaymentController::class, 'paymentCallback']);
 
 
 Route::post('/send-money', [PaymentController::class, 'sendMoney']);
