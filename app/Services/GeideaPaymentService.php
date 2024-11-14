@@ -23,73 +23,69 @@ class GeideaPaymentService
     /**
      * Generate the signature using the provided data.
      */
-    private function generateSignature($amount, $currency, $timestamp, $merchantReferenceId)
-    {
-        // Concatenate the necessary fields to create the base string for signature
-        $signatureBase = $this->publicKey . $amount . $currency . $timestamp . $merchantReferenceId;
+    private function generateSignature($merchantPublicKey, $amount, $currency, $orderMerchantReferenceId, $apiPassword, $timestamp)
+{
+    // Format the amount to 2 decimal places
+    $amountStr = number_format($amount, 2, '.', '');  // Ensure 2 decimal places
 
-        // Generate the signature using HMAC with SHA256 and the secret key
-      $hash= hash_hmac('sha256', $signatureBase, $this->secretKey,true);
-      return base64_encode($hash);
+    // Concatenate the necessary fields to create the base string for the signature
+    $data = "{$merchantPublicKey}{$amountStr}{$currency}{$orderMerchantReferenceId}{$timestamp}";
+
+    // Generate the signature using HMAC with SHA256 and the API password
+    $hash = hash_hmac('sha256', $data, $apiPassword, true);
+
+    // Return the base64 encoded hash as the signature
+    return base64_encode($hash);
+}
+
+public function createSession($amount, $currency, $orderId, $callbackUrl)
+{
+    // Ensure the amount has exactly two decimal places as a double
+    $amount = number_format((double)$amount, 2, '.', '');  // Ensure 2 decimal places
+
+    // Generate the timestamp and merchant reference ID
+    $timestamp = now()->toIso8601String();
+    $merchantReferenceId = uniqid();
+
+    // Generate the signature
+    $signature = $this->generateSignature($this->publicKey, $amount, $currency, $merchantReferenceId, $this->apiPassword, $timestamp);
+
+    // Prepare the payload for the API request
+    $payload = [
+        'amount' => $amount,
+        'currency' => $currency,
+        'timestamp' => $timestamp,
+        'merchantReferenceId' => $merchantReferenceId,
+        'signature' => $signature,
+        'callbackUrl' => $callbackUrl,
+    ];
+
+    // Add the orderId to the payload if it's provided
+    if ($orderId) {
+        $payload['orderId'] = $orderId;
     }
 
-    /**
-     * Initiate a payment session using Geidea API.
-     */
-    public function createSession($amount, $currency, $orderId, $callbackUrl)
-    {
-        // Ensure the amount has exactly two decimal places as a double
-        $amount = number_format((double)$amount, 2, '.', '');
+    // Log the request payload for debugging
+    Log::info('Geidea Payment Session Request:', $payload);
 
-
-
-        $timestamp = now()->toIso8601String();
-        $merchantReferenceId = uniqid();
-
-
-        $signature = $this->generateSignature($amount, $currency, $timestamp, $merchantReferenceId);
-
-
-
-
-        // $payload = [
-        //     'amount' => "100.00",
-        //     'currency' => "EGP",
-        //     'timestamp' => "2024-11-14T12:21:48+00:00",
-        //     'merchantReferenceId' => "6735eb5cd3696",
-        //     'signature' => "SfU4a3l+g7rb1TzF3GW6XqALm4akoo+ay0oaC+Cv7/Q=",
-        //     'callbackUrl' => "https://backend.ofx-qrcode.com/payment/callback",
-        // ];
-
-        $payload = [
-            'amount' => $amount,
-            'currency' => $currency,
-            'timestamp' => $timestamp,
-            'merchantReferenceId' => $merchantReferenceId,
-            'signature' => $signature,
-            'callbackUrl' => $callbackUrl,
-        ];
-
-        if ($orderId) {
-            $payload['orderId'] = $orderId;
-        }
-
-        Log::info('Geidea Payment Session Request:', $payload);
-
-        try {
-            $response = Http::withBasicAuth($this->publicKey, $this->apiPassword)
+    try {
+        // Send the POST request to Geidea API with basic authentication
+        $response = Http::withBasicAuth($this->publicKey, $this->apiPassword)
             ->post($this->baseUrl, $payload);
-            if ($response->successful()) {
-                Log::info('Geidea Payment Session Response:', $response->json());
-                return $response->json();
-            } else {
-                Log::error('Geidea API Error: ' . $response->body());
-                return ['error' => 'Failed to initiate payment session', 'details' => $response->body()];
-            }
-        } catch (\Exception $e) {
-            Log::error('Geidea API Exception: ' . $e->getMessage());
-            return ['error' => 'Error initiating payment session', 'exception' => $e->getMessage()];
-        }
-    }
 
+        // Check if the response was successful
+        if ($response->successful()) {
+            Log::info('Geidea Payment Session Response:', $response->json());
+            return $response->json();
+        } else {
+            // Log the error response for debugging
+            Log::error('Geidea API Error: ' . $response->body());
+            return ['error' => 'Failed to initiate payment session', 'details' => $response->body()];
+        }
+    } catch (\Exception $e) {
+        // Log any exceptions that occur during the API request
+        Log::error('Geidea API Exception: ' . $e->getMessage());
+        return ['error' => 'Error initiating payment session', 'exception' => $e->getMessage()];
+    }
+}
 }
