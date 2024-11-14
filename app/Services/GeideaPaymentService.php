@@ -54,18 +54,16 @@ class GeideaPaymentService
          $orderMerchantReferenceId = Str::uuid()->toString();
 
          $signature = $this->generateSignature($merchantPublicKey, $amount, $orderCurrency, $orderMerchantReferenceId, $apiPassword, $timestamp);
-
-         $data = [
-             'merchantPublicKey' => $merchantPublicKey,
-             'orderAmount' => number_format($amount, 2, '.', ''),
-             'orderCurrency' => $orderCurrency,
-             'orderMerchantReferenceId' => $orderMerchantReferenceId,
-             'timestamp' => $timestamp,
-             'signature' => $signature,
-             'callbackUrl' => $callbackUrl,
-         ];
-
-         Log::info('Geidea Payment Session Request:', $data);
+         $timestamp = now()->toDateTimeString();
+         $data = json_encode([
+            'amount' => $amount,
+            'currency' => $orderCurrency,
+            'timestamp' => $timestamp,
+            'merchantReferenceId' => $orderMerchantReferenceId,
+            'signature' => $signature,
+            'callbackUrl' => $callbackUrl,
+        ]);
+        //  Log::info('Geidea Payment Session Request:', $data);
 
          $url = $this->baseUrl;
 
