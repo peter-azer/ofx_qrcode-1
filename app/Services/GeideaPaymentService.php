@@ -37,14 +37,14 @@ class GeideaPaymentService
      */
     public function createSession($amount, $currency, $orderId, $callbackUrl)
     {
-        // Ensure the amount has two decimal places
+        // Ensure the amount has exactly two decimal places as a double
         $amount = (double) number_format((double)$amount, 2, '.', '');
 
         // Generate the timestamp and unique merchant reference ID
-        $timestamp = now()->toIso8601String();  // Use UTC time for consistency
-        $merchantReferenceId = uniqid();  // Generate a unique merchant reference ID
+        $timestamp = now()->toIso8601String();
+        $merchantReferenceId = uniqid();
 
-        // Generate the signature for the session
+        // Generate the signature using the formatted amount
         $signature = $this->generateSignature($amount, $currency, $timestamp, $merchantReferenceId);
 
         // Prepare the request payload
@@ -57,37 +57,27 @@ class GeideaPaymentService
             'callbackUrl' => $callbackUrl,
         ];
 
-        // Optionally include orderId if it's provided
         if ($orderId) {
             $payload['orderId'] = $orderId;
         }
 
-        // Log the payload and signature for debugging
         Log::info('Geidea Payment Session Request:', $payload);
-        Log::info('Generated Signature:', ['signature' => $signature]);
 
-        // Send the request to Geidea’s API
         try {
-            // Make the API request to Geidea to create a session
             $response = Http::withBasicAuth($this->publicKey, $this->apiPassword)
-            ->post("{$this->baseUrl}/session", $payload);  // Correct API endpoint
+                ->post("{$this->baseUrl}/session", $payload);
 
-            // Check if the response is successful
             if ($response->successful()) {
-                // Log and return the response if successful
                 Log::info('Geidea Payment Session Response:', $response->json());
                 return $response->json();
             } else {
                 Log::error('Geidea API Error: ' . $response->body());
-                Log::error('Geidea API Response: ', $response->json());
-                // Log and return an error if the response is not successful
-                Log::error('Geidea API Error: ' . $response->body());
                 return ['error' => 'Failed to initiate payment session', 'details' => $response->body()];
             }
         } catch (\Exception $e) {
-            // Log any exceptions that occur during the API call
             Log::error('Geidea API Exception: ' . $e->getMessage());
             return ['error' => 'Error initiating payment session', 'exception' => $e->getMessage()];
         }
     }
+
 }
