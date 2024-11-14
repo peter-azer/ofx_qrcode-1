@@ -50,7 +50,7 @@ class GeideaPaymentService
 
 
         $payload = [
-            'amount' => 0.5,
+            'amount' => $amount,
             'currency' => $currency,
             'timestamp' => $timestamp,
             'merchantReferenceId' => $merchantReferenceId,
