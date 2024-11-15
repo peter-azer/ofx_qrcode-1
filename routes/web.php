@@ -37,3 +37,6 @@ use App\Http\Controllers\PaymentController;
 Route::post('/payment/initiate', [PaymentController::class, 'initiatePayment'])->name('payment.initiate');
 
 Route::get('/payment/callback', [PaymentController::class, 'paymentCallback'])->name('payment.callback');
+
+
+Route::get('/payment-summary', [PaymentController::class, 'paymentSummary'])->name('payment.summary');

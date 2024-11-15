@@ -108,7 +108,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/Upgrade-QRlimit', [SubscriptionController::class, 'updateQrCodeLimit']);
     Route::post('/Upgrade-package', [SubscriptionController::class, 'renewUserPackage']);
 
-
+    Route::post('/create-payment-link', [PaymentController::class, 'createPaymentLink']);
 });
 
 
@@ -124,6 +124,7 @@ Route::get('/subscriptions/package/{packageId}', [SubscriptionController::class,
 
 Route::post('/payment/initiate', [PaymentController::class, 'initializePayment']);
 Route::post('/payment/callback', [PaymentController::class, 'paymentCallback']);
+
 
 
 Route::post('/send-money', [PaymentController::class, 'sendMoney']);
