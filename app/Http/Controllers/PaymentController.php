@@ -115,20 +115,30 @@ class PaymentController extends Controller
     }
 
 
-    public function paymentSummary(Request $request)
-{
 
+public function paymentSummary(Request $request)
+{
     $paymentStatus = $request->input('paymentStatus');
     $orderId = $request->input('orderId');
     $paymentId = $request->input('paymentId');
     $amount = $request->input('amount');
 
-
     if ($paymentStatus === 'SUCCESS') {
+        // Log the success response
+       \Log::info('Payment successful', [
+            'orderId' => $orderId,
+            'paymentId' => $paymentId,
+            'amount' => $amount
+        ]);
 
         return view('payment.success', compact('orderId', 'paymentId', 'amount'));
     } else {
-     
+        // Log the failure response
+       \Log::info('Payment failed', [
+            'orderId' => $orderId,
+            'paymentStatus' => $paymentStatus
+        ]);
+
         return view('payment.failure', compact('orderId', 'paymentStatus'));
     }
 }
