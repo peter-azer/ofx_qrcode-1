@@ -89,7 +89,7 @@ class PaymentController extends Controller
         ];
 
 
-      
+
 
         $response = Http::withBasicAuth('c940b85f-c8f7-4229-a853-7c44d4a8db2f', '225235e9-336a-45aa-91b4-ff9cfd31be50')
         ->post('https://api.merchant.geidea.net/payment-intent/api/v1/direct/eInvoice', $payload);
@@ -114,7 +114,7 @@ class PaymentController extends Controller
     public function handleCallback(Request $request)
     {
         // Log the incoming callback request
-      \  Log::info('Payment Callback Received:', $request->all());
+      \Log::info('Payment Callback Received:', $request->all());
 
         // Extract parameters from the request
         $merchantPublicKey = $request->input('MerchantPublicKey');
