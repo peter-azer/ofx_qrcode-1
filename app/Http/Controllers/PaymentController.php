@@ -154,7 +154,7 @@ class PaymentController extends Controller
 
             // Your logic to mark the order as paid or trigger any further actions
         } else {
-           \ Log::warning('Payment Failed or Invalid Status', $request->all());
+           \Log::warning('Payment Failed or Invalid Status', $request->all());
         }
 
         return response()->json(['message' => 'Callback processed successfully'], 200);
