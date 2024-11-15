@@ -77,7 +77,7 @@ class PaymentController extends Controller
                 'name' => $user->name ?? 'Unknown',
                 'email' => $user->email ?? 'unknown@example.com',
                 'phoneCountryCode' => '+20',
-                'phoneNumber' => $user->phone ?? '0000000000',
+                'phoneNumber' => $user->phone ?? '010000000',
             ],
             'eInvoiceDetails' => [
                 'extraChargesType' => 'Amount',
