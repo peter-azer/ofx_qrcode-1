@@ -118,6 +118,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/subscriptions/package/{packageId}', [SubscriptionController::class, 'getByPackageId']);  // Get subscriptions by package ID    //for admin
 
 
+Route::post('/payment-summary', [PaymentController::class, 'paymentSummary'])->name('payment.summary');
 
 
 ###########################################################GEIDEA_PAYMENT########################################################################################

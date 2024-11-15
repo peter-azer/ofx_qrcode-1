@@ -82,10 +82,10 @@ class PaymentController extends Controller
             'eInvoiceDetails' => [
                 'extraChargesType' => 'Amount',
                 'invoiceDiscountType' => 'Amount',
-                'subtotal' => $amount,
-                'grandTotal' => $amount,
+                // 'subtotal' => $amount,
+                // 'grandTotal' => $amount,
             ],
-            'callbackUrl' => 'https://127.0.0.1:8000/payment-summary', // Add this line for the redirection URL
+            'callbackUrl' => 'https://backend.ofx-qrcode.com/payment-summary', // Add this line for the redirection URL
         ];
 
 
@@ -117,18 +117,18 @@ class PaymentController extends Controller
 
     public function paymentSummary(Request $request)
 {
-    // Fetch query parameters from the redirection
+
     $paymentStatus = $request->input('paymentStatus');
     $orderId = $request->input('orderId');
     $paymentId = $request->input('paymentId');
     $amount = $request->input('amount');
 
-    // Log or handle the payment status based on the parameters
+
     if ($paymentStatus === 'SUCCESS') {
-        // Save success details to the database or perform any action
+
         return view('payment.success', compact('orderId', 'paymentId', 'amount'));
     } else {
-        // Handle failure cases
+     
         return view('payment.failure', compact('orderId', 'paymentStatus'));
     }
 }

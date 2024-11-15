@@ -39,4 +39,4 @@ Route::post('/payment/initiate', [PaymentController::class, 'initiatePayment'])-
 Route::get('/payment/callback', [PaymentController::class, 'paymentCallback'])->name('payment.callback');
 
 
-Route::get('/payment-summary', [PaymentController::class, 'paymentSummary'])->name('payment.summary');
+// Route::get('/payment-summary', [PaymentController::class, 'paymentSummary'])->name('payment.summary');
