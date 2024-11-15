@@ -122,7 +122,12 @@ public function paymentSummary(Request $request)
     $orderId = $request->input('orderId');
     $paymentId = $request->input('paymentId');
     $amount = $request->input('amount');
-
+    \Log::info('Incoming Payment Summary Request:', [
+        'url' => $request->url(),
+        'method' => $request->method(),
+        'headers' => $request->headers->all(),
+        'body' => $request->all()
+    ]);
     if ($paymentStatus === 'SUCCESS') {
         // Log the success response
        \Log::info('Payment successful', [
