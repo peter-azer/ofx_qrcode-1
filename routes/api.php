@@ -120,11 +120,11 @@ Route::get('/subscriptions/package/{packageId}', [SubscriptionController::class,
 
 Route::post('/callbackurl', [PaymentController::class, 'paymentSummary']);
 
-
+Route::post('/payment/callback', [PaymentController::class, 'handleCallback']);
 ###########################################################GEIDEA_PAYMENT########################################################################################
 
 Route::post('/payment/initiate', [PaymentController::class, 'initializePayment']);
-Route::post('/payment/callback', [PaymentController::class, 'paymentCallback']);
+// Route::post('/payment/callback', [PaymentController::class, 'paymentCallback']);
 
 
 
