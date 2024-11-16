@@ -85,7 +85,7 @@ class PaymentController extends Controller
                 // 'subtotal' => $amount,
                 // 'grandTotal' => $amount,
             ],
-            "callbackurl"=> "https://backend.ofx-qrcode.com/api/payment/callback", // Add this line for the redirection URL
+            "callbackurl"=> 'https://backend.ofx-qrcode.com/api/payment/callback', // Add this line for the redirection URL
         ];
 
 
@@ -134,6 +134,9 @@ class PaymentController extends Controller
            \Log::warning('Payment Failed or Invalid Status', $request->all());
         }
 
+
+        $response = $request->all();
+        \Storage::put('geidea_response.json', json_encode($response));
         return response()->json(['message' => 'Callback processed successfully'], 200);
     }
 }

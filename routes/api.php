@@ -124,7 +124,7 @@ Route::post('/payment/callback', [PaymentController::class, 'handleCallback']);
 ###########################################################GEIDEA_PAYMENT########################################################################################
 
 Route::post('/payment/initiate', [PaymentController::class, 'initializePayment']);
-// Route::post('/payment/callback', [PaymentController::class, 'paymentCallback']);
+
 
 
 
