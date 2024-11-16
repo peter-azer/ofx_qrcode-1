@@ -111,14 +111,14 @@ class PaymentController extends Controller
     }
 
 
-    public function handleCallback(Request $request)
+    public function handleCallbacks(Request $request)
     {
 
 
         $response = $request->all();
         \Storage::put('geidea_response.json', json_encode($response));
 
-
+    }
 
         // $orderId = $request->input('Order Id');
         // $status = $request->input('Response Message');
@@ -138,7 +138,28 @@ class PaymentController extends Controller
 
 
 
-    }
+
+
+        public function handleCallback(Request $request)
+        {
+            try {
+
+                $payload = $request->all();
+
+
+                \Log::info('Webhook Received:', $payload);
+
+                \Storage::put('geidea_response.json', json_encode($payload, JSON_PRETTY_PRINT));
+
+                return response()->json(['message' => 'Webhook received successfully'], 200);
+            } catch (\Exception $e) {
+                \Log::error('Webhook handling failed:', [
+                    'error' => $e->getMessage(),
+                ]);
+
+                return response()->json(['message' => 'Webhook handling failed'], 500);
+            }
+        }
 }
 
 
