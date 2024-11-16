@@ -120,7 +120,7 @@ Route::get('/subscriptions/package/{packageId}', [SubscriptionController::class,
 
 
 
-Route::post('/payment/callback', [PaymentController::class, 'handleCallback']);
+Route::match(['GET','POST'],'/payment/callback', [PaymentController::class, 'handleCallback']);
 ###########################################################GEIDEA_PAYMENT########################################################################################
 
 Route::post('/payment/initiate', [PaymentController::class, 'initializePayment']);

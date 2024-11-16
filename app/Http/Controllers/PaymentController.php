@@ -114,7 +114,9 @@ class PaymentController extends Controller
     public function handleCallback(Request $request)
     {
 
-      \Log::info('Payment Callback Received:', $request->all());
+
+        $response = $request->all();
+        \Storage::put('geidea_response.json', json_encode($response));
 
 
 
@@ -135,9 +137,7 @@ class PaymentController extends Controller
         }
 
 
-        $response = $request->all();
-        \Storage::put('geidea_response.json', json_encode($response));
-        return response()->json(['message' => 'Callback processed successfully'], 200);
+
     }
 }
 
