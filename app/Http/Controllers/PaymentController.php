@@ -110,55 +110,26 @@ class PaymentController extends Controller
         }
     }
 
-
     public function handleCallback(Request $request)
     {
-        // Log the incoming callback request
-      \Log::info('Payment Callback Received:', $request->all());
+        \Log::info('Payment Callback Received:', $request->all());
 
-        // Extract parameters from the request
-        $merchantPublicKey = $request->input('MerchantPublicKey');
-        $orderAmount = $request->input('OrderAmount');
-        $orderCurrency = $request->input('OrderCurrency');
         $orderId = $request->input('Orderid');
         $status = $request->input('Status');
-        $merchantReferenceId = $request->input('MerchantRefrenceId');
-        $timeStamp = $request->input('timeStamp');
-        $signature = $request->input('signature');
 
-        // Your Merchant API Password (must be stored securely)
-        $merchantApiPassword = env('MERCHANT_API_PASSWORD');
-
-        // Step 1: Concatenate parameters in the specified order
-        $concatenatedString = "{$merchantPublicKey}{$orderAmount}{$orderCurrency}{$orderId}{$status}{$merchantReferenceId}{$timeStamp}";
-
-        // Step 2: Hash the concatenated string using SHA-256 with the Merchant API Password
-        $hashedValue = hash_hmac('sha256', $concatenatedString, $merchantApiPassword, true);
-
-        // Step 3: Convert the hashed value to Base64 string
-        $generatedSignature = base64_encode($hashedValue);
-
-        // Step 4: Validate the signature
-        if ($generatedSignature !== $signature) {
-            \Log::error('Invalid Callback Signature', [
-                'expected_signature' => $generatedSignature,
-                'received_signature' => $signature,
-            ]);
-            return response()->json(['error' => 'Invalid signature'], 400);
-        }
-
-        // Step 5: Verify payment status and other parameters
+        // Step: Verify payment status and other parameters
         if ($status === 'Success' && $request->input('responseCode') === '000' && $request->input('detailedResponseCode') === '000') {
-            // Update order status to 'Paid'
             \Log::info('Payment Successful', ['order_id' => $orderId]);
 
             // Your logic to mark the order as paid or trigger any further actions
+
+            return view('payment.success', ['order_id' => $orderId]);
         } else {
-           \Log::warning('Payment Failed or Invalid Status', $request->all());
+            \Log::warning('Payment Failed or Invalid Status', $request->all());
+
+            return view('payment.failure', ['order_id' => $orderId]);
         }
-
-        return response()->json(['message' => 'Callback processed successfully'], 200);
     }
+
+
 }
-
-

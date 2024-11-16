@@ -118,7 +118,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/subscriptions/package/{packageId}', [SubscriptionController::class, 'getByPackageId']);  // Get subscriptions by package ID    //for admin
 
 
-Route::post('/callbackurl', [PaymentController::class, 'paymentSummary']);
+
 
 Route::post('/payment/callback', [PaymentController::class, 'handleCallback']);
 ###########################################################GEIDEA_PAYMENT########################################################################################
@@ -129,7 +129,7 @@ Route::post('/payment/initiate', [PaymentController::class, 'initializePayment']
 
 
 Route::post('/send-money', [PaymentController::class, 'sendMoney']);
-Route::post('/payment-callback', [PaymentController::class, 'handleCallback'])->name('geidea.callback');
+// Route::post('/payment-callback', [PaymentController::class, 'handleCallback'])->name('geidea.callback');
 ###########################################################storage_link########################################################################################
 Route::get('/link', function () {
     try {
