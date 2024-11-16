@@ -110,26 +110,34 @@ class PaymentController extends Controller
         }
     }
 
+
     public function handleCallback(Request $request)
     {
-        \Log::info('Payment Callback Received:', $request->all());
 
+      \Log::info('Payment Callback Received:', $request->all());
+
+        $orderAmount = $request->input('OrderAmount');
+        $orderCurrency = $request->input('OrderCurrency');
         $orderId = $request->input('Orderid');
         $status = $request->input('Status');
+        $merchantReferenceId = $request->input('MerchantRefrenceId');
 
-        // Step: Verify payment status and other parameters
+        // Your Merchant API Pasword (must be stored securely)
+        $merchantApiPassword = env('MERCHANT_API_PASSWORD');
+
+
+        // Step 5: Verify payment status and other parameters
         if ($status === 'Success' && $request->input('responseCode') === '000' && $request->input('detailedResponseCode') === '000') {
+            // Update order status to 'Paid'
             \Log::info('Payment Successful', ['order_id' => $orderId]);
 
             // Your logic to mark the order as paid or trigger any further actions
-
-            return view('payment.success', ['order_id' => $orderId]);
         } else {
-            \Log::warning('Payment Failed or Invalid Status', $request->all());
-
-            return view('payment.failure', ['order_id' => $orderId]);
+           \Log::warning('Payment Failed or Invalid Status', $request->all());
         }
+
+        return response()->json(['message' => 'Callback processed successfully'], 200);
     }
-
-
 }
+
+
