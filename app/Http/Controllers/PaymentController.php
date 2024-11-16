@@ -116,14 +116,12 @@ class PaymentController extends Controller
 
       \Log::info('Payment Callback Received:', $request->all());
 
-        $orderAmount = $request->input('OrderAmount');
-        $orderCurrency = $request->input('OrderCurrency');
+
+
         $orderId = $request->input('Orderid');
         $status = $request->input('Status');
-        $merchantReferenceId = $request->input('MerchantRefrenceId');
 
-        // Your Merchant API Pasword (must be stored securely)
-        $merchantApiPassword = env('MERCHANT_API_PASSWORD');
+
 
 
         // Step 5: Verify payment status and other parameters
