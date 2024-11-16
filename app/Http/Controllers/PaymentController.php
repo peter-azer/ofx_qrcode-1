@@ -120,21 +120,21 @@ class PaymentController extends Controller
 
 
 
-        $orderId = $request->input('Order Id');
-        $status = $request->input('Response Message');
+        // $orderId = $request->input('Order Id');
+        // $status = $request->input('Response Message');
 
 
 
 
-        // Step 5: Verify payment status and other parameters
-        if ($status === 'Success' && $request->input('responseCode') === '000' && $request->input('detailedResponseCode') === '000') {
-            // Update order status to 'Paid'
-            \Log::info('Payment Successful', ['order_id' => $orderId]);
+        // // Step 5: Verify payment status and other parameters
+        // if ($status === 'Success' && $request->input('responseCode') === '000' && $request->input('detailedResponseCode') === '000') {
+        //     // Update order status to 'Paid'
+        //     \Log::info('Payment Successful', ['order_id' => $orderId]);
 
-            // Your logic to mark the order as paid or trigger any further actions
-        } else {
-           \Log::warning('Payment Failed or Invalid Status', $request->all());
-        }
+        //     // Your logic to mark the order as paid or trigger any further actions
+        // } else {
+        //    \Log::warning('Payment Failed or Invalid Status', $request->all());
+        // }
 
 
 
