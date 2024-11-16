@@ -118,8 +118,8 @@ class PaymentController extends Controller
 
 
 
-        $orderId = $request->input('Orderid');
-        $status = $request->input('Status');
+        $orderId = $request->input('Order Id');
+        $status = $request->input('Response Message');
 
 
 
