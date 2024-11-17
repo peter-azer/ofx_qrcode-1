@@ -29,28 +29,28 @@ class AuthController extends Controller
             'email' => 'required|email',
             'verification_code' => 'required|string',
         ]);
-    
+
         // Check if the verification code is valid and not expired
         $record = DB::table('email_verifications')
                     ->where('email', $request->email)
                     ->where('verification_code', $request->verification_code)
                     ->where('expires_at', '>', Carbon::now())
                     ->first();
-    
+
         if (!$record) {
             return response()->json(['message' => 'Invalid or expired verification code'], 400);
         }
-    
+
         // Verification successful, create the user with the stored data
         $user = User::create([
             'email' => $record->email,
             'phone' => $record->phone,
             'password' => $record->password,  // Already hashed
         ]);
-    
+
         // Optionally delete the verification record after successful verification
         DB::table('email_verifications')->where('email', $request->email)->delete();
-    
+
         return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);
     }
 
@@ -61,37 +61,41 @@ class AuthController extends Controller
     public function sendVerificationCode(Request $request)
     {
         $request->validate([
+            'name'=> 'required|string',
             'email' => 'required|email|unique:users,email',
             'phone' => 'required|string|unique:users',
             'password' => 'required|string|min:6',
         ]);
-    
+
         $code = Str::random(6);
-    
+
         // Store the code and temporary user data in the email_verifications table
         DB::table('email_verifications')->updateOrInsert(
             ['email' => $request->email],
             [
+
                 'verification_code' => $code,
                 'expires_at' => Carbon::now()->addMinutes(10),
+                'name' => $request->name,
                 'phone' => $request->phone,
                 'password' => Hash::make($request->password),  // Store hashed password
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]
         );
-    
+
         // Send the verification code via email
         Mail::to($request->email)->send(new EmailVerificationCode($code));
-    
+
         return response()->json(['message' => 'Verification code sent to your email'], 200);
     }
-    
+
 
 
 public function signup(Request $request)
 {
     $validator = Validator::make($request->all(), [
+        'name' => 'required|string',
         'phone' => 'required|string|unique:users',
         'email' => 'required|string|email|unique:users',
         'password' => 'required|string|min:6',
