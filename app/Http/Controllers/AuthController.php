@@ -43,6 +43,7 @@ class AuthController extends Controller
 
         // Verification successful, create the user with the stored data
         $user = User::create([
+            'name'=> $record->name,
             'email' => $record->email,
             'phone' => $record->phone,
             'password' => $record->password,  // Already hashed
