@@ -62,6 +62,12 @@ class UserProfileController extends Controller
         // Fetch the QRCode entry by the unique QR code name
         $qrCode = QrCodeModel::where('link', 'https://ofx-qrcode.com/qr/' . $qrCodeName)->first();
 
+
+
+        if ($qrCode->is_active == 0) {
+            abort(404, 'QR code not found or is inactive.');
+        }
+
         // Check if QR code exists
         if (!$qrCode) {
             return response()->json(['message' => 'QR code not found'], 404);
