@@ -220,7 +220,7 @@ public function renewUserPackage(Request $request)
             ->wherePivot('is_enable', true)
             ->wherePivot('end_date', '>', Carbon::now())
             ->first();
-            \Log::info('user info:', ['data' => $userPackage]);
+            \Log::info('user info:', ['data' => $userPackage->pivot->end_date]);
         if (!$userPackage) {
             return response()->json(['message' => 'User not subscribed yet or subscription has expired.'], 404);
         }
