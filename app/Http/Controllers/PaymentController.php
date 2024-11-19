@@ -23,13 +23,19 @@ class PaymentController extends Controller
     public function initializePayment(Request $request)
 {
 
-    $amount =' 100';
+    $validator = \Validator::make($request->all(), [
+        'amount' => 'required|numeric|min:1',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => 'error',
+            'errors' => $validator->errors(),
+        ], 400);
+    }
+
+    $amount = $request->input('amount');
     $currency = 'EGP';
-
-
-
-
-    // $callbackUrl = route('payment.callback');
 
     $response = $this->geideaService->createSession($amount, $currency,  'https://backend.ofx-qrcode.com/api/payment/callback');
 

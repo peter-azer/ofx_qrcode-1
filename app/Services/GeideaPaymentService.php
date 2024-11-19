@@ -38,9 +38,9 @@ class GeideaPaymentService
   /**
 
      *
-     * @param double $amount - The order amount.
-     * @param string $orderCurrency - The currency of the order.
-     * @param string $orderMerchantReferenceId - A unique reference for the order.
+     * @param double $amount - 
+     * @param string $orderCurrency
+     * @param string $orderMerchantReferenceId -
      *
      *
      */
