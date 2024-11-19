@@ -170,7 +170,7 @@ public function signup(Request $request)
            'message' => 'Login successful',
            'token' => $token,
            'user' => $user,
-        
+
        ], 200);
    }
 
@@ -213,9 +213,8 @@ public function signup(Request $request)
         // Retrieve user's packages with pivot data
         $userPackages = $user->packages->map(function ($package) {
             return [
-                'id' => $package->id,
+               
                 'name' => $package->name,
-                'description' => $package->description,
                 'qrcode_limit' => $package->pivot->qrcode_limit,
                 'start_date' => $package->pivot->start_date,
                 'end_date' => $package->pivot->end_date,
