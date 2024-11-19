@@ -161,10 +161,29 @@ public function signup(Request $request)
         }
 
         $token = $user->createToken('personalAccessToken')->plainTextToken;
-        return response()->json(['message' => 'Login successful',
-        'token' => $token,
-        'user' => $user], 200);
-    }
+       // Eager load the packages with pivot data
+       $user->load('packages');
+
+
+       $userPackages = $user->packages->map(function ($package) {
+           return [
+               'id' => $package->id,
+               'name' => $package->name,
+               'description' => $package->description,
+               'qrcode_limit' => $package->pivot->qrcode_limit, // Access pivot data
+               'created_at' => $package->pivot->created_at,
+               'updated_at' => $package->pivot->updated_at,
+           ];
+       });
+
+       return response()->json([
+           'message' => 'Login successful',
+           'token' => $token,
+           'user' => $user,
+           'user_packages' => $userPackages,
+       ], 200);
+   }
+
 
     // Forget Password method
     public function forgetPassword(Request $request)
