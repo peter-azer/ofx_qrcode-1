@@ -29,15 +29,15 @@ class PaymentController extends Controller
 
 
 
-    $callbackUrl = route('payment.callback');
+    // $callbackUrl = route('payment.callback');
 
-    $response = $this->geideaService->createSession($amount, $currency,  'https://127.0.0.1:8000/payment/callback');
+    $response = $this->geideaService->createSession($amount, $currency,  'https://backend.ofx-qrcode.com/api/payment/callback');
 
     if (isset($response['session']['id'])) {
         return response()->json([
             'status' => 'success',
             'sessionId' => $response['session']['id'],
-            'redirectUrl' => $response['session']['redirectUrl']
+            // 'redirectUrl' => $response['session']['redirectUrl']
         ]);
     } else {
         // If session creation fails, return an error response
