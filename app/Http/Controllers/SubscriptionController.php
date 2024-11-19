@@ -186,16 +186,16 @@ public function renewUserPackage(Request $request)
     {
         // Retrieve the authenticated user
         $user = $request->user();
-    
+
         // Access the packages related to the user through the many-to-many relationship
         $subscriptions = $user->packages()->get();
-    
-   
+
+
         if ($subscriptions->isEmpty()) {
             return response()->json(['message' => 'No subscriptions found for this user'], 404);
         }
-    
-   
+
+
         return response()->json($subscriptions);
     }
 
@@ -220,7 +220,7 @@ public function renewUserPackage(Request $request)
             ->wherePivot('is_enable', true)
             ->wherePivot('end_date', '>', Carbon::now())
             ->first();
-
+            \Log::info('user info:', ['data' => $userPackage]);
         if (!$userPackage) {
             return response()->json(['message' => 'User not subscribed yet or subscription has expired.'], 404);
         }
