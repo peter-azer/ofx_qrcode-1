@@ -55,6 +55,14 @@ class User extends Authenticatable
                     ->withTimestamps(); // Automatically manage created_at and updated_at timestamps
     }
 
+
+
+    public function transactions()
+    {
+        return $this->hasMany(UserTransaction::class);
+    }
+    
+
     public function userLocations()
     {
         return $this->hasMany(UserLocation::class);

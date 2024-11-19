@@ -38,7 +38,7 @@ class GeideaPaymentService
   /**
 
      *
-     * @param double $amount - 
+     * @param double $amount -
      * @param string $orderCurrency
      * @param string $orderMerchantReferenceId -
      *
@@ -67,7 +67,7 @@ class GeideaPaymentService
 
 
 
-    Log::info('Geidea Payment Session Request:', ['payload' => $payload]);
+    // Log::info('Geidea Payment Session Request:', ['payload' => $payload]);
 
     try {
 

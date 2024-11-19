@@ -32,6 +32,14 @@ protected $casts = [
     ];
 
 
+
+
+
+    public function transactions()
+{
+    return $this->hasMany(UserTransaction::class);
+}
+
     public function codes()
     {
         return $this->hasMany(code::class);

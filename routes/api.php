@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\qrcodev2Controller;
 use App\Http\Controllers\Smart_QRCodeController;
+use App\Http\Controllers\UserTransactionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -130,6 +131,15 @@ Route::post('/payment/initiate', [PaymentController::class, 'initializePayment']
 
 Route::post('/send-money', [PaymentController::class, 'sendMoney']);
 // Route::post('/payment-callback', [PaymentController::class, 'handleCallback'])->name('geidea.callback');
+###########################################################transaction########################################################################################
+Route::middleware('auth:sanctum')->group(function () {
+
+Route::post('/transactions', [UserTransactionController::class, 'store']);
+Route::get('/transactions/user', [UserTransactionController::class, 'getByUser']);
+
+});
+Route::get('/transactions', [UserTransactionController::class, 'getAll']);
+
 ###########################################################storage_link########################################################################################
 Route::get('/link', function () {
     try {
