@@ -223,7 +223,7 @@ public function renewUserPackage(Request $request)
 
     // Log the end_date if a package is found
     if ($userPackage) {
-        \Log::info('User subscription info:', ['end_date' => $userPackage->pivot->end_date]);
+        \Log::info('User subscription info:', ['end_date' => $userPackage->pivot->paid]);
     } else {
         \Log::info('No active subscription found for user.');
     }
