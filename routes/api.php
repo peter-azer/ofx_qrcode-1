@@ -25,6 +25,10 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::post('/forget-password', [AuthController::class, 'forgetPassword']);
 
+Route::get('/user_info', [AuthController::class, 'getUserData'])->middleware('auth:sanctum');
+
+
+
 Route::post('/signup', [AuthController::class, 'sendVerificationCode']);
 // Route::get('/verify-code', [AuthController::class, 'verifyCode']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
@@ -120,7 +124,7 @@ Route::get('/subscriptions/package/{packageId}', [SubscriptionController::class,
 
 
 
-  
+
 Route::match(['GET','POST'],'/payment/callback', [PaymentController::class, 'handleCallback']);
 ###########################################################GEIDEA_PAYMENT########################################################################################
 

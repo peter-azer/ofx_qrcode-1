@@ -165,22 +165,12 @@ public function signup(Request $request)
        $user->load('packages');
 
 
-       $userPackages = $user->packages->map(function ($package) {
-           return [
-               'id' => $package->id,
-               'name' => $package->name,
-               'description' => $package->description,
-               'qrcode_limit' => $package->pivot->qrcode_limit, // Access pivot data
-               'created_at' => $package->pivot->created_at,
-               'updated_at' => $package->pivot->updated_at,
-           ];
-       });
 
        return response()->json([
            'message' => 'Login successful',
            'token' => $token,
            'user' => $user,
-           'user_packages' => $userPackages,
+        
        ], 200);
    }
 
@@ -211,4 +201,42 @@ public function signup(Request $request)
 
         return response()->json(['message' => 'Logged out successfully'], 200);
     }
+
+
+
+
+    public function getUserData(Request $request)
+    {
+        // Assuming the authenticated user
+        $user = $request->user();
+
+        // Retrieve user's packages with pivot data
+        $userPackages = $user->packages->map(function ($package) {
+            return [
+                'id' => $package->id,
+                'name' => $package->name,
+                'description' => $package->description,
+                'qrcode_limit' => $package->pivot->qrcode_limit,
+                'start_date' => $package->pivot->start_date,
+                'end_date' => $package->pivot->end_date,
+                'is_enable' =>$package->pivot->is_enable,
+            ];
+        });
+
+        // Combine user data and packages
+        $userData = [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'created_at' => $user->created_at,
+            'updated_at' => $user->updated_at,
+            'user_packages' => $userPackages,
+        ];
+
+        return response()->json([
+            'status' => 'success',
+            'user_data' => $userData,
+        ], 200);
+    }
 }
+
