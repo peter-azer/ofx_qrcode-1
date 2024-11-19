@@ -50,9 +50,9 @@ class GeideaPaymentService
 
     $formattedAmount = number_format($amount, 2, '.', '');
 
-    $timestamp = now()->toIso8601String();
-    $merchantReferenceId = uniqid();
 
+    $merchantReferenceId = uniqid();
+    $timestamp = date('Y-m-d\TH:i:s\Z');
     $signature = $this->generateSignature($this->publicKey, $formattedAmount, $currency, $merchantReferenceId,$this->apiPassword, $timestamp);
 
     // Prepare the payload for the API request
@@ -61,13 +61,13 @@ class GeideaPaymentService
         'currency' => $currency,
         'timestamp' => $timestamp,
         'merchantReferenceId' => $merchantReferenceId,
-        // 'signature' =>'EmWOIBao3JhS7JCAbTMqAr8jm/42aEaHZYgB74MeMsk=',
+        // 'signature' =>$signature,
         'callbackUrl' => $callbackUrl,
     ];
 
 
 
-    // Log::info('Geidea Payment Session Request:', ['payload' => $payload]);
+    Log::info('Geidea Payment Session Request:', ['payload' => $payload]);
 
     try {
 
