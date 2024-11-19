@@ -212,34 +212,42 @@ public function renewUserPackage(Request $request)
     }
 
     public function validateUserSubscription(Request $request)
-    {
-        $user = $request->user();
+{
+    $user = $request->user();
 
-        // Find an active package for the user
-        $userPackage = $user->packages()
-            ->wherePivot('is_enable', true)
-            ->wherePivot('end_date', '>', Carbon::now())
-            ->first();
-            \Log::info('user info:', ['data' => $userPackage->pivot->end_date]);
-        if (!$userPackage) {
-            return response()->json(['message' => 'User not subscribed yet or subscription has expired.'], 404);
-        }
+    // Find an active package for the user
+    $userPackage = $user->packages()
+        ->wherePivot('is_enable', true)
+        ->wherePivot('end_date', '>', Carbon::now())
+        ->first();
 
-        // Check if the package has expired
-        if (Carbon::now()->greaterThan($userPackage->pivot->end_date)) {
-            // Disable the package
-            $user->packages()->updateExistingPivot($userPackage->id, ['is_enable' => false]);
-
-            // Disable all QR codes related to this user
-            QrCodeModel::where('user_id', $user->id)->update(['is_active' => 0]);
-
-            return response()->json([
-                'message' => 'Subscription has expired and has been disabled. All QR codes have been disabled.'
-            ], 200);
-        }
-
-        return response()->json(['message' => 'Subscription is still active.'], 200);
+    // Log the end_date if a package is found
+    if ($userPackage) {
+        \Log::info('User subscription info:', ['end_date' => $userPackage->pivot->end_date]);
+    } else {
+        \Log::info('No active subscription found for user.');
     }
+
+    if (!$userPackage) {
+        return response()->json(['message' => 'User not subscribed yet or subscription has expired.'], 404);
+    }
+
+    // Check if the package has expired
+    if (Carbon::now()->greaterThan($userPackage->pivot->end_date)) {
+        // Disable the package
+        $user->packages()->updateExistingPivot($userPackage->id, ['is_enable' => false]);
+
+        // Disable all QR codes related to this user
+        QrCodeModel::where('user_id', $user->id)->update(['is_active' => 0]);
+
+        return response()->json([
+            'message' => 'Subscription has expired and has been disabled. All QR codes have been disabled.'
+        ], 200);
+    }
+
+    return response()->json(['message' => 'Subscription is still active.'], 200);
+}
+
 
 
 
