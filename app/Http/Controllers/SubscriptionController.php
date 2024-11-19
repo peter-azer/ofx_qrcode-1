@@ -221,12 +221,12 @@ public function renewUserPackage(Request $request)
         // ->wherePivot('end_date', '>', Carbon::now())
         ->first();
 
-    // Log the end_date if a package is found
-    if ($userPackage) {
-        \Log::info('User subscription info:', ['end_date' => $userPackage->pivot->end_date]);
-    } else {
-        \Log::info('No active subscription found for user.');
-    }
+    // // Log the end_date if a package is found
+    // if ($userPackage) {
+    //     \Log::info('User subscription info:', ['end_date' => $userPackage->pivot->end_date]);
+    // } else {
+    //     \Log::info('No active subscription found for user.');
+    // }
 
     if (!$userPackage) {
         return response()->json(['message' => 'User not subscribed yet or subscription has expired.'], 404);
