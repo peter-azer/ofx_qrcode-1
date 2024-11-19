@@ -89,34 +89,6 @@ class Smart_QRCodeController extends Controller
 
 
 
-        $packageId = $validatedData['package_id'];
-
-        // Define the QR code limits for each package
-        $qrCodeLimits = [
-            '1' => 20,
-            '3' => 550,
-        ];
-
-        // Check if the package has a defined QR code limit
-        if (!array_key_exists($packageId, $qrCodeLimits)) {
-            return response()->json([
-                'message' => 'Invalid package ID.',
-            ], 400);
-        }
-
-        // Count the user's existing QR codes for this package
-        $userQrCodeCount = QrCodeModel::where('user_id', $user->id)
-            ->where('package_id', $packageId)
-            ->count();
-
-        // Check if the user has reached the maximum QR code limit for their package
-        if ($userQrCodeCount >= $qrCodeLimits[$packageId]) {
-            return response()->json([
-                'message' => 'You have reached the maximum QR code limit for this package.',
-            ], 403);
-        }
-
-        // Initialize an array to store uploaded image paths
 
         $profile = Profile::create([
             'user_id' =>  $user->id,
