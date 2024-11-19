@@ -218,7 +218,7 @@ public function renewUserPackage(Request $request)
     // Find an active package for the user
     $userPackage = $user->packages()
         ->wherePivot('is_enable', true)
-        ->wherePivot('end_date', '>', Carbon::now())
+        // ->wherePivot('end_date', '>', Carbon::now())
         ->first();
 
     // Log the end_date if a package is found
