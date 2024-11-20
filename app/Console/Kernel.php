@@ -33,9 +33,16 @@ class Kernel extends ConsoleKernel
                 $userPackage = $user->packages()->wherePivot('is_enable', true)->first();
                 $endDate = Carbon::parse($userPackage->pivot->end_date);
 
-                \Log::info('Notifying user:', ['user_id' => $user->id, 'user_email' => $user->email,'end_date' => $endDate]);
-
-                $user->notify(new SubscriptionReminderNotification($endDate));
+                try {
+                    $user->notify(new SubscriptionReminderNotification($endDate));
+                    \Log::info('Notification sent successfully', ['user_id' => $user->id, 'user_email' => $user->email]);
+                } catch (\Exception $e) {
+                    \Log::error('Failed to send notification', [
+                        'user_id' => $user->id,
+                        'user_email' => $user->email,
+                        'error_message' => $e->getMessage(),
+                    ]);
+                }
             }
         })->everyMinute();
     }
