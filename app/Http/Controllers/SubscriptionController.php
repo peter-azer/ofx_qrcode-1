@@ -313,4 +313,42 @@ public function updateSubscriptionDuration(Request $request)
 }
 
 
+
+
+
+
+
+public function checkSubscriptionStatus(Request $request)
+{
+    // Assume the user ID and package ID are passed in the request
+    $user = auth()->user(); // Get authenticated user
+    $userPackage = $user->packages()->first(); // Fetch the user's package
+
+    if (!$userPackage) {
+        return response()->json(['message' => 'Package not found for the user.'], 404);
+    }
+
+    // Check if the subscription is enabled
+    if ($userPackage->pivot->is_enable == 0) {
+        return response()->json(['message' => 'Your subscription has ended.'], 400);
+    }
+
+    // Get the subscription end date
+    $currentEndDate = Carbon::parse($userPackage->pivot->end_date); // Assuming `end_date` exists
+    $now = Carbon::now();
+
+    // Calculate the remaining days
+    $remainingDays = $now->diffInDays($currentEndDate, false);
+
+    // Check if the subscription can be renewed
+    if ($remainingDays > 1) {
+        return response()->json(['message' => 'Your subscription is still active and cannot be renewed yet.'], 400);
+    }
+
+    // If remaining days are 1 or less, the user can renew
+    return response()->json(['message' => 'You can renew your subscription now.'], 200);
 }
+}
+
+
+

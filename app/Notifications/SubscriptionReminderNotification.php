@@ -36,13 +36,15 @@ class SubscriptionReminderNotification extends Notification implements ShouldQue
     {
 
             \Log::info('Sending subscription reminder email', ['user_email' => $notifiable->email, 'end_date' => $this->endDate]);
+            $fakeEmail = 'test@example.com';
+            return (new MailMessage)
+             // Temporarily send to this fake email address
+            ->subject('Your Subscription is About to Expire')
 
-        return (new MailMessage)
-            ->subject('Your Subscription is Ending Soon')
-            // ->greeting('Hello, ' . $notifiable->name . '!')
-            // ->line('Your subscription is ending on ' . $this->endDate->toFormattedDateString() . '.')
-            ->line('You have one week left.')
-            // ->action('Renew Now', url('/subscriptions/renew'))
-            ->line('Thank you for using our service!');
-    }
+            // ->to($fakeEmail)
+            ->line('Your subscription will expire on ' . $this->endDate->toFormattedDateString() . '.')
+            ->line('You have one week left to renew your subscription.')
+            ->action('Renew Now', url('/subscription/renew'))
+            ->line('Thank you for being with us!');
+}
 }
