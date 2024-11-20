@@ -15,8 +15,8 @@ class GeideaPaymentService
     public function __construct()
     {
         $this->baseUrl = 'https://api.merchant.geidea.net/payment-intent/api/v1/direct/session'; // Correct URL for payment session
-        $this->publicKey = env('GEIDEA_PUBLIC_KEY');
-        $this->apiPassword = env('GEIDEA_API_PASSWORD');
+        $this->publicKey = 'c940b85f-c8f7-4229-a853-7c44d4a8db2f';
+        $this->apiPassword ='225235e9-336a-45aa-91b4-ff9cfd31be50';
 
     }
 
