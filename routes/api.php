@@ -179,10 +179,12 @@ use App\Http\Controllers\RecordController;
 Route::post('/records', [RecordController::class, 'store']);
 
 
-
+###########################################################contact-us########################################################################################
 
 Route::post('/contact-us', [ContactUsController::class, 'store']);
-// routes/api.php
+
+###########################################################contact-us########################################################################################
+
 
 
 

@@ -253,45 +253,64 @@ public function renewUserPackage(Request $request)
 
 
 
-    public function updateSubscriptionDuration(Request $request)
-    {
-        $user = $request->user();
+public function updateSubscriptionDuration(Request $request)
+{
+    $user = $request->user();
 
-        // Validate request input for duration
-        $validatedData = $request->validate([
-            'duration' => 'required|string|in:month,three_months,year',
-        ]);
+    // Validate request input for duration
+    $validatedData = $request->validate([
+        'duration' => 'required|string|in:month,three_months,year',
+    ]);
 
-        // Find the active package for the user
-        $userPackage = $user->packages()->wherePivot('is_enable', true)->first();
+    // Find the active package for the user
+    $userPackage = $user->packages()->first();
 
-        if (!$userPackage) {
-            return response()->json(['message' => 'Active subscription not found'], 404);
+    // If no active package is found
+    if (!$userPackage) {
+        return response()->json(['message' => 'Active subscription not found. You can activate a new subscription.'], 404);
+    }
+
+    // Check if the subscription is still active
+    $currentEndDate = Carbon::parse($userPackage->pivot->end_date)->startOfDay();
+     $now = Carbon::now()->startOfDay();
+
+
+    // Check if the subscription is already enabled
+    if ($userPackage->pivot->is_enable) {
+        $remainingDays = $now->diffInDays($currentEndDate, false);
+        // \Log::info('currentEndDate days for subscription renewal:', ['remainingDays' => $currentEndDate]);
+        // \Log::info('Remaining days for subscription renewal:', ['remainingDays' => $remainingDays]);
+
+        if ($remainingDays > 1) {
+            return response()->json(['message' => 'Your subscription is still active and cannot be renewed yet.'], 400);
         }
+    }
 
-        // Set start date as today
-        $startDate = Carbon::now();
+    // Calculate the new end date based on the provided duration
+    $startDate = Carbon::now();
+    $endDate = $this->calculateEndDate($startDate, $validatedData['duration']);
 
-        // Calculate the new end date based on the duration
-        $endDate = $this->calculateEndDate($startDate, $validatedData['duration']);
+    // Update the subscription details
+    $user->packages()->updateExistingPivot($userPackage->id, [
+        'start_date' => $startDate,
+        'end_date' => $endDate,
+        'duration' => $validatedData['duration'],
+        'is_enable' => true,
+    ]);
 
-        // Update the pivot table with the new start and end dates, duration, and enable the package if not enabled
-        $user->packages()->updateExistingPivot($userPackage->id, [
+    // Activate QR codes for the user
+    QrCodeModel::where('user_id', $user->id)->update(['is_active' => 1]);
+
+    return response()->json([
+        'message' => 'Subscription duration updated successfully.',
+        'data' => [
+            'package_id' => $userPackage->id,
+            'duration' => $validatedData['duration'],
             'start_date' => $startDate,
             'end_date' => $endDate,
-            'duration' => $validatedData['duration'],
-            'is_enable' => true
-        ]);
+        ]
+    ], 200);
+}
 
-        return response()->json([
-            'message' => 'Subscription duration updated successfully',
-            'data' => [
-                'package_id' => $userPackage->id,
-                'duration' => $validatedData['duration'],
-                'start_date' => $startDate,
-                'end_date' => $endDate,
-            ]
-        ], 200);
-    }
 
 }
