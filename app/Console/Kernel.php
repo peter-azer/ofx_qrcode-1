@@ -33,7 +33,7 @@ class Kernel extends ConsoleKernel
                 $userPackage = $user->packages()->wherePivot('is_enable', true)->first();
                 $endDate = Carbon::parse($userPackage->pivot->end_date);
 
-                \Log::info('Notifying user:', ['user_id' => $user->id, 'end_date' => $endDate]);
+                \Log::info('Notifying user:', ['user_id' => $user->id, 'user_email' => $user->email,'end_date' => $endDate]);
 
                 $user->notify(new SubscriptionReminderNotification($endDate));
             }
