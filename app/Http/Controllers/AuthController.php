@@ -46,8 +46,9 @@ class AuthController extends Controller
         $user = User::create([
             'name'=> $record->name,
             'email' => $record->email,
+            'address' => $record->address,
             'phone' => $record->phone,
-            'password' => $record->password,  // Already hashed
+            'password' => $record->password, 
         ]);
 
         // Optionally delete the verification record after successful verification
@@ -64,6 +65,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'name'=> 'required|string',
+            'address' => 'required|string',
             'email' => 'required|email|unique:users,email',
             'phone' => 'required|string|unique:users',
             'password' => 'required|string|min:6',
@@ -71,13 +73,14 @@ class AuthController extends Controller
 
         $code = Str::random(6);
 
-        // Store the code and temporary user data in the email_verifications table
+
         DB::table('email_verifications')->updateOrInsert(
             ['email' => $request->email],
             [
 
                 'verification_code' => $code,
                 'expires_at' => Carbon::now()->addMinutes(10),
+                'address' => $request->address,
                 'name' => $request->name,
                 'phone' => $request->phone,
                 'password' => Hash::make($request->password),  // Store hashed password
@@ -99,6 +102,7 @@ public function signup(Request $request)
     $validator = Validator::make($request->all(), [
         'name' => 'required|string',
         'phone' => 'required|string|unique:users',
+        'address' => 'required|string',
         'email' => 'required|string|email|unique:users',
         'password' => 'required|string|min:6',
     ]);
