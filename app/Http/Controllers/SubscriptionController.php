@@ -112,6 +112,7 @@ public function updateQrCodeLimit(Request $request)
 
     // Update the qrcode_limit in the pivot table
     $newQrCodeLimit = $userPackage->pivot->qrcode_limit + $validatedData['qrcode_limit'];
+    $userPackage->pivot->qrcode_limit =$newQrCodeLimit;
     $userPackage->pivot->is_enable='1';
     $userPackage->pivot->save();
    QrCodeModel::where('user_id', $user->id)->update(['is_active' => 1]);
