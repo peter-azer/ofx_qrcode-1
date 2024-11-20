@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\QrCodeModel;
 use Illuminate\Http\Request;
 // app/Http/Controllers/AuthController.php
 
@@ -235,6 +236,17 @@ public function signup(Request $request)
             'status' => 'success',
             'user_data' => $userData,
         ], 200);
+    }
+
+    public function count()
+    {
+        $count_user = User::count();
+        $count_qrcode = QrCodeModel::count();
+
+        return response()->json([
+            'total_user' => $count_user,
+            'total_qr' => $count_qrcode,
+        ]);
     }
 }
 

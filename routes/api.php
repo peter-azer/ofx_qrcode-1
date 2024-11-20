@@ -34,6 +34,7 @@ Route::post('/signup', [AuthController::class, 'sendVerificationCode']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
+Route::get('/count_user&qr', [AuthController::class, 'count']);
 
 ###########################################################QR-CODE########################################################################################
 
