@@ -36,10 +36,10 @@ class SubscriptionReminderNotification extends Notification implements ShouldQue
     {
         return (new MailMessage)
             ->subject('Your Subscription is Ending Soon')
-            ->greeting('Hello, ' . $notifiable->name . '!')
-            ->line('Your subscription is ending on ' . $this->endDate->toFormattedDateString() . '.')
+            // ->greeting('Hello, ' . $notifiable->name . '!')
+            // ->line('Your subscription is ending on ' . $this->endDate->toFormattedDateString() . '.')
             ->line('You have one week left.')
-            ->action('Renew Now', url('/subscriptions/renew'))
+            // ->action('Renew Now', url('/subscriptions/renew'))
             ->line('Thank you for using our service!');
     }
 }
