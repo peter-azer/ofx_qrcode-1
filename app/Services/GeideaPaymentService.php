@@ -53,7 +53,7 @@ class GeideaPaymentService
 
     $merchantReferenceId = uniqid();
     $timestamp = date('Y-m-d\TH:i:s\Z');
-    $signature = $this->generateSignature($this->publicKey, $formattedAmount, $currency, $merchantReferenceId,$this->apiPassword, $timestamp);
+    $signature = $this->generateSignature('c940b85f-c8f7-4229-a853-7c44d4a8db2f', $formattedAmount, $currency, $merchantReferenceId,'225235e9-336a-45aa-91b4-ff9cfd31be50', $timestamp);
 
     // Prepare the payload for the API request
     $payload = [
