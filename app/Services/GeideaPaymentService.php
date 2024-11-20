@@ -67,9 +67,10 @@ class GeideaPaymentService
 
 
 
-    Log::info('Geidea Payment Session Request:', ['payload' => $payload]);
+    Log::info(' Request:', ['publickey' => $this->publicKey]);
 
     try {
+
 
         $response = Http::withBasicAuth($this->publicKey, $this->apiPassword)
             ->post($this->baseUrl, $payload);
