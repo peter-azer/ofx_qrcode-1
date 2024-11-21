@@ -18,60 +18,59 @@ class SubscriptionController extends Controller
 
 
 
+    public function store(Request $request)
+    {
+        // Validate the incoming request data
+        $validatedData = $request->validate([
+            'package_id' => 'required|exists:packages,id',
+            'duration' => 'required|string|in:month,three_months,year',
+        ]);
 
-public function store(Request $request)
-{
-    // Validate the incoming request data
-    $validatedData = $request->validate([
-        'package_id' => 'required|exists:packages,id',
-        'duration' => 'required|string|in:month,three_months,year',
-    ]);
+        $user = $request->user();
 
-    // Get the user ID from the authenticated user
-    $user = $request->user();
+        // Retrieve the package being subscribed to
+        $package = Package::findOrFail($validatedData['package_id']);
+        $qrcodeLimit = $package->max_qrcode ?? 0;
 
-    // Define the QR code limits for each package
-    // $qrCodeLimits = [
-    //     1 => 10,   // Package 1 has a limit of 10 QR codes
-    //     2 => 50,   // Package 2 has a limit of 50 QR codes
-    //     3 => 100,  // Package 3 has a limit of 100 QR codes
-    // ];
+        // Calculate the start and end dates based on the subscription duration
+        $startDate = Carbon::now();
+        $endDate = $this->calculateEndDate(clone $startDate, $validatedData['duration']);
 
-    // Get the QR code limit for the selected package
-    $package = Package::find($validatedData['package_id']);// Default to 0 if no limit is found
-    $qrcodeLimit = $package->max_qrcode ?? 0;
-    // Calculate the start and end dates based on the subscription duration
-    $startDate = Carbon::now();
-    $endDate = $this->calculateEndDate(clone $startDate, $validatedData['duration']);
+        // Check if the user already has an active package
+        $existingPackage = $user->packages()->first();
 
-   // Check if the user already has an active package in the 'user_packages' pivot table
-//    $existingPackage = $user->packages()->first();
+        if ($existingPackage) {
+            // Update the existing package
+            $user->packages()->updateExistingPivot($existingPackage->id, [
+                'duration' => $validatedData['duration'],
+                'qrcode_limit' => $qrcodeLimit,
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+            ]);
+        } else {
+            // Attach a new package
+            $user->packages()->attach($validatedData['package_id'], [
+                'duration' => $validatedData['duration'],
+                'qrcode_limit' => $qrcodeLimit,
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+            ]);
+        }
 
-//    if ($existingPackage) {
-//        return response()->json(['message' => 'User is already subscribed'], 400);
-//    }
+        // Return a success message with the new package details
+        return response()->json([
+            'message' => $existingPackage ? 'Package updated successfully.' : 'Package subscribed successfully.',
+            'data' => [
+                'user_id' => $user->id,
+                'package_id' => $validatedData['package_id'],
+                'duration' => $validatedData['duration'],
+                'qrcode_limit' => $qrcodeLimit,
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+            ]
+        ], 201);
+    }
 
-    // Attach the new package to the user with the provided duration and QR code limit
-    $user->packages()->attach($validatedData['package_id'], [
-        'duration' => $validatedData['duration'],
-        'qrcode_limit' => $qrcodeLimit,
-        'start_date' => $startDate,
-        'end_date' => $endDate,
-    ]);
-
-    // Return a success message with the new package details
-    return response()->json([
-        'message' => 'Package subscribed successfully.',
-        'data' => [
-            'user_id' => $user->id,
-            'package_id' => $validatedData['package_id'],
-            'duration' => $validatedData['duration'],
-            'qrcode_limit' => $qrcodeLimit,
-            'start_date' => $startDate,
-            'end_date' => $endDate,
-        ]
-    ], 201);
-}
 
 
 
