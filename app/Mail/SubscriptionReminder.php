@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-
+use Carbon\Carbon;
 class SubscriptionReminder extends Mailable
 {
     use Queueable, SerializesModels;
@@ -31,12 +31,14 @@ class SubscriptionReminder extends Mailable
      */
     public function build()
     {
+        $endDate = Carbon::parse($this->user->packages->first()->pivot->end_date);
+
         return $this->subject('Subscription Expiry Reminder')
                     ->view('emails.subscription_reminder')
                     ->with([
                         'name' => $this->user->name,
                         'email' => $this->user->email,
-                        'endDate' => $this->user->packages->first()->pivot->end_date,
+                        'endDate' => $endDate, // Pass Carbon instance here
                     ]);
     }
 }
