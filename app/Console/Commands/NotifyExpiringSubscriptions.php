@@ -31,33 +31,34 @@ class NotifyExpiringSubscriptions extends Command
         })->get();
 
         foreach ($users as $user) {
-
             if ($user->packages->isNotEmpty()) {
+                try {
+                    // Access the first package's pivot 'end_date' (if multiple, choose the one you need)
+                    $endDate = $user->packages->first()->pivot->end_date;
 
-            try {
-                // Access the first package's pivot 'end_date' (if multiple, choose the one you need)
-                $endDate = $user->packages->first()->pivot->end_date;
+                    if ($endDate) {
+                        // Ensure the $endDate is a Carbon instance to avoid issues with format()
+                        $endDate = Carbon::parse($endDate);
 
-                if ($endDate) {
-                    // Use notify method to send the notification
-                    Mail::to($user->email)->send(new SubscriptionReminder($user));
+                        // Send the subscription reminder email
+                        Mail::to($user->email)->send(new SubscriptionReminder($user));
 
-                    // Log email sent
-                    \Log::info('Subscription expiry notification sent to: ' . $user->email);
-                } else {
-                    \Log::warning('No end date found for user: ' . $user->email);
+                        // Log email sent
+                        \Log::info('Subscription expiry notification sent to: ' . $user->email . ' for package expiring on ' . $endDate->format('F j, Y'));
+                    } else {
+                        \Log::warning('No end date found for user: ' . $user->email);
+                    }
+
+                } catch (\Exception $e) {
+                    // Log error if email fails
+                    \Log::error('Failed to send email to: ' . $user->email . ' | Error: ' . $e->getMessage());
                 }
-
-            } catch (\Exception $e) {
-                // Log error if email fails
-                \Log::error('Failed to send email to: ' . $user->email . ' | Error: ' . $e->getMessage());
+            } else {
+                \Log::warning('No active packages found for user: ' . $user->email);
             }
-        } else {
-            \Log::warning('No active packages found for user: ' . $user->email);
         }
-    }
 
-    // Return success response after processing all users
-    return response()->json(['message' => 'Subscription reminder emails sent.'], 200);
-}
+        // Return success response after processing all users
+        return response()->json(['message' => 'Subscription reminder emails sent.'], 200);
+    }
 }
