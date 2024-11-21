@@ -27,7 +27,7 @@ class SubscriptionReminderNotification extends Notification
 
         return (new MailMessage)
             ->subject('Your Subscription is About to Expire')
-            ->line('Your subscription will expire on ' . $this->endDate->toFormattedDateString() . '.')
+            ->line('Your subscription will expire on ' . $this->endDate)
             ->line('You have one week left to renew your subscription.')
             ->action('Renew Now', url('/subscription/renew'))
             ->line('Thank you for being with us!');
