@@ -77,11 +77,3 @@ class User extends Authenticatable
 
 
 
-/** The name of the database for WordPress */
-define( 'DB_NAME', 'u357135119_8CgUP' );
-
-/** Database username */
-define( 'DB_USER', 'u357135119_ZRiZx' );
-
-/** Database password */
-define( 'DB_PASSWORD', 'RfJUAmWqPU' );

@@ -30,20 +30,33 @@ class NotifyExpiringSubscriptions extends Command
         })->get();
 
         foreach ($users as $user) {
-            try {
-                // Use notify method to send the notification
-                $user->notify(new SubscriptionReminderNotification($user->pivot->end_date));
 
-                // Log email sent
-                \Log::info('Subscription expiry notification sent to: ' . $user->email);
+            if ($user->packages->isNotEmpty()) {
+
+            try {
+                // Access the first package's pivot 'end_date' (if multiple, choose the one you need)
+                $endDate = $user->packages->first()->pivot->end_date;
+
+                if ($endDate) {
+                    // Use notify method to send the notification
+                    $user->notify(new SubscriptionReminderNotification($endDate));
+
+                    // Log email sent
+                    \Log::info('Subscription expiry notification sent to: ' . $user->email);
+                } else {
+                    \Log::warning('No end date found for user: ' . $user->email);
+                }
 
             } catch (\Exception $e) {
                 // Log error if email fails
                 \Log::error('Failed to send email to: ' . $user->email . ' | Error: ' . $e->getMessage());
             }
+        } else {
+            \Log::warning('No active packages found for user: ' . $user->email);
         }
-
-        // Return success response after processing all users
-        return response()->json(['message' => 'Subscription reminder emails sent.'], 200);
     }
+
+    // Return success response after processing all users
+    return response()->json(['message' => 'Subscription reminder emails sent.'], 200);
+}
 }
