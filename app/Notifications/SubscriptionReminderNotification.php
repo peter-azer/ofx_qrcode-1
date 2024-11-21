@@ -5,6 +5,7 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Carbon;
 
 class SubscriptionReminderNotification extends Notification
 {
@@ -17,6 +18,8 @@ class SubscriptionReminderNotification extends Notification
 
     public function toMail($notifiable)
     {
+        $endDate = Carbon::parse($this->endDate);  // Make sure this is a Carbon instance
+
         \Log::info('Sending subscription reminder email', [
             'user_email' => $notifiable->email,
             'end_date' => $this->endDate
