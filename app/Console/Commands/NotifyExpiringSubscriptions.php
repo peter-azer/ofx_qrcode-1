@@ -32,7 +32,7 @@ class NotifyExpiringSubscriptions extends Command
         foreach ($users as $user) {
             try {
                 // Use notify method to send the notification
-                $user->notify(new SubscriptionReminderNotification($user->end_date));
+                $user->notify(new SubscriptionReminderNotification($user->pivot->end_date));
 
                 // Log email sent
                 \Log::info('Subscription expiry notification sent to: ' . $user->email);
