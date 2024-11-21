@@ -45,11 +45,11 @@ public function store(Request $request)
     $endDate = $this->calculateEndDate(clone $startDate, $validatedData['duration']);
 
    // Check if the user already has an active package in the 'user_packages' pivot table
-   $existingPackage = $user->packages()->first();
+//    $existingPackage = $user->packages()->first();
 
-   if ($existingPackage) {
-       return response()->json(['message' => 'User is already subscribed'], 400);
-   }
+//    if ($existingPackage) {
+//        return response()->json(['message' => 'User is already subscribed'], 400);
+//    }
 
     // Attach the new package to the user with the provided duration and QR code limit
     $user->packages()->attach($validatedData['package_id'], [
