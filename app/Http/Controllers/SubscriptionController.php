@@ -41,7 +41,7 @@ class SubscriptionController extends Controller
 
         if ($existingPackage) {
             // Update the existing package
-            $user->packages()->updateExistingPivot($existingPackage->id, [
+            $user->packages()->update($existingPackage->id, [
                 'duration' => $validatedData['duration'],
                 'qrcode_limit' => $qrcodeLimit,
                 'start_date' => $startDate,
