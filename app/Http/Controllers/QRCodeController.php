@@ -33,7 +33,7 @@ class QRCodeController extends Controller
 
 
         $packageId = $request->input('package_id');
-        $userPackage = $user->package(); // Assuming `package` is the relationship
+        $userPackage = $user->packages(); // Assuming `package` is the relationship
      \log::info('userinfo', $userPackage);
         if ( $userPackage->pivot->package_id == 1) {
             // Check if the user has exceeded the scan count limit
