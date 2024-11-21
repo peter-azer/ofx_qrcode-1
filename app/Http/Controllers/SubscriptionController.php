@@ -40,13 +40,17 @@ class SubscriptionController extends Controller
         $existingPackage = $user->packages()->first();
 
         if ($existingPackage) {
-            // Update the existing package
-            $user->packages()->update($existingPackage->id, [
+            // Detach the existing package
+            $user->packages()->detach($existingPackage->id);
+
+            // Attach the new package with updated data
+            $user->packages()->attach($validatedData['package_id'], [
                 'duration' => $validatedData['duration'],
                 'qrcode_limit' => $qrcodeLimit,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
             ]);
+        
         } else {
             // Attach a new package
             $user->packages()->attach($validatedData['package_id'], [
