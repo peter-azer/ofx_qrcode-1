@@ -33,17 +33,21 @@ class QRCodeController extends Controller
 
 
         $packageId = $request->input('package_id');
+        $userPackage = $user->package(); // Assuming `package` is the relationship
+     \log::info('userinfo', $userPackage);
+        if ( $userPackage->pivot->package_id == 1) {
+            // Check if the user has exceeded the scan count limit
+            $userQrCodeWithMaxScan = QrCodeModel::where('user_id', $user->id)
+                ->where('scan_count', '>=', 20)
+                ->exists();
 
-   $userQrCodeWithMaxScan = QrCodeModel::where('user_id', $user->id)
-   ->where('scan_count', '>=', 20)
-   ->exists();
-
-// If the user has exceeded the limit, return an error response
-if ($userQrCodeWithMaxScan) {
-   return response()->json([
-       'message' => 'You have reached the maximum scan limit of 20 for one of your QR codes.',
-   ], 400);
-}
+            // If the user has exceeded the limit, return an error response
+            if ($userQrCodeWithMaxScan) {
+                return response()->json([
+                    'message' => 'You have reached the maximum scan limit of 20 for one of your QR codes.',
+                ], 400);
+            }
+        }
         $link = $validatedData['link'];
 
         // Create new QR Code Model entry
