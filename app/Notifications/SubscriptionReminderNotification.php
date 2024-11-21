@@ -4,51 +4,35 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class SubscriptionReminderNotification extends Notification implements ShouldQueue
+class SubscriptionReminderNotification extends Notification
 {
-    use Queueable;
+    protected $endDate;
 
-    public $endDate;
-
-    /**
-     * Create a new notification instance.
-     */
     public function __construct($endDate)
-
-
-
-    
     {
         $this->endDate = $endDate;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     */
-    public function via($notifiable)
-    {
-        return ['mail'];
-    }
-
-    /**
-     * Get the mail representation of the notification.
-     */
     public function toMail($notifiable)
     {
+        \Log::info('Sending subscription reminder email', [
+            'user_email' => $notifiable->email,
+            'end_date' => $this->endDate
+        ]);
 
-            \Log::info('Sending subscription reminder email', ['user_email' => $notifiable->email, 'end_date' => $this->endDate]);
-
-            return (new MailMessage)
-             // Temporarily send to this fake email address
+        return (new MailMessage)
             ->subject('Your Subscription is About to Expire')
-
-
             ->line('Your subscription will expire on ' . $this->endDate->toFormattedDateString() . '.')
             ->line('You have one week left to renew your subscription.')
             ->action('Renew Now', url('/subscription/renew'))
             ->line('Thank you for being with us!');
-}
+    }
+
+    // Optional: If you need to define additional channels, you can do so here
+    public function via($notifiable)
+    {
+        return ['mail']; // Indicates this notification should be sent via email
+    }
 }
