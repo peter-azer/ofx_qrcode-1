@@ -17,6 +17,10 @@ class SubscriptionReminderNotification extends Notification implements ShouldQue
      * Create a new notification instance.
      */
     public function __construct($endDate)
+
+
+
+    
     {
         $this->endDate = $endDate;
     }
@@ -41,7 +45,7 @@ class SubscriptionReminderNotification extends Notification implements ShouldQue
              // Temporarily send to this fake email address
             ->subject('Your Subscription is About to Expire')
 
-           
+
             ->line('Your subscription will expire on ' . $this->endDate->toFormattedDateString() . '.')
             ->line('You have one week left to renew your subscription.')
             ->action('Renew Now', url('/subscription/renew'))
