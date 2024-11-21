@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\SubscriptionReminder;
 use App\Notifications\SubscriptionReminderNotification;
 use Illuminate\Console\Command;
 use App\Models\User;
@@ -39,7 +40,7 @@ class NotifyExpiringSubscriptions extends Command
 
                 if ($endDate) {
                     // Use notify method to send the notification
-                    $user->notify(new SubscriptionReminderNotification($endDate));
+                    Mail::to($user->email)->send(new SubscriptionReminder($user));
 
                     // Log email sent
                     \Log::info('Subscription expiry notification sent to: ' . $user->email);
