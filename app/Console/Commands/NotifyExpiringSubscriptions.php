@@ -58,7 +58,9 @@ class NotifyExpiringSubscriptions extends Command
             }
         }
 
-        // Return success response after processing all users
-        return response()->json(['message' => 'Subscription reminder emails sent.'], 200);
+        // Return success exit code (0) for successful execution
+        $this->info('Subscription reminder emails sent successfully.');
+        return 0;  // Return the exit code
     }
+
 }
