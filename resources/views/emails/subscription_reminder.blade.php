@@ -63,7 +63,7 @@
 
         <div class="footer">
             <p>You are receiving this email because you subscribed to OFX QR services.
-               If you have any concerns, please <a href="mailto:support@ofx-qrcode.com">contact support</a>.</p>
+               If you have any concerns, please <a href="mailto:ofxqrcod@ofx-qrcode.com">contact support</a>.</p>
         </div>
     </div>
 </body>
