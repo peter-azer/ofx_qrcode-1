@@ -27,7 +27,7 @@ Route::post('/forget-password', [AuthController::class, 'forgetPassword']);
 
 Route::get('/user_info', [AuthController::class, 'getUserData'])->middleware('auth:sanctum');
 
-
+Route::post('/testmail', [AuthController::class, 'sendMail']);
 
 Route::post('/signup', [AuthController::class, 'sendVerificationCode']);
 // Route::get('/verify-code', [AuthController::class, 'verifyCode']);

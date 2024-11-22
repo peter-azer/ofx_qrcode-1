@@ -48,7 +48,7 @@ class AuthController extends Controller
             'email' => $record->email,
             'address' => $record->address,
             'phone' => $record->phone,
-            'password' => $record->password, 
+            'password' => $record->password,
         ]);
 
         // Optionally delete the verification record after successful verification
@@ -93,6 +93,24 @@ class AuthController extends Controller
         Mail::to($request->email)->send(new EmailVerificationCode($code));
 
         return response()->json(['message' => 'Verification code sent to your email'], 200);
+    }
+
+
+
+    public function sendMail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        $code = rand(100000, 999999); // Generate a random 6-digit code
+
+        try {
+            Mail::to($request->email)->send(new EmailVerificationCode($code));
+            return response()->json(['message' => 'Email sent successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to send email', 'error' => $e->getMessage()], 500);
+        }
     }
 
 
