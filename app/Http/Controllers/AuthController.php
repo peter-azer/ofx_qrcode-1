@@ -107,12 +107,29 @@ class AuthController extends Controller
 
         try {
             Mail::to($request->email)->send(new EmailVerificationCode($code));
+
+            // Log success
+            \Log::info('Email sent successfully to ' . $request->email);
+
             return response()->json(['message' => 'Email sent successfully'], 200);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Failed to send email', 'error' => $e->getMessage()], 500);
+            // Log the error details
+            \Log::error('Failed to send email. Error: ' . $e->getMessage());
+            \Log::error('SMTP Configuration: ', [
+                'MAIL_MAILER' => config('mail.mailer'),
+                'MAIL_HOST' => config('mail.host'),
+                'MAIL_PORT' => config('mail.port'),
+                'MAIL_USERNAME' => config('mail.username'),
+                'MAIL_FROM_ADDRESS' => config('mail.from.address'),
+                'MAIL_ENCRYPTION' => config('mail.encryption'),
+            ]);
+
+            return response()->json([
+                'message' => 'Failed to send email',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
-
 
 
 public function signup(Request $request)
