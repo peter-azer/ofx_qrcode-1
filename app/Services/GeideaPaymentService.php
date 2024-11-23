@@ -15,9 +15,10 @@ class GeideaPaymentService
     public function __construct()
     {
         $this->baseUrl = 'https://api.merchant.geidea.net/payment-intent/api/v2/direct/session'; // Correct URL for payment session
-        $this->publicKey = 'c940b85f-c8f7-4229-a853-7c44d4a8db2f';
-        $this->apiPassword ='225235e9-336a-45aa-91b4-ff9cfd31be50';
-
+        // $this->publicKey = 'c940b85f-c8f7-4229-a853-7c44d4a8db2f'; //test
+        // $this->apiPassword ='225235e9-336a-45aa-91b4-ff9cfd31be50';
+ $this->publicKey = 'b42f3fd5-782e-4d86-afda-0efbed7a1711'; //live
+$this->apiPassword ='924eedea-4be1-4ef5-8324-e42e23255337';
     }
 
     /**
@@ -53,7 +54,7 @@ class GeideaPaymentService
 
     $merchantReferenceId = uniqid();
     $timestamp = date('Y-m-d\TH:i:s\Z');
-    $signature = $this->generateSignature('c940b85f-c8f7-4229-a853-7c44d4a8db2f', $formattedAmount, $currency, $merchantReferenceId,'225235e9-336a-45aa-91b4-ff9cfd31be50', $timestamp);
+    $signature = $this->generateSignature('b42f3fd5-782e-4d86-afda-0efbed7a1711', $formattedAmount, $currency, $merchantReferenceId,'924eedea-4be1-4ef5-8324-e42e23255337', $timestamp);
 
     // Prepare the payload for the API request
     $payload = [
