@@ -14,7 +14,7 @@ class GeideaPaymentService
 
     public function __construct()
     {
-        $this->baseUrl = 'https://api.merchant.geidea.net/payment-intent/api/v1/direct/session'; // Correct URL for payment session
+        $this->baseUrl = 'https://api.merchant.geidea.net/payment-intent/api/v2/direct/session'; // Correct URL for payment session
         $this->publicKey = 'c940b85f-c8f7-4229-a853-7c44d4a8db2f';
         $this->apiPassword ='225235e9-336a-45aa-91b4-ff9cfd31be50';
 
@@ -31,7 +31,7 @@ class GeideaPaymentService
         $data = "{$merchantPublicKey}{$amountStr}{$orderCurrency}{$orderMerchantReferenceId}{$timestamp}";
 
         // Generate HMAC SHA256 hash and encode it in Base64
-        $hash = hash_hmac('sha256', $data,  true);
+        $hash = hash_hmac('sha256', $data,  $this->apiPassword,true);
         return base64_encode($hash);
     }
 
@@ -61,13 +61,13 @@ class GeideaPaymentService
         'currency' => $currency,
         'timestamp' => $timestamp,
         'merchantReferenceId' => $merchantReferenceId,
-        // 'signature' =>$signature,
+        'signature' =>$signature,
         'callbackUrl' => $callbackUrl,
     ];
 
 
 
-    Log::info(' Request:', ['publickey' => $this->publicKey]);
+    // Log::info(' Request:', ['Request' => $payload]);
 
     try {
 

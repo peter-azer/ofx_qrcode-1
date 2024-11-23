@@ -2,23 +2,33 @@
 
 namespace App\Console\Commands;
 
-use App\Mail\SubscriptionReminder;
-use App\Notifications\SubscriptionReminderNotification;
 use Illuminate\Console\Command;
 use App\Models\User;
-use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SubscriptionReminder;
 
 class NotifyExpiringSubscriptions extends Command
 {
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
     protected $signature = 'subscriptions:notify-expiring';
-    protected $description = 'Notify users about expiring subscriptions';
 
-    public function __construct()
-    {
-        parent::__construct();
-    }
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Notify users about subscriptions expiring within the next 7 days';
 
+    /**
+     * Execute the console command.
+     *
+     * @return void
+     */
     public function handle()
     {
         // Get users with active subscriptions ending in the next 7 days
@@ -62,5 +72,4 @@ class NotifyExpiringSubscriptions extends Command
         $this->info('Subscription reminder emails sent successfully.');
         return 0;  // Return the exit code
     }
-
 }
