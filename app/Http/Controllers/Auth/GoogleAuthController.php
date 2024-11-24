@@ -66,7 +66,7 @@ class GoogleAuthController extends Controller
                     'email' => $googleUser->getEmail(),
                     'google_id' => $googleUser->getId(),
                     'avatar' => $googleUser->getAvatar(),
-                    'password' => bcrypt('random-password'), // You can use a random password or keep it null
+                    'password' => bcrypt('random-password'), 
                 ]);
             }
 
