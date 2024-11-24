@@ -12,7 +12,7 @@ class GoogleAuthController extends Controller
     // Redirect to Google for authentication
     public function redirectToGoogle()
     {
-        return Socialite::driver('google')->redirect();
+        return Socialite::driver('google')->stateless()->redirect();
     }
 
     // Handle Google callback
