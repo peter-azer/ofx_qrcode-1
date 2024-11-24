@@ -39,6 +39,12 @@ return [
     'public_key' => env('GEIDEA_PUBLIC_KEY'),
     'api_password' => env('GEIDEA_API_PASSWORD'),
 ],
+'google' => [
+    'client_id' => env('GOOGLE_CLIENT_ID'),
+    'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+    'redirect' => env('GOOGLE_REDIRECT_URL'),
+],
+
 
 
 ];

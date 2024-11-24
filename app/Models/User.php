@@ -7,9 +7,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory,Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
     /**
      * The attributes that are mass assignable.
      *
@@ -21,6 +22,8 @@ class User extends Authenticatable
         'email',
         'address',
         'password',
+        'google_id',
+        'avatar',
         'updated_at',
         'created_at'
 
@@ -49,11 +52,11 @@ class User extends Authenticatable
         ];
     }
 
-   public function packages()
+    public function packages()
     {
         return $this->belongsToMany(Package::class, 'user_packages')
-                    ->withPivot('qrcode_limit','end_date','start_date','is_enable') // Add pivot data like qrcode_limit
-                    ->withTimestamps(); // Automatically manage created_at and updated_at timestamps
+            ->withPivot('qrcode_limit', 'end_date', 'start_date', 'is_enable') // Add pivot data like qrcode_limit
+            ->withTimestamps(); // Automatically manage created_at and updated_at timestamps
     }
 
 
@@ -73,8 +76,4 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Code::class);
     }
-
 }
-
-
-

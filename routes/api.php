@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\CodeController;
 use App\Http\Controllers\ContactUsController;
 use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\Auth\GoogleAuthController;
 ###########################################################USER_AUTH########################################################################################
 
 
@@ -36,15 +37,21 @@ Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink
 Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
 Route::get('/count_user&qr', [AuthController::class, 'count']);
 
+
+
+
+
+
+Route::get('auth/google', [GoogleAuthController::class, 'redirectToGoogle']);
+Route::get('auth/google/callback', [GoogleAuthController::class, 'handleGoogleSignUpOrLogin']);
+
 ###########################################################QR-CODE########################################################################################
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/generate-qrcode', [QRCodeController::class, 'generateQRCode']);
     Route::post('/generate-qrcode/whatsapp', [QRCodeController::class, 'generateWhatsappQrCode']);
     Route::post('/generate-pdf-qrcode', [QrCodeController::class, 'generatePdfQrCode']);
-Route::post('/generate-wifi-qrcode', [QrCodeController::class, 'generatewifiQrCode']);
-
-
+    Route::post('/generate-wifi-qrcode', [QrCodeController::class, 'generatewifiQrCode']);
 });
 
 Route::get('/scan_qrcode/{name}', [QrCodeController::class, 'trackAndRedirect']);
@@ -65,8 +72,8 @@ Route::delete('/qrcode/{id}', [Smart_QRCodeController::class, 'deleteQRCodeById'
 
 ###########################################################Smart_QRCode########################################################################################
 Route::middleware('auth:sanctum')->group(function () {
-Route::post('/qrcode/smart', [Smart_QRCodeController::class, 'generatesmartQRCodev2']);///unused
-Route::get('/track-qr-code/{name}', [QrCodeController::class, 'trackAndRedirectAPI']);
+    Route::post('/qrcode/smart', [Smart_QRCodeController::class, 'generatesmartQRCodev2']); ///unused
+    Route::get('/track-qr-code/{name}', [QrCodeController::class, 'trackAndRedirectAPI']);
 });
 
 Route::middleware('auth:sanctum')->post('/track-qr-code/{id}', [QrCodeController::class, 'trackQRCode']);
@@ -75,7 +82,7 @@ Route::middleware('auth:sanctum')->post('/track-qr-code/{id}', [QrCodeController
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profile', [qrcodev2Controller::class, 'saveProfileData']);
     Route::post('/qr-code/{profile_id}', [qrcodev2Controller::class, 'generateQRCodeByProfileId']);
-    });
+});
 
 
 #********************************************************USER_PROFILE*************************************************************************************************
@@ -121,13 +128,13 @@ Route::middleware('auth:sanctum')->get('/check-subscription-status', [Subscripti
 
 
 
- // Get subscriptions by user ID
+// Get subscriptions by user ID
 Route::get('/subscriptions/package/{packageId}', [SubscriptionController::class, 'getByPackageId']);  // Get subscriptions by package ID    //for admin
 
 
 
 
-Route::match(['GET','POST'],'/payment/callback', [PaymentController::class, 'handleCallback']);
+Route::match(['GET', 'POST'], '/payment/callback', [PaymentController::class, 'handleCallback']);
 ###########################################################GEIDEA_PAYMENT########################################################################################
 
 Route::post('/payment/initiate', [PaymentController::class, 'initializePayment']);
@@ -140,9 +147,8 @@ Route::post('/send-money', [PaymentController::class, 'sendMoney']);
 ###########################################################transaction########################################################################################
 Route::middleware('auth:sanctum')->group(function () {
 
-Route::post('/transactions', [UserTransactionController::class, 'store']);
-Route::get('/transactions/user', [UserTransactionController::class, 'getByUser']);
-
+    Route::post('/transactions', [UserTransactionController::class, 'store']);
+    Route::get('/transactions/user', [UserTransactionController::class, 'getByUser']);
 });
 Route::get('/transactions', [UserTransactionController::class, 'getAll']);
 
@@ -161,8 +167,8 @@ Route::get('/link', function () {
 });
 ###########################################################code########################################################################################
 Route::middleware('auth:sanctum')->group(function () {
-Route::post('/codes/validate', [CodeController::class, 'validateCode']);
-Route::get('/code/check/{package_id}', [CodeController::class, 'checkUserCodeStatus']);
+    Route::post('/codes/validate', [CodeController::class, 'validateCode']);
+    Route::get('/code/check/{package_id}', [CodeController::class, 'checkUserCodeStatus']);
 });
 
 
@@ -185,7 +191,3 @@ Route::post('/records', [RecordController::class, 'store']);
 Route::post('/contact-us', [ContactUsController::class, 'store']);
 
 ###########################################################contact-us########################################################################################
-
-
-
-
