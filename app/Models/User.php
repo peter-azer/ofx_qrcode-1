@@ -24,6 +24,7 @@ class User extends Authenticatable
         'password',
         'google_id',
         'avatar',
+        'role',
         'updated_at',
         'created_at'
 
@@ -76,4 +77,12 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Code::class);
     }
+
+    public function qrcode()
+    {
+        return $this->hasMany(QrCodeModel::class);
+    }
+
+    //create api for admin dashboard that get all user if has packages return his detalis  and num of his qrcodes if not  has return info of user and this user not subscribe yet 
+
 }

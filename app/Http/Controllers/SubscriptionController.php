@@ -50,7 +50,6 @@ class SubscriptionController extends Controller
                 'start_date' => $startDate,
                 'end_date' => $endDate,
             ]);
-        
         } else {
             // Attach a new package
             $user->packages()->attach($validatedData['package_id'], [
@@ -79,109 +78,108 @@ class SubscriptionController extends Controller
 
 
 
-private function calculateEndDate($startDate, $duration)
-{
-    switch ($duration) {
-        case 'month':
-            return $startDate->copy()->addMonth();
-        case 'three_months':
-            return $startDate->copy()->addMonths(3);
-        case 'year':
-            return $startDate->copy()->addYear();
-        default:
-            throw new \InvalidArgumentException("Invalid duration: $duration");
+    private function calculateEndDate($startDate, $duration)
+    {
+        switch ($duration) {
+            case 'month':
+                return $startDate->copy()->addMonth();
+            case 'three_months':
+                return $startDate->copy()->addMonths(3);
+            case 'year':
+                return $startDate->copy()->addYear();
+            default:
+                throw new \InvalidArgumentException("Invalid duration: $duration");
+        }
     }
 
-}
 
 
+    public function updateQrCodeLimit(Request $request)
+    {
+        $user = $request->user();
 
-public function updateQrCodeLimit(Request $request)
-{
-    $user = $request->user();
+        $validatedData = $request->validate([
+            'qrcode_limit' => 'required|integer|min:0', // Ensure it's a positive integer
+        ]);
 
-    $validatedData = $request->validate([
-        'qrcode_limit' => 'required|integer|min:0', // Ensure it's a positive integer
-    ]);
+        // Get the user's package (package_id = 3)
+        $userPackage = $user->packages()->where('user_id', $user->id)->first();
+        // \Log::info('User Package:', ['user_package' => $userPackage]);
+        if (!$userPackage) {
+            return response()->json([
+                'message' => 'User does not have Package 3.',
+            ], 400);
+        }
 
-    // Get the user's package (package_id = 3)
-    $userPackage = $user->packages()->where('user_id' , $user->id)->first();
-    // \Log::info('User Package:', ['user_package' => $userPackage]);
-    if (!$userPackage) {
-        return response()->json([
-            'message' => 'User does not have Package 3.',
-        ], 400);
-    }
-
-    // Update the qrcode_limit in the pivot table
-    $newQrCodeLimit = $userPackage->pivot->qrcode_limit + $validatedData['qrcode_limit'];
-    $userPackage->pivot->qrcode_limit =$newQrCodeLimit;
-    $userPackage->pivot->is_enable='1';
-    $userPackage->pivot->save();
-   QrCodeModel::where('user_id', $user->id)->update(['is_active' => 1]);
-    return response()->json([
-        'message' => 'QR code limit updated successfully.',
-        'data' => [
-            'user_id' => $user->id,
-            'package_id' =>   $userPackage->pivot->package_id,
-            'is_enable' => 1,
-            'qrcode_limit' => $newQrCodeLimit,
-        ],
-    ], 200);
-}
-
-
-
-
-
-public function renewUserPackage(Request $request)
-{
-    $user = $request->user();
-
-    // Validate the request data
-    $validatedData = $request->validate([
-        'package_id' => 'required|integer|exists:packages,id',
-    ]);
-
-    // Find the new package by ID
-    $newPackage = Package::find($validatedData['package_id']);
-
-    if (!$newPackage) {
-        return response()->json([
-            'message' => 'The specified package does not exist.',
-        ], 400);
-    }
-
-    // Update or attach the package to the user
-    $userPackage = $user->packages()->where('user_id', $user->id)->first();
-
-    if ($userPackage) {
-        // Update the existing pivot entry if the user already has a package
-        $userPackage->pivot->package_id = $newPackage->id;
-        $userPackage->pivot->qrcode_limit = $newPackage->max_qrcode; // Reset to new package's max QR code limit
+        // Update the qrcode_limit in the pivot table
+        $newQrCodeLimit = $userPackage->pivot->qrcode_limit + $validatedData['qrcode_limit'];
+        $userPackage->pivot->qrcode_limit = $newQrCodeLimit;
         $userPackage->pivot->is_enable = '1';
         $userPackage->pivot->save();
-    } else {
-        // Attach the package if no package exists for this user
-        $user->packages()->attach($newPackage->id, [
-            'qrcode_limit' => $newPackage->max_qrcode,
-            'is_enable' => '1'
-        ]);
+        QrCodeModel::where('user_id', $user->id)->update(['is_active' => 1]);
+        return response()->json([
+            'message' => 'QR code limit updated successfully.',
+            'data' => [
+                'user_id' => $user->id,
+                'package_id' =>   $userPackage->pivot->package_id,
+                'is_enable' => 1,
+                'qrcode_limit' => $newQrCodeLimit,
+            ],
+        ], 200);
     }
 
-    // Update the user's QR codes to be active
-    QrCodeModel::where('user_id', $user->id)->update(['is_active' => 1]);
 
-    return response()->json([
-        'message' => 'User package renewed successfully.',
-        'data' => [
-            'user_id' => $user->id,
-            'package_id' => $newPackage->id,
-            'is_enable' => 1,
-            'qrcode_limit' => $newPackage->max_qrcode,
-        ],
-    ], 200);
-}
+
+
+
+    public function renewUserPackage(Request $request)
+    {
+        $user = $request->user();
+
+        // Validate the request data
+        $validatedData = $request->validate([
+            'package_id' => 'required|integer|exists:packages,id',
+        ]);
+
+        // Find the new package by ID
+        $newPackage = Package::find($validatedData['package_id']);
+
+        if (!$newPackage) {
+            return response()->json([
+                'message' => 'The specified package does not exist.',
+            ], 400);
+        }
+
+        // Update or attach the package to the user
+        $userPackage = $user->packages()->where('user_id', $user->id)->first();
+
+        if ($userPackage) {
+            // Update the existing pivot entry if the user already has a package
+            $userPackage->pivot->package_id = $newPackage->id;
+            $userPackage->pivot->qrcode_limit = $newPackage->max_qrcode; // Reset to new package's max QR code limit
+            $userPackage->pivot->is_enable = '1';
+            $userPackage->pivot->save();
+        } else {
+            // Attach the package if no package exists for this user
+            $user->packages()->attach($newPackage->id, [
+                'qrcode_limit' => $newPackage->max_qrcode,
+                'is_enable' => '1'
+            ]);
+        }
+
+        // Update the user's QR codes to be active
+        QrCodeModel::where('user_id', $user->id)->update(['is_active' => 1]);
+
+        return response()->json([
+            'message' => 'User package renewed successfully.',
+            'data' => [
+                'user_id' => $user->id,
+                'package_id' => $newPackage->id,
+                'is_enable' => 1,
+                'qrcode_limit' => $newPackage->max_qrcode,
+            ],
+        ], 200);
+    }
 
 
 
@@ -216,143 +214,251 @@ public function renewUserPackage(Request $request)
     }
 
     public function validateUserSubscription(Request $request)
-{
-    $user = $request->user();
+    {
+        $user = $request->user();
 
-    // Find an active package for the user
-    $userPackage = $user->packages()
-        // ->wherePivot('is_enable', '1')
-        // ->wherePivot('end_date', '>', Carbon::now())
-        ->first();
+        // Find an active package for the user
+        $userPackage = $user->packages()
+            // ->wherePivot('is_enable', '1')
+            // ->wherePivot('end_date', '>', Carbon::now())
+            ->first();
 
-    // // Log the end_date if a package is found
-    // if ($userPackage) {
-    //     \Log::info('User subscription info:', ['end_date' => $userPackage->pivot->end_date]);
-    // } else {
-    //     \Log::info('No active subscription found for user.');
-    // }
+        // // Log the end_date if a package is found
+        // if ($userPackage) {
+        //     \Log::info('User subscription info:', ['end_date' => $userPackage->pivot->end_date]);
+        // } else {
+        //     \Log::info('No active subscription found for user.');
+        // }
 
-    if (!$userPackage) {
-        return response()->json(['message' => 'User not subscribed yet or subscription has expired.'], 404);
+        if (!$userPackage) {
+            return response()->json(['message' => 'User not subscribed yet or subscription has expired.'], 404);
+        }
+
+        // Check if the package has expired
+        if (Carbon::now()->greaterThan($userPackage->pivot->end_date)) {
+            // Disable the package
+            $user->packages()->updateExistingPivot($userPackage->id, ['is_enable' => false]);
+
+            // Disable all QR codes related to this user
+            QrCodeModel::where('user_id', $user->id)->update(['is_active' => 0]);
+
+            return response()->json([
+                'message' => 'Subscription has expired and has been disabled. All QR codes have been disabled.'
+            ], 200);
+        }
+
+        return response()->json(['message' => 'Subscription is still active.'], 200);
     }
 
-    // Check if the package has expired
-    if (Carbon::now()->greaterThan($userPackage->pivot->end_date)) {
-        // Disable the package
-        $user->packages()->updateExistingPivot($userPackage->id, ['is_enable' => false]);
 
-        // Disable all QR codes related to this user
-        QrCodeModel::where('user_id', $user->id)->update(['is_active' => 0]);
+    public function updateSubscriptionDuration(Request $request)
+    {
+        $user = $request->user();
 
+        // Validate request input for duration
+        $validatedData = $request->validate([
+            'duration' => 'required|string|in:month,three_months,year',
+        ]);
+
+        // Find the active package for the user
+        $userPackage = $user->packages()->first();
+
+        // If no active package is found
+        if (!$userPackage) {
+            return response()->json(['message' => 'Active subscription not found. You can activate a new subscription.'], 404);
+        }
+
+        // Get current package data
+        $currentEndDate = Carbon::parse($userPackage->pivot->end_date)->startOfDay();
+        $now = Carbon::now()->startOfDay();
+        $isEnable = $userPackage->pivot->is_enable;
+
+        if ($isEnable) {
+            // If the subscription is enabled, check remaining days
+            $remainingDays = $now->diffInDays($currentEndDate, false);
+
+            if ($remainingDays > 1) {
+                return response()->json(['message' => 'Your subscription is still active and cannot be renewed yet.'], 400);
+            }
+        } else {
+            // If the subscription is disabled, allow updating duration
+            return $this->updateDurationAndActivate($user, $userPackage, $validatedData['duration']);
+        }
+
+        // Update duration if the subscription is near expiration
+        return $this->updateDurationAndActivate($user, $userPackage, $validatedData['duration']);
+    }
+
+    /**
+     * Helper method to update the subscription duration and activate QR codes.
+     */
+    public function updateSubscriptionDurationv2(Request $request)
+    {
+        $user = $request->user();
+    
+        // Validate request input for duration
+        $validatedData = $request->validate([
+            'duration' => 'required|string|in:month,three_months,year',
+        ]);
+    
+        // Find the active package for the user
+        $userPackage = $user->packages()->first();
+    
+        // If no active package is found
+        if (!$userPackage) {
+            return response()->json(['message' => 'Active subscription not found. You can activate a new subscription.'], 404);
+        }
+    
+        // Get current package data
+        $currentEndDate = Carbon::parse($userPackage->pivot->end_date)->startOfDay();
+        $now = Carbon::now()->startOfDay();
+        $isEnable = $userPackage->pivot->is_enable;
+    
+        if ($isEnable) {
+        
+            $remainingDays = $now->diffInDays($currentEndDate, false);
+    
+            if ($remainingDays > 1) {
+                return response()->json(['message' => 'Your subscription is still active and cannot be renewed yet.'], 400);
+            }
+        } else {
+     
+            return $this->updateDurationAndActivate($user, $userPackage, $validatedData['duration']);
+        }
+    
+     
+        return $this->updateDurationAndActivate($user, $userPackage, $validatedData['duration']);
+    }
+    
+    /**
+     * Helper method to update the subscription duration and activate QR codes.
+     */
+    private function updateDurationAndActivate($user, $userPackage, $duration)
+    {
+       
+        $startDate = Carbon::now();
+        $endDate = $this->calculateEndDate($startDate, $duration);
+    
+
+        $user->packages()->updateExistingPivot($userPackage->id, [
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'duration' => $duration,
+            'is_enable' => true,
+        ]);
+    
+        // Activate QR codes for the user
+        QrCodeModel::where('user_id', $user->id)->update(['is_active' => 1]);
+    
         return response()->json([
-            'message' => 'Subscription has expired and has been disabled. All QR codes have been disabled.'
+            'message' => 'Subscription duration updated successfully.',
+            'data' => [
+                'package_id' => $userPackage->id,
+                'duration' => $duration,
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+            ]
         ], 200);
     }
+    
 
-    return response()->json(['message' => 'Subscription is still active.'], 200);
-}
-
-
+    
 
 
 
+    // public function updateSubscriptionDuration(Request $request)
+    // {
+    //     $user = $request->user();
 
-public function updateSubscriptionDuration(Request $request)
-{
-    $user = $request->user();
+    //     // Validate request input for duration
+    //     $validatedData = $request->validate([
+    //         'duration' => 'required|string|in:month,three_months,year',
+    //     ]);
 
-    // Validate request input for duration
-    $validatedData = $request->validate([
-        'duration' => 'required|string|in:month,three_months,year',
-    ]);
+    //     // Find the active package for the user
+    //     $userPackage = $user->packages()->first();
 
-    // Find the active package for the user
-    $userPackage = $user->packages()->first();
+    //     // If no active package is found
+    //     if (!$userPackage) {
+    //         return response()->json(['message' => 'Active subscription not found. You can activate a new subscription.'], 404);
+    //     }
 
-    // If no active package is found
-    if (!$userPackage) {
-        return response()->json(['message' => 'Active subscription not found. You can activate a new subscription.'], 404);
-    }
-
-    // Check if the subscription is still active
-    $currentEndDate = Carbon::parse($userPackage->pivot->end_date)->startOfDay();
-     $now = Carbon::now()->startOfDay();
+    //     // Check if the subscription is still active
+    //     $currentEndDate = Carbon::parse($userPackage->pivot->end_date)->startOfDay();
+    //      $now = Carbon::now()->startOfDay();
 
 
-    // Check if the subscription is already enabled
-    if ($userPackage->pivot->is_enable) {
+    //     // Check if the subscription is already enabled
+    //     if ($userPackage->pivot->is_enable) {
+    //         $remainingDays = $now->diffInDays($currentEndDate, false);
+    //         // \Log::info('currentEndDate days for subscription renewal:', ['remainingDays' => $currentEndDate]);
+    //         // \Log::info('Remaining days for subscription renewal:', ['remainingDays' => $remainingDays]);
+
+    //         if ($remainingDays > 1) {
+    //             return response()->json(['message' => 'Your subscription is still active and cannot be renewed yet.'], 400);
+    //         }
+    //     }
+
+    //     // Calculate the new end date based on the provided duration
+    //     $startDate = Carbon::now();
+    //     $endDate = $this->calculateEndDate($startDate, $validatedData['duration']);
+
+    //     // Update the subscription details
+    //     $user->packages()->updateExistingPivot($userPackage->id, [
+    //         'start_date' => $startDate,
+    //         'end_date' => $endDate,
+    //         'duration' => $validatedData['duration'],
+    //         'is_enable' => true,
+    //     ]);
+
+    //     // Activate QR codes for the user
+    //     QrCodeModel::where('user_id', $user->id)->update(['is_active' => 1]);
+
+    //     return response()->json([
+    //         'message' => 'Subscription duration updated successfully.',
+    //         'data' => [
+    //             'package_id' => $userPackage->id,
+    //             'duration' => $validatedData['duration'],
+    //             'start_date' => $startDate,
+    //             'end_date' => $endDate,
+    //         ]
+    //     ], 200);
+    // }
+
+
+
+
+
+
+
+    public function checkSubscriptionStatus(Request $request)
+    {
+        // Assume the user ID and package ID are passed in the request
+        $user = auth()->user(); // Get authenticated user
+        $userPackage = $user->packages()->first(); // Fetch the user's package
+
+        if (!$userPackage) {
+            return response()->json(['message' => 'Package not found for the user.'], 404);
+        }
+
+        // Check if the subscription is enabled
+        if ($userPackage->pivot->is_enable == 0) {
+            return response()->json(['message' => 'Your subscription has ended.'], 400);
+        }
+
+        // Get the subscription end date
+        $currentEndDate = Carbon::parse($userPackage->pivot->end_date); // Assuming `end_date` exists
+        $now = Carbon::now();
+
+        // Calculate the remaining days
         $remainingDays = $now->diffInDays($currentEndDate, false);
-        // \Log::info('currentEndDate days for subscription renewal:', ['remainingDays' => $currentEndDate]);
-        // \Log::info('Remaining days for subscription renewal:', ['remainingDays' => $remainingDays]);
 
+        // Check if the subscription can be renewed
         if ($remainingDays > 1) {
             return response()->json(['message' => 'Your subscription is still active and cannot be renewed yet.'], 400);
         }
+
+        // If remaining days are 1 or less, the user can renew
+        return response()->json(['message' => 'You can renew your subscription now.'], 200);
     }
-
-    // Calculate the new end date based on the provided duration
-    $startDate = Carbon::now();
-    $endDate = $this->calculateEndDate($startDate, $validatedData['duration']);
-
-    // Update the subscription details
-    $user->packages()->updateExistingPivot($userPackage->id, [
-        'start_date' => $startDate,
-        'end_date' => $endDate,
-        'duration' => $validatedData['duration'],
-        'is_enable' => true,
-    ]);
-
-    // Activate QR codes for the user
-    QrCodeModel::where('user_id', $user->id)->update(['is_active' => 1]);
-
-    return response()->json([
-        'message' => 'Subscription duration updated successfully.',
-        'data' => [
-            'package_id' => $userPackage->id,
-            'duration' => $validatedData['duration'],
-            'start_date' => $startDate,
-            'end_date' => $endDate,
-        ]
-    ], 200);
 }
-
-
-
-
-
-
-
-public function checkSubscriptionStatus(Request $request)
-{
-    // Assume the user ID and package ID are passed in the request
-    $user = auth()->user(); // Get authenticated user
-    $userPackage = $user->packages()->first(); // Fetch the user's package
-
-    if (!$userPackage) {
-        return response()->json(['message' => 'Package not found for the user.'], 404);
-    }
-
-    // Check if the subscription is enabled
-    if ($userPackage->pivot->is_enable == 0) {
-        return response()->json(['message' => 'Your subscription has ended.'], 400);
-    }
-
-    // Get the subscription end date
-    $currentEndDate = Carbon::parse($userPackage->pivot->end_date); // Assuming `end_date` exists
-    $now = Carbon::now();
-
-    // Calculate the remaining days
-    $remainingDays = $now->diffInDays($currentEndDate, false);
-
-    // Check if the subscription can be renewed
-    if ($remainingDays > 1) {
-        return response()->json(['message' => 'Your subscription is still active and cannot be renewed yet.'], 400);
-    }
-
-    // If remaining days are 1 or less, the user can renew
-    return response()->json(['message' => 'You can renew your subscription now.'], 200);
-}
-}
-
-
-

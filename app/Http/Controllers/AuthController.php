@@ -140,6 +140,7 @@ public function signup(Request $request)
         'address' => 'required|string',
         'email' => 'required|string|email|unique:users',
         'password' => 'required|string|min:6',
+
     ]);
 
     if ($validator->fails()) {
@@ -158,10 +159,12 @@ public function signup(Request $request)
 
 
     // Sign up method
-    public function signsup(Request $request)
+    public function Admin_signup(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'phone' => 'required|string|unique:users',
+            'name' =>'required|string',
+            'address' =>'required|string',
             'email' => 'required|string|email|unique:users',
             'password' => 'required|string|min:6',
         ]);
@@ -175,8 +178,11 @@ public function signup(Request $request)
         }
         $user = User::create([
             'phone' => $request->phone,
+            'name' => $request->name,
+            'address' => $request->address,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'admin',
         ]);
 
         return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);

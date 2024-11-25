@@ -18,10 +18,11 @@ use App\Http\Controllers\CodeController;
 use App\Http\Controllers\ContactUsController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\Auth\GoogleAuthController;
+use App\Http\Controllers\AdminDashboardController;
 ###########################################################USER_AUTH########################################################################################
 
 
-Route::post('/sigsnup', [AuthController::class, 'signup']);
+Route::post('/admin/signup', [AuthController::class, 'Admin_signup']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::post('/forget-password', [AuthController::class, 'forgetPassword']);
@@ -117,7 +118,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/subscriptions', [SubscriptionController::class, 'store']); //create subscription
     Route::get('/subscriptions/validate', [SubscriptionController::class, 'validateUserSubscription']);    // Validate and disable expired subscriptions and related qrcode
     Route::get('/subscriptions/user', [SubscriptionController::class, 'getByUserId']);
-    Route::post('/Upgrade-QR-Duration', [SubscriptionController::class, 'updateSubscriptionDuration']);    //renew  packagee
+    Route::post('/Upgrade-QR-Duration', [SubscriptionController::class, 'updateSubscriptionDurationv2']);    //renew  packagee
     Route::post('/Upgrade-QRlimit', [SubscriptionController::class, 'updateQrCodeLimit']);
     Route::post('/Upgrade-package', [SubscriptionController::class, 'renewUserPackage']);
 
@@ -190,4 +191,8 @@ Route::post('/records', [RecordController::class, 'store']);
 
 Route::post('/contact-us', [ContactUsController::class, 'store']);
 
-###########################################################contact-us########################################################################################
+###########################################################ADMIN-Dashboard########################################################################################
+
+
+Route::get('/admin/users-with-packages', [AdminDashboardController::class, 'getAllUsersWithPackages']);
+Route::get('/admin/users-with-qrcodes', [AdminDashboardController::class, 'getEachUserWithQrCodes']);
