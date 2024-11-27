@@ -92,6 +92,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/profiles/{user_id}', [UserProfileController::class, 'getAllProfilesByUserId']);
 Route::get('/profile/{id}', [UserProfileController::class, 'getProfileById']);
 Route::get('/profile/qrcode/{qrCodeName}', [UserProfileController::class, 'getProfileByQRCodeName']);
+Route::post('/profile/{id}', [UserProfileController::class, 'updateProfile']);
 
 #********************************************************USER_location*************************************************************************************************
 
@@ -118,6 +119,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/subscriptions', [SubscriptionController::class, 'store']); //create subscription
     Route::get('/subscriptions/validate', [SubscriptionController::class, 'validateUserSubscription']);    // Validate and disable expired subscriptions and related qrcode
     Route::get('/subscriptions/user', [SubscriptionController::class, 'getByUserId']);
+    ###########################################################UPGRADE######################################################################################################
     Route::post('/Upgrade-QR-Duration', [SubscriptionController::class, 'updateSubscriptionDurationv2']);    //renew  packagee
     Route::post('/Upgrade-QRlimit', [SubscriptionController::class, 'updateQrCodeLimit']);
     Route::post('/Upgrade-package', [SubscriptionController::class, 'renewUserPackage']);

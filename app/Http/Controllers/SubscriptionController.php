@@ -78,21 +78,6 @@ class SubscriptionController extends Controller
 
 
 
-    private function calculateEndDate($startDate, $duration)
-    {
-        switch ($duration) {
-            case 'month':
-                return $startDate->copy()->addMonth();
-            case 'three_months':
-                return $startDate->copy()->addMonths(3);
-            case 'year':
-                return $startDate->copy()->addYear();
-            default:
-                throw new \InvalidArgumentException("Invalid duration: $duration");
-        }
-    }
-
-
 
     public function updateQrCodeLimit(Request $request)
     {
@@ -366,71 +351,6 @@ class SubscriptionController extends Controller
 
 
 
-    // public function updateSubscriptionDuration(Request $request)
-    // {
-    //     $user = $request->user();
-
-    //     // Validate request input for duration
-    //     $validatedData = $request->validate([
-    //         'duration' => 'required|string|in:month,three_months,year',
-    //     ]);
-
-    //     // Find the active package for the user
-    //     $userPackage = $user->packages()->first();
-
-    //     // If no active package is found
-    //     if (!$userPackage) {
-    //         return response()->json(['message' => 'Active subscription not found. You can activate a new subscription.'], 404);
-    //     }
-
-    //     // Check if the subscription is still active
-    //     $currentEndDate = Carbon::parse($userPackage->pivot->end_date)->startOfDay();
-    //      $now = Carbon::now()->startOfDay();
-
-
-    //     // Check if the subscription is already enabled
-    //     if ($userPackage->pivot->is_enable) {
-    //         $remainingDays = $now->diffInDays($currentEndDate, false);
-    //         // \Log::info('currentEndDate days for subscription renewal:', ['remainingDays' => $currentEndDate]);
-    //         // \Log::info('Remaining days for subscription renewal:', ['remainingDays' => $remainingDays]);
-
-    //         if ($remainingDays > 1) {
-    //             return response()->json(['message' => 'Your subscription is still active and cannot be renewed yet.'], 400);
-    //         }
-    //     }
-
-    //     // Calculate the new end date based on the provided duration
-    //     $startDate = Carbon::now();
-    //     $endDate = $this->calculateEndDate($startDate, $validatedData['duration']);
-
-    //     // Update the subscription details
-    //     $user->packages()->updateExistingPivot($userPackage->id, [
-    //         'start_date' => $startDate,
-    //         'end_date' => $endDate,
-    //         'duration' => $validatedData['duration'],
-    //         'is_enable' => true,
-    //     ]);
-
-    //     // Activate QR codes for the user
-    //     QrCodeModel::where('user_id', $user->id)->update(['is_active' => 1]);
-
-    //     return response()->json([
-    //         'message' => 'Subscription duration updated successfully.',
-    //         'data' => [
-    //             'package_id' => $userPackage->id,
-    //             'duration' => $validatedData['duration'],
-    //             'start_date' => $startDate,
-    //             'end_date' => $endDate,
-    //         ]
-    //     ], 200);
-    // }
-
-
-
-
-
-
-
     public function checkSubscriptionStatus(Request $request)
     {
         // Assume the user ID and package ID are passed in the request
@@ -461,4 +381,23 @@ class SubscriptionController extends Controller
         // If remaining days are 1 or less, the user can renew
         return response()->json(['message' => 'You can renew your subscription now.'], 200);
     }
+
+
+
+    
+    private function calculateEndDate($startDate, $duration)
+    {
+        switch ($duration) {
+            case 'month':
+                return $startDate->copy()->addMonth();
+            case 'three_months':
+                return $startDate->copy()->addMonths(3);
+            case 'year':
+                return $startDate->copy()->addYear();
+            default:
+                throw new \InvalidArgumentException("Invalid duration: $duration");
+        }
+    }
+
+
 }

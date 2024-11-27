@@ -27,4 +27,7 @@ class UserLocationController extends Controller
 
         return response()->json($userLocations, 200);
     }
+
+
+    // api for update any of this data may be all may be not 
 }
