@@ -362,10 +362,10 @@ class SubscriptionController extends Controller
         $priceToPay = $newPackagePrice - $remainingValue;
         $priceToPayFormatted = number_format($priceToPay > 0 ? $priceToPay : 0, 2);
         return response()->json([
-            'price' => $priceCurrentPackage,
-            'months_used' => $monthsUsed,
-            'remaining_months' => $remainingMonths,
-            'remaining_value' => $remainingValueFormatted,
+            // 'price' => $priceCurrentPackage,
+            // 'months_used' => $monthsUsed,
+            // 'remaining_months' => $remainingMonths,
+            // 'remaining_value' => $remainingValueFormatted,
             'price_to_pay' => $priceToPayFormatted,
         ], 200);
     }
