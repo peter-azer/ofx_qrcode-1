@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Profile;
+use Illuminate\Support\Facades\DB;
+use App\Models\QrCodeModel;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -59,4 +62,86 @@ class AdminDashboardController extends Controller
 
         return response()->json(['data' => $data], 200);
     }
+
+
+
+
+
+
+    public function getQrCodeStats()
+    {
+      
+        $totalUsers = User::count();
+
+
+        $totalQRCodes = QrCodeModel::count();
+
+
+        $activeQRCodes = QrCodeModel::where('is_active', 1)->count();
+
+        $inactiveQRCodes = QrCodeModel::where('is_active', 0)->count();
+
+        $enabledPackages = DB::table('user_packages')->where('is_enable', 1)->count();
+
+        $disabledPackages = DB::table('user_packages')->where('is_enable', 0)->count();
+    
+ 
+        return response()->json([
+            'enabled_packages' => $enabledPackages,
+            'disabled_packages' => $disabledPackages,
+            'total_users' => $totalUsers,
+            'total_qrcodes' => $totalQRCodes,
+            'active_qrcodes' => $activeQRCodes,
+            'inactive_qrcodes' => $inactiveQRCodes,
+        ], 200);
+    }
+
+    public function deleteQrCodeAndProfile($qrCodeId)
+    {
+        
+        $qrCode = QrCodeModel::find($qrCodeId);
+    
+
+        if (!$qrCode) {
+            return response()->json(['message' => 'QR code not found'], 404);
+        }
+    
+    
+        DB::beginTransaction();
+    
+        try {
+       
+            $qrCode->delete();
+    
+       
+            $profile = $qrCode->profile;
+    
+            if ($profile) {
+          
+                $profile->links()->delete();
+                $profile->images()->delete();
+                $profile->pdfs()->delete();
+                $profile->events()->delete();
+                $profile->branches()->delete();
+    
+         
+                $profile->delete();
+            }
+    
+         
+            DB::commit();
+    
+            return response()->json(['message' => 'QR code and its profile and related data deleted successfully'], 200);
+        } catch (\Exception $e) {
+        
+            DB::rollBack();
+    
+            return response()->json(['message' => 'An error occurred while deleting the QR code and related data', 'error' => $e->getMessage()], 500);
+        }
+    }
+    
+    
+
 }
+
+

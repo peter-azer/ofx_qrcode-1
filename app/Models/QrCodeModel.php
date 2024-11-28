@@ -16,10 +16,7 @@ public $timestamps = false;
     // A QR code belongs to a profile
 
 
-      public function whatsappMessages()
-    {
-        return $this->hasMany(WhatsappMessage::class, 'qr_code_id');
-    }
+
     public function profile()
     {
         return $this->belongsTo(Profile::class,);
@@ -33,6 +30,11 @@ public $timestamps = false;
     public function UserLocation()
     {
         return $this->hasMany(UserLocation::class, 'qrcode_id');
+    }
+
+    public function whatsappMessages()
+    {
+        return $this->hasMany(WhatsappMessage::class, 'qr_code_id');
     }
 
     public function checkVisitorCount($scan_count,$package_id)

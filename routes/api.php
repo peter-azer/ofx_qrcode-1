@@ -123,7 +123,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/Upgrade-QR-Duration', [SubscriptionController::class, 'updateSubscriptionDurationv2']);    //renew  packagee
     Route::post('/Upgrade-QRlimit', [SubscriptionController::class, 'updateQrCodeLimit']);
     Route::post('/Upgrade-package', [SubscriptionController::class, 'renewUserPackage']);
-
+    Route::post('/new_price', [SubscriptionController::class, 'count_price']);
     Route::post('/create-payment-link', [PaymentController::class, 'createPaymentLink']);
 });
 
@@ -198,3 +198,6 @@ Route::post('/contact-us', [ContactUsController::class, 'store']);
 
 Route::get('/admin/users-with-packages', [AdminDashboardController::class, 'getAllUsersWithPackages']);
 Route::get('/admin/users-with-qrcodes', [AdminDashboardController::class, 'getEachUserWithQrCodes']);
+Route::get('/qrcode-stats', [AdminDashboardController::class, 'getQrCodeStats']);
+//*take care* that this api delete qrcode and all associated data related to the profile_id
+Route::delete('/Delete_qrcode/{id}', [AdminDashboardController::class, 'deleteQrCodeAndProfile']);

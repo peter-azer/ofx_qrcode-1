@@ -9,6 +9,8 @@ use App\Models\Package;
 use App\Models\QrCodeModel;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use Ramsey\Uuid\Type\Decimal;
 
 class SubscriptionController extends Controller
 {
@@ -115,46 +117,55 @@ class SubscriptionController extends Controller
 
 
 
-
-
     public function renewUserPackage(Request $request)
     {
         $user = $request->user();
-
+    
         // Validate the request data
         $validatedData = $request->validate([
             'package_id' => 'required|integer|exists:packages,id',
         ]);
-
+    
         // Find the new package by ID
         $newPackage = Package::find($validatedData['package_id']);
-
+    
         if (!$newPackage) {
             return response()->json([
                 'message' => 'The specified package does not exist.',
             ], 400);
         }
-
-        // Update or attach the package to the user
+    
+        // Calculate new duration dates
+        $startDate = Carbon::now();
+        $endDate = Carbon::now()->addYear(); // Static duration of 'year'
+    
+        // Retrieve the user's current package or attach the new one
         $userPackage = $user->packages()->where('user_id', $user->id)->first();
-
+    
         if ($userPackage) {
-            // Update the existing pivot entry if the user already has a package
-            $userPackage->pivot->package_id = $newPackage->id;
-            $userPackage->pivot->qrcode_limit = $newPackage->max_qrcode; // Reset to new package's max QR code limit
-            $userPackage->pivot->is_enable = '1';
-            $userPackage->pivot->save();
+            // Update the existing pivot entry and duration
+            $user->packages()->updateExistingPivot($userPackage->id, [
+                'package_id' => $newPackage->id,
+                'qrcode_limit' => $newPackage->max_qrcode,
+                'is_enable' => true,
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'duration' => 'year',
+            ]);
         } else {
-            // Attach the package if no package exists for this user
+            // Attach the new package with duration
             $user->packages()->attach($newPackage->id, [
                 'qrcode_limit' => $newPackage->max_qrcode,
-                'is_enable' => '1'
+                'is_enable' => true,
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'duration' => 'year',
             ]);
         }
-
-        // Update the user's QR codes to be active
+    
+        // Activate the user's QR codes
         QrCodeModel::where('user_id', $user->id)->update(['is_active' => 1]);
-
+    
         return response()->json([
             'message' => 'User package renewed successfully.',
             'data' => [
@@ -162,12 +173,12 @@ class SubscriptionController extends Controller
                 'package_id' => $newPackage->id,
                 'is_enable' => 1,
                 'qrcode_limit' => $newPackage->max_qrcode,
+                'start_date' => $startDate->toDateString(),
+                'end_date' => $endDate->toDateString(),
             ],
         ], 200);
     }
-
-
-
+    
     // Get subscriptions by user ID
     public function getByUserId(Request $request)
     {
@@ -280,50 +291,95 @@ class SubscriptionController extends Controller
     public function updateSubscriptionDurationv2(Request $request)
     {
         $user = $request->user();
-    
+
         // Validate request input for duration
         $validatedData = $request->validate([
             'duration' => 'required|string|in:month,three_months,year',
         ]);
-    
+
         // Find the active package for the user
         $userPackage = $user->packages()->first();
-    
+
         // If no active package is found
         if (!$userPackage) {
             return response()->json(['message' => 'Active subscription not found. You can activate a new subscription.'], 404);
         }
-    
+
         // Get current package data
         $currentEndDate = Carbon::parse($userPackage->pivot->end_date)->startOfDay();
         $now = Carbon::now()->startOfDay();
         $isEnable = $userPackage->pivot->is_enable;
-    
+
         if ($isEnable) {
-        
+
             $remainingDays = $now->diffInDays($currentEndDate, false);
-    
+
             if ($remainingDays > 1) {
                 return response()->json(['message' => 'Your subscription is still active and cannot be renewed yet.'], 400);
             }
         } else {
-     
+
             return $this->updateDurationAndActivate($user, $userPackage, $validatedData['duration']);
         }
-    
-     
+
+
         return $this->updateDurationAndActivate($user, $userPackage, $validatedData['duration']);
     }
+
+
+    public function count_price(Request $request)
+    {
+        $user = $request->user(); 
+        $userPackage = $user->packages()->first(); 
+
+        if (!$userPackage) {
+            return response()->json(['error' => 'No package found for this user.'], 404);
+        }
+
+
+        $priceCurrentPackage = $userPackage->price_EGP;
+        $startDate = Carbon::parse($userPackage->pivot->start_date);
+        $now = Carbon::now();
+
+        
+        $monthsUsed =  (int)$startDate->diffInMonths($now);
+        $remainingMonths =  (int)12 - $monthsUsed; // Assuming a 12-month subscription
+
+
+        $remainingValue = ($priceCurrentPackage / 12) * $remainingMonths;
+        $remainingValueFormatted = number_format($remainingValue, 2);
+
+        $packageId = $request->input('package_id');
+        $newPackage = Package::find($packageId);
     
-    /**
+        if (!$newPackage) {
+            return response()->json(['error' => 'Package not found.'], 404);
+        }
+    
+        $newPackagePrice = $newPackage->price_EGP;
+
+
+        $priceToPay = $newPackagePrice - $remainingValue;
+        $priceToPayFormatted = number_format($priceToPay > 0 ? $priceToPay : 0, 2);
+        return response()->json([
+            'price' => $priceCurrentPackage,
+            'months_used' => $monthsUsed,
+            'remaining_months' => $remainingMonths,
+            'remaining_value' => $remainingValueFormatted,
+            'price_to_pay' => $priceToPayFormatted,
+        ], 200);
+    }
+
+    //EX"if user use 3 from his subscribtion  package that user subscribe on it = 1000,and upgraded package = 1500  price should pay it=750  "remining price that user not used it = 1000/12*9=750" 1500-750=750   " 
+    /** 
      * Helper method to update the subscription duration and activate QR codes.
      */
     private function updateDurationAndActivate($user, $userPackage, $duration)
     {
-       
+
         $startDate = Carbon::now();
         $endDate = $this->calculateEndDate($startDate, $duration);
-    
+
 
         $user->packages()->updateExistingPivot($userPackage->id, [
             'start_date' => $startDate,
@@ -331,10 +387,10 @@ class SubscriptionController extends Controller
             'duration' => $duration,
             'is_enable' => true,
         ]);
-    
+
         // Activate QR codes for the user
         QrCodeModel::where('user_id', $user->id)->update(['is_active' => 1]);
-    
+
         return response()->json([
             'message' => 'Subscription duration updated successfully.',
             'data' => [
@@ -345,9 +401,9 @@ class SubscriptionController extends Controller
             ]
         ], 200);
     }
-    
 
-    
+
+
 
 
 
@@ -363,7 +419,7 @@ class SubscriptionController extends Controller
 
         // Check if the subscription is enabled
         if ($userPackage->pivot->is_enable == 0) {
-            return response()->json(['message' => 'Your subscription has ended.'], 400);
+            return response()->json(['message' => 'Your subscription has ended.'], 200);
         }
 
         // Get the subscription end date
@@ -384,7 +440,7 @@ class SubscriptionController extends Controller
 
 
 
-    
+
     private function calculateEndDate($startDate, $duration)
     {
         switch ($duration) {
@@ -398,6 +454,4 @@ class SubscriptionController extends Controller
                 throw new \InvalidArgumentException("Invalid duration: $duration");
         }
     }
-
-
 }

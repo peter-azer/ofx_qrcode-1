@@ -44,6 +44,8 @@ class UserProfileController extends Controller
     }
 
 
+    
+
     public function getProfileByQRCodeNamev2($qrCodeName)
     {
         // Fetch the QRCode entry by the unique QR code name
