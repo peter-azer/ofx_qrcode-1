@@ -7,7 +7,7 @@ namespace App\Jobs;
 
 use App\Models\QrCodeModel;
 use App\Models\Profile;
-use App\Models\Links;
+use App\Models\links;
 use App\Models\Branches;
 use App\Models\Records;
 use App\Models\Images;
@@ -65,7 +65,7 @@ class GenerateSmartQRCodeJob implements ShouldQueue
         if (!empty($this->validatedData['links'])) {
             foreach ($this->validatedData['links'] as $linkData) {
                 if (!empty($linkData['url']) && !empty($linkData['type'])) {
-                    Links::create([
+                    links::create([
                         'profile_id' => $this->profile->id,
                         'url' => $linkData['url'],
                         'type' => $linkData['type'],
