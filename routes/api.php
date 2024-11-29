@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\qrcodev2Controller;
 use App\Http\Controllers\Smart_QRCodeController;
+use App\Http\Controllers\smartqrcodev2Controller;
 use App\Http\Controllers\UserTransactionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -74,6 +75,7 @@ Route::delete('/qrcode/{id}', [Smart_QRCodeController::class, 'deleteQRCodeById'
 ###########################################################Smart_QRCode########################################################################################
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/qrcode/smart', [Smart_QRCodeController::class, 'generatesmartQRCodev2']); ///unused
+    Route::post('/qrcode/smart/v3', [smartqrcodev2Controller::class, 'generatesmartQRCodev3']);
     Route::get('/track-qr-code/{name}', [QrCodeController::class, 'trackAndRedirectAPI']);
 });
 

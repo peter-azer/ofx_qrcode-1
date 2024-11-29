@@ -12,8 +12,8 @@ Route::get('/', function () {
 Route::get('/qrcode/{name}', [QrCodeController::class, 'trackAndRedirectweb'])->name('qrcode.scan');
 
 
-Route::get('/download-qrcode/{fileName}', [Smart_QRCodeController::class, 'downloadQRCode']);
-
+Route::get('/download-qrcode/{fileName}', [Smart_QRCodeController::class, 'downloadQRCode_image']);
+Route::get('/download-qrcode/pdf/{fileName}', [Smart_QRCodeController::class, 'downloadQRCode_pdf']);
 
 Route::post('/qrcode/smart', [Smart_QRCodeController::class, 'generatesmartQRCodev2']);
 Route::get('/generate-qr', [Smart_QRCodeController::class, 'showForm']);
