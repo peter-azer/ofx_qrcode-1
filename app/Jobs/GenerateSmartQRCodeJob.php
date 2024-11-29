@@ -8,11 +8,11 @@ namespace App\Jobs;
 use App\Models\QrCodeModel;
 use App\Models\Profile;
 use App\Models\links;
-use App\Models\Branches;
-use App\Models\Records;
-use App\Models\Images;
-use App\Models\Pdfs;
-use App\Models\Events;
+use App\Models\branches;
+use App\Models\records;
+use App\Models\images;
+use App\Models\pdfs;
+use App\Models\events;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -77,7 +77,7 @@ class GenerateSmartQRCodeJob implements ShouldQueue
 
         if (!empty($this->validatedData['branches'])) {
             foreach ($this->validatedData['branches'] as $branchData) {
-                Branches::create([
+                branches::create([
                     'profile_id' => $this->profile->id,
                     'name' => $branchData['name'],
                     'location' => $branchData['location'],
@@ -91,7 +91,7 @@ class GenerateSmartQRCodeJob implements ShouldQueue
             foreach ($this->validatedData['mp3'] as $mp3) {
                 if ($mp3->isValid()) {
                     $mp3path = $mp3->store('records', 'public');
-                    Records::create([
+                    records::create([
                         'profile_id' => $this->profile->id,
                         'mp3_path' => $mp3path,
                     ]);
@@ -104,7 +104,7 @@ class GenerateSmartQRCodeJob implements ShouldQueue
             foreach ($this->validatedData['images'] as $image) {
                 if ($image->isValid()) {
                     $imagePath = $image->store('images', 'public');
-                    Images::create([
+                    images::create([
                         'profile_id' => $this->profile->id,
                         'image_path' => $imagePath,
                     ]);
@@ -123,7 +123,7 @@ class GenerateSmartQRCodeJob implements ShouldQueue
                     $pdfpath = $pdf->store('pdfs', 'public');
 
                     // Create a new record in the 'pdfs' table with the profile_id, pdf_path, and type
-                    Pdfs::create([
+                    pdfs::create([
                         'profile_id' => $this->profile->id,
                         'pdf_path' => $pdfpath,
                         'type' => $type, // Store the 'type' sent by the user
@@ -134,7 +134,7 @@ class GenerateSmartQRCodeJob implements ShouldQueue
 
         // Step 7: Handling events
         if (!empty($this->validatedData['event_date'])) {
-            Events::create([
+            events::create([
                 'profile_id' => $this->profile->id,
                 'event_date' => $this->validatedData['event_date'],
                 'event_time' => $this->validatedData['event_time'] ?? null,
