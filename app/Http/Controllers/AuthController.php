@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\QrCodeModel;
 use Illuminate\Http\Request;
 // app/Http/Controllers/AuthController.php
-
+use Illuminate\Support\Facades\Auth;
 
 use App\Mail\EmailVerificationCode;
 use Illuminate\Support\Facades\Mail;
@@ -196,29 +196,37 @@ public function signup(Request $request)
             'password' => 'required|string',
         ]);
 
+
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
 
+
         $user = User::where('email', $request->email)->first();
+
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
+
+        Auth::guard('web')->login($user);
+
+
         $token = $user->createToken('personalAccessToken')->plainTextToken;
-       // Eager load the packages with pivot data
-       $user->load('packages');
 
+        $userAgent = $request->header('User-Agent');
+        $user->load('packages');
 
-
-       return response()->json([
-           'message' => 'Login successful',
-           'token' => $token,
-           'user' => $user,
-
-       ], 200);
-   }
+        session(['user_agent' => $userAgent]);
+        return response()->json([
+            'message' => 'Login successful',
+            'token' => $token,
+            'user' => $user,
+            'session_id' => session()->getId(),
+            'user_agent' => $userAgent,
+        ], 200);
+    }
 
 
     // Forget Password method

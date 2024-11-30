@@ -15,6 +15,8 @@ class Kernel extends HttpKernel
         // Global middleware
         // \Illuminate\Foundation\Http\Middleware\Ha::class,
         // Other middleware...
+        \App\Http\Middleware\AddUserIdToSession::class,
+
     ];
 
     /**
@@ -34,6 +36,9 @@ class Kernel extends HttpKernel
 
         'api' => [
             \Illuminate\Routing\Middleware\ThrottleRequests::class . ':api',
+
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];
