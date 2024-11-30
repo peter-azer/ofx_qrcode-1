@@ -17,7 +17,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // Schedule the custom command to run every minute
-        $schedule->command('subscriptions:notify-expiring')->everyMinute();
+        $schedule->command('subscriptions:notify-expiring')->daily();
     }
 
     /**
