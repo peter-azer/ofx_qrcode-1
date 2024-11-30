@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SubscriptionReminder;
 
+
 class NotifyExpiringSubscriptions extends Command
 {
     /**
@@ -31,7 +32,7 @@ class NotifyExpiringSubscriptions extends Command
      */
     public function handle()
     {
-        // Get users with active subscriptions ending in the next 7 days
+
         $users = User::whereHas('packages', function ($query) {
             $query->where('is_enable', true)
                   ->whereBetween('end_date', [
@@ -47,20 +48,20 @@ class NotifyExpiringSubscriptions extends Command
                     $endDate = $user->packages->first()->pivot->end_date;
 
                     if ($endDate) {
-                        // Ensure the $endDate is a Carbon instance to avoid issues with format()
+
                         $endDate = Carbon::parse($endDate);
 
-                        // Send the subscription reminder email
+
                         Mail::to($user->email)->send(new SubscriptionReminder($user));
 
-                        // Log email sent
+
                         \Log::info('Subscription expiry notification sent to: ' . $user->email . ' for package expiring on ' . $endDate->format('F j, Y'));
                     } else {
                         \Log::warning('No end date found for user: ' . $user->email);
                     }
 
                 } catch (\Exception $e) {
-                    // Log error if email fails
+
                     \Log::error('Failed to send email to: ' . $user->email . ' | Error: ' . $e->getMessage());
                 }
             } else {
