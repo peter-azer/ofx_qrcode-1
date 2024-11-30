@@ -88,16 +88,18 @@
         <!-- Warning Section -->
         <div class="warning">
             <p><strong>Warning:</strong> Your subscription is set to expire on {{ $endDate->format('F j, Y') }}.</p>
-            <p>Please take action before your subscription ends to avoid any disruption of service.</p>
+            <p>Please take action before your subscription ends to avoid any disruption of service and to prevent the suspension of your QR codes.</p>
+
         </div>
 
         <p>If you have any questions or need assistance, feel free to <a href="mailto:ofxqrcod@ofx-qrcode.com">contact us</a>.</p>
 
-        <p>To renew or manage your subscription, please click the button below:</p>
+        <p>To renew or manage your subscription, please visit the website and click on "Renew" to proceed with the renewal.</p>
 
-        <a href="your-renewal-link-here" class="cta-button">Renew Subscription</a>
 
-        <p>Best regards,<br>The Subscription Team</p>
+        <a href="https://ofx-qrcode.com/" class="cta-button">ofx-qrcode</a>
+
+        <p>Best regards,<br>OFX-qrcode Team</p>
 
         <div class="footer">
             <p>You are receiving this email because you subscribed to OFX QR services.
