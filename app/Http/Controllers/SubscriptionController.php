@@ -120,28 +120,28 @@ class SubscriptionController extends Controller
     public function renewUserPackage(Request $request)
     {
         $user = $request->user();
-    
+
         // Validate the request data
         $validatedData = $request->validate([
             'package_id' => 'required|integer|exists:packages,id',
         ]);
-    
+
         // Find the new package by ID
         $newPackage = Package::find($validatedData['package_id']);
-    
+
         if (!$newPackage) {
             return response()->json([
                 'message' => 'The specified package does not exist.',
             ], 400);
         }
-    
+
         // Calculate new duration dates
         $startDate = Carbon::now();
         $endDate = Carbon::now()->addYear(); // Static duration of 'year'
-    
+
         // Retrieve the user's current package or attach the new one
         $userPackage = $user->packages()->where('user_id', $user->id)->first();
-    
+
         if ($userPackage) {
             // Update the existing pivot entry and duration
             $user->packages()->updateExistingPivot($userPackage->id, [
@@ -162,10 +162,10 @@ class SubscriptionController extends Controller
                 'duration' => 'year',
             ]);
         }
-    
+
         // Activate the user's QR codes
         QrCodeModel::where('user_id', $user->id)->update(['is_active' => 1]);
-    
+
         return response()->json([
             'message' => 'User package renewed successfully.',
             'data' => [
@@ -178,7 +178,7 @@ class SubscriptionController extends Controller
             ],
         ], 200);
     }
-    
+
     // Get subscriptions by user ID
     public function getByUserId(Request $request)
     {
@@ -327,10 +327,10 @@ class SubscriptionController extends Controller
     }
 
 
-    public function count_price(Request $request)
+    public function price_upgrade(Request $request)
     {
-        $user = $request->user(); 
-        $userPackage = $user->packages()->first(); 
+        $user = $request->user();
+        $userPackage = $user->packages()->first();
 
         if (!$userPackage) {
             return response()->json(['error' => 'No package found for this user.'], 404);
@@ -341,7 +341,7 @@ class SubscriptionController extends Controller
         $startDate = Carbon::parse($userPackage->pivot->start_date);
         $now = Carbon::now();
 
-        
+
         $monthsUsed =  (int)$startDate->diffInMonths($now);
         $remainingMonths =  (int)12 - $monthsUsed; // Assuming a 12-month subscription
 
@@ -351,11 +351,11 @@ class SubscriptionController extends Controller
 
         $packageId = $request->input('package_id');
         $newPackage = Package::find($packageId);
-    
+
         if (!$newPackage) {
             return response()->json(['error' => 'Package not found.'], 404);
         }
-    
+
         $newPackagePrice = $newPackage->price_EGP;
 
 
@@ -370,8 +370,53 @@ class SubscriptionController extends Controller
         ], 200);
     }
 
-    //EX"if user use 3 from his subscribtion  package that user subscribe on it = 1000,and upgraded package = 1500  price should pay it=750  "remining price that user not used it = 1000/12*9=750" 1500-750=750   " 
-    /** 
+
+    /**
+     * Calculate the new price based on the number of QR codes in the user's package.
+     *
+     * The price is based on the number of QR codes the user has beyond the default (2 QR codes).
+     * For each additional set of 2 QR codes, 100 is added to the base package price.
+     *
+     * @param  Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+
+    public function price_qr(Request $request)
+{
+    $user = $request->user();
+    $userPackage = $user->packages()->first();
+
+    if (!$userPackage) {
+        return response()->json(['error' => 'No package found for this user.'], 404);
+    }
+
+
+    $price_twoQR = 100;
+
+    $num_qr = $userPackage->max_visitor;
+    $package_price = $userPackage->price_EGP;
+
+    $user_qr = $userPackage->pivot->qrcode_limit;
+
+    if ($num_qr == $user_qr) {
+        $new_price = $package_price;
+    } else {
+
+        $extra_qrs = $user_qr - 2;
+
+
+        $extra_sets = ceil($extra_qrs / 2);  // The ceil() function in PHP is used to round up a number to the nearest integer.
+
+
+        $new_price = $package_price + ($extra_sets * $price_twoQR);
+    }
+
+    return response()->json([
+        'new_price' => $new_price
+    ], 200);
+}
+
+    /**
      * Helper method to update the subscription duration and activate QR codes.
      */
     private function updateDurationAndActivate($user, $userPackage, $duration)
