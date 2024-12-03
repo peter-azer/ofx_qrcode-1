@@ -126,7 +126,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/Upgrade-QRlimit', [SubscriptionController::class, 'updateQrCodeLimit']);
     Route::post('/Upgrade-package', [SubscriptionController::class, 'renewUserPackage']);
     Route::post('/new_price', [SubscriptionController::class, 'price_upgrade']);//The price when user upgrade to package & his duration still active
-    Route::get('/new_price/maxqr', [SubscriptionController::class, 'price_qr']);//The price is based on the number of QR codes the user has beyond the default (2 QR codes) *in case of renew his duration *
+    Route::post('/new_price/maxqr', [SubscriptionController::class, 'price_qr']);//The price is based on the number of QR codes the user has beyond the default (2 QR codes) *in case of renew his duration *
     Route::post('/create-payment-link', [PaymentController::class, 'createPaymentLink']);
 });
 

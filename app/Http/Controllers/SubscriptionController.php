@@ -381,41 +381,61 @@ class SubscriptionController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
 
-    public function price_qr(Request $request)
-{
-    $user = $request->user();
-    $userPackage = $user->packages()->first();
-
-    if (!$userPackage) {
-        return response()->json(['error' => 'No package found for this user.'], 404);
-    }
-
-
-    $price_twoQR = 100;
-
-    $num_qr = $userPackage->max_visitor;
-    $package_price = $userPackage->price_EGP;
-
-    $user_qr = $userPackage->pivot->qrcode_limit;
-
-    if ($num_qr == $user_qr) {
-        $new_price = $package_price;
-    } else {
-
-        $extra_qrs = $user_qr - 2;
-
-
-        $extra_sets = ceil($extra_qrs / 2);  // The ceil() function in PHP is used to round up a number to the nearest integer.
-
-
-        $new_price = $package_price + ($extra_sets * $price_twoQR);
-    }
-
-    return response()->json([
-        'new_price' => $new_price
-    ], 200);
-}
-
+     public function price_qr(Request $request)
+     {
+         // Validate the incoming request
+         $validatedData = $request->validate([
+             'price_qr' => 'required|numeric',
+             'price_monthly' => 'nullable|numeric', 
+         ]);
+     
+        
+         $price = $validatedData['price_qr'];
+         $priceMonthly = $validatedData['price_monthly'] ?? null; // Default to null if not provided
+     
+         
+         $user = $request->user();
+     
+         if (!$user) {
+             return response()->json(['error' => 'User not authenticated.'], 401);
+         }
+     
+  
+         $userPackage = $user->packages()->first();
+     
+         if (!$userPackage) {
+             return response()->json(['error' => 'No package found for this user.'], 404);
+         }
+     
+         
+         $price_twoQR = $price; 
+         $num_qr = $userPackage->max_visitor; 
+         $package_price = $userPackage->price_EGP; 
+         $user_qr = $userPackage->pivot->qrcode_limit;
+     
+         
+         if ($num_qr == $user_qr) {
+        
+             $new_price = $priceMonthly ?? $package_price; 
+         } else {
+             $extra_qrs = $user_qr - 2; 
+             $extra_sets = ceil($extra_qrs / 2); 
+     
+             if ($priceMonthly) {
+          
+                 $new_price = $priceMonthly + ($extra_sets * $price_twoQR);
+             } else {
+                
+                 $new_price = $package_price + ($extra_sets * $price_twoQR);
+             }
+         }
+     
+         
+         return response()->json([
+             'new_price' => $new_price
+         ], 200);
+     }
+     
     /**
      * Helper method to update the subscription duration and activate QR codes.
      */
