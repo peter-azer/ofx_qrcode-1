@@ -495,7 +495,7 @@ class SubscriptionController extends Controller
         $remainingDays = $now->diffInDays($currentEndDate, false);
 
         // Check if the subscription can be renewed
-        if ($remainingDays > 1) {
+        if ($remainingDays > 5) {
             return response()->json(['message' => 'Your subscription is still active and cannot be renewed yet.'], 400);
         }
 
