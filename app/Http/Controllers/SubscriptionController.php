@@ -116,32 +116,41 @@ class SubscriptionController extends Controller
     }
 
 
-
     public function renewUserPackage(Request $request)
     {
         $user = $request->user();
-
+    
         // Validate the request data
         $validatedData = $request->validate([
             'package_id' => 'required|integer|exists:packages,id',
+            'duration' => 'required|string|in:year,month,3months',
         ]);
-
+    
         // Find the new package by ID
         $newPackage = Package::find($validatedData['package_id']);
-
+    
         if (!$newPackage) {
             return response()->json([
                 'message' => 'The specified package does not exist.',
             ], 400);
         }
-
+    
         // Calculate new duration dates
         $startDate = Carbon::now();
-        $endDate = Carbon::now()->addYear(); // Static duration of 'year'
-
+        $endDate = null;
+    
+        if ($validatedData['duration'] == 'year') {
+            $endDate = $startDate->copy()->addYear();
+        } elseif ($validatedData['duration'] == 'month') {
+            $endDate = $startDate->copy()->addMonth();
+        }
+       elseif ($validatedData['duration'] == '3months') {
+        $endDate = $startDate->copy()->addMonths(3);
+    }
+    
         // Retrieve the user's current package or attach the new one
         $userPackage = $user->packages()->where('user_id', $user->id)->first();
-
+    
         if ($userPackage) {
             // Update the existing pivot entry and duration
             $user->packages()->updateExistingPivot($userPackage->id, [
@@ -150,7 +159,7 @@ class SubscriptionController extends Controller
                 'is_enable' => true,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
-                'duration' => 'year',
+                'duration' => $validatedData['duration'],
             ]);
         } else {
             // Attach the new package with duration
@@ -159,13 +168,13 @@ class SubscriptionController extends Controller
                 'is_enable' => true,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
-                'duration' => 'year',
+                'duration' => $validatedData['duration'],
             ]);
         }
-
+    
         // Activate the user's QR codes
         QrCodeModel::where('user_id', $user->id)->update(['is_active' => 1]);
-
+    
         return response()->json([
             'message' => 'User package renewed successfully.',
             'data' => [
@@ -178,7 +187,7 @@ class SubscriptionController extends Controller
             ],
         ], 200);
     }
-
+    
     // Get subscriptions by user ID
     public function getByUserId(Request $request)
     {

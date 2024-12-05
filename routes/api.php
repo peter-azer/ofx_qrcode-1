@@ -20,6 +20,7 @@ use App\Http\Controllers\ContactUsController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\RecordController;
 ###########################################################USER_AUTH########################################################################################
 
 
@@ -125,8 +126,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/Upgrade-QR-Duration', [SubscriptionController::class, 'updateSubscriptionDurationv2']);    //renew  packagee
     Route::post('/Upgrade-QRlimit', [SubscriptionController::class, 'updateQrCodeLimit']);
     Route::post('/Upgrade-package', [SubscriptionController::class, 'renewUserPackage']);
-    Route::post('/new_price', [SubscriptionController::class, 'price_upgrade']);//The price when user upgrade to package & his duration still active
-    Route::post('/new_price/maxqr', [SubscriptionController::class, 'price_qr']);//The price is based on the number of QR codes the user has beyond the default (2 QR codes) *in case of renew his duration *
+    Route::post('/new_price', [SubscriptionController::class, 'price_upgrade']); //The price when user upgrade to package & his duration still active
+    Route::post('/new_price/maxqr', [SubscriptionController::class, 'price_qr']); //The price is based on the number of QR codes the user has beyond the default (2 QR codes) *in case of renew his duration *
     Route::post('/create-payment-link', [PaymentController::class, 'createPaymentLink']);
 });
 
@@ -137,15 +138,10 @@ Route::middleware('auth:sanctum')->get('/check-subscription-status', [Subscripti
 // Get subscriptions by user ID
 Route::get('/subscriptions/package/{packageId}', [SubscriptionController::class, 'getByPackageId']);  // Get subscriptions by package ID    //for admin
 
-
-
-
 Route::match(['GET', 'POST'], '/payment/callback', [PaymentController::class, 'handleCallback']);
 ###########################################################GEIDEA_PAYMENT########################################################################################
 
 Route::post('/payment/initiate', [PaymentController::class, 'initializePayment']);
-
-
 
 
 Route::post('/send-money', [PaymentController::class, 'sendMoney']);
@@ -156,6 +152,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/transactions', [UserTransactionController::class, 'store']);
     Route::get('/transactions/user', [UserTransactionController::class, 'getByUser']);
 });
+
+
 Route::get('/transactions', [UserTransactionController::class, 'getAll']);
 
 ###########################################################storage_link########################################################################################
@@ -187,7 +185,7 @@ Route::post('/addcode/{package_id}', [CodeController::class, 'store']);
 
 
 
-use App\Http\Controllers\RecordController;
+
 
 Route::post('/records', [RecordController::class, 'store']);
 
@@ -204,3 +202,4 @@ Route::get('/admin/users-with-qrcodes', [AdminDashboardController::class, 'getEa
 Route::get('/qrcode-stats', [AdminDashboardController::class, 'getQrCodeStats']);
 //*take care* that this api delete qrcode and all associated data related to the profile_id
 Route::delete('/Delete_qrcode/{id}', [AdminDashboardController::class, 'deleteQrCodeAndProfile']);
+// reccommend  on me what should i do ? : that in table employee :salary that each employee has salary but there where an issue that there were employes his salary = static salary and commission "dynamic " 
