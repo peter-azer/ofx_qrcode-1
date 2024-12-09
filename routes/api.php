@@ -95,7 +95,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/profiles/{user_id}', [UserProfileController::class, 'getAllProfilesByUserId']);
 Route::get('/profile/{id}', [UserProfileController::class, 'getProfileById']);
 Route::get('/profile/qrcode/{qrCodeName}', [UserProfileController::class, 'getProfileByQRCodeName']);
-Route::post('/profile/{id}', [UserProfileController::class, 'updateProfile']);
+Route::post('/profile/{id}', [UserProfileController::class, 'updateProfile'])->middleware('auth:sanctum');
 
 #********************************************************USER_location*************************************************************************************************
 
@@ -113,7 +113,6 @@ Route::get('/packages', [PackageController::class, 'index']);   // Get all packa
 Route::get('/packages/{id}', [PackageController::class, 'show']);  // Get a specific package
 Route::put('/packages/{id}', [PackageController::class, 'update']); // Update a package
 Route::delete('/packages/{id}', [PackageController::class, 'destroy']); // Delete a package
-
 
 
 
@@ -151,8 +150,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/transactions', [UserTransactionController::class, 'store']);
     Route::get('/transactions/user', [UserTransactionController::class, 'getByUser']);
-});
 
+});
 
 Route::get('/transactions', [UserTransactionController::class, 'getAll']);
 
@@ -196,10 +195,11 @@ Route::post('/contact-us', [ContactUsController::class, 'store']);
 
 ###########################################################ADMIN-Dashboard########################################################################################
 
-
+Route::middleware('auth:sanctum')->group(function () {
 Route::get('/admin/users-with-packages', [AdminDashboardController::class, 'getAllUsersWithPackages']);
 Route::get('/admin/users-with-qrcodes', [AdminDashboardController::class, 'getEachUserWithQrCodes']);
 Route::get('/qrcode-stats', [AdminDashboardController::class, 'getQrCodeStats']);
+});
 //*take care* that this api delete qrcode and all associated data related to the profile_id
 Route::delete('/Delete_qrcode/{id}', [AdminDashboardController::class, 'deleteQrCodeAndProfile']);
 // reccommend  on me what should i do ? : that in table employee :salary that each employee has salary but there where an issue that there were employes his salary = static salary and commission "dynamic " 
