@@ -20,6 +20,7 @@ use App\Http\Controllers\ContactUsController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Middleware\CheckAdminRole;
 ###########################################################USER_AUTH########################################################################################
 
 
@@ -197,6 +198,7 @@ Route::post('/records', [RecordController::class, 'store']);
 Route::post('/contact-us', [ContactUsController::class, 'store']);
 
 ###########################################################ADMIN-Dashboard########################################################################################
+Route::middleware(['auth:sanctum',CheckAdminRole::class])->group(function () {
 
 
 Route::get('/admin/users-with-packages', [AdminDashboardController::class, 'getAllUsersWithPackages']);
@@ -204,3 +206,4 @@ Route::get('/admin/users-with-qrcodes', [AdminDashboardController::class, 'getEa
 Route::get('/qrcode-stats', [AdminDashboardController::class, 'getQrCodeStats']);
 //*take care* that this api delete qrcode and all associated data related to the profile_id
 Route::delete('/Delete_qrcode/{id}', [AdminDashboardController::class, 'deleteQrCodeAndProfile']);
+});
