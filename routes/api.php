@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\qrcodev2Controller;
+use App\Http\Controllers\RecordController;
 use App\Http\Controllers\Smart_QRCodeController;
 use App\Http\Controllers\smartqrcodev2Controller;
 use App\Http\Controllers\UserTransactionController;
+use App\Http\Middleware\CheckAdminRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -20,7 +22,6 @@ use App\Http\Controllers\ContactUsController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\AdminDashboardController;
-use App\Http\Middleware\CheckAdminRole;
 ###########################################################USER_AUTH########################################################################################
 
 
@@ -95,7 +96,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/profiles/{user_id}', [UserProfileController::class, 'getAllProfilesByUserId']);
 Route::get('/profile/{id}', [UserProfileController::class, 'getProfileById']);
 Route::get('/profile/qrcode/{qrCodeName}', [UserProfileController::class, 'getProfileByQRCodeName']);
-Route::post('/profile/{id}', [UserProfileController::class, 'updateProfile']);
+Route::post('/profile/{id}', [UserProfileController::class, 'updateProfile'])->middleware('auth:sanctum');
 
 #********************************************************USER_location*************************************************************************************************
 
@@ -116,7 +117,6 @@ Route::delete('/packages/{id}', [PackageController::class, 'destroy']); // Delet
 
 
 
-
 ###########################################################USER_SUBSCRIPTION########################################################################################
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/subscriptions', [SubscriptionController::class, 'store']); //create subscription
@@ -126,8 +126,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/Upgrade-QR-Duration', [SubscriptionController::class, 'updateSubscriptionDurationv2']);    //renew  packagee
     Route::post('/Upgrade-QRlimit', [SubscriptionController::class, 'updateQrCodeLimit']);
     Route::post('/Upgrade-package', [SubscriptionController::class, 'renewUserPackage']);
-    Route::post('/new_price', [SubscriptionController::class, 'price_upgrade']);//The price when user upgrade to package & his duration still active
-    Route::get('/new_price/maxqr', [SubscriptionController::class, 'price_qr']);//The price is based on the number of QR codes the user has beyond the default (2 QR codes) *in case of renew his duration *
+    Route::post('/new_price', [SubscriptionController::class, 'price_upgrade']); //The price when user upgrade to package & his duration still active
+    Route::post('/new_price/maxqr', [SubscriptionController::class, 'price_qr']); //The price is based on the number of QR codes the user has beyond the default (2 QR codes) *in case of renew his duration *
     Route::post('/create-payment-link', [PaymentController::class, 'createPaymentLink']);
 });
 
@@ -138,15 +138,10 @@ Route::middleware('auth:sanctum')->get('/check-subscription-status', [Subscripti
 // Get subscriptions by user ID
 Route::get('/subscriptions/package/{packageId}', [SubscriptionController::class, 'getByPackageId']);  // Get subscriptions by package ID    //for admin
 
-
-
-
 Route::match(['GET', 'POST'], '/payment/callback', [PaymentController::class, 'handleCallback']);
 ###########################################################GEIDEA_PAYMENT########################################################################################
 
 Route::post('/payment/initiate', [PaymentController::class, 'initializePayment']);
-
-
 
 
 Route::post('/send-money', [PaymentController::class, 'sendMoney']);
@@ -156,7 +151,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/transactions', [UserTransactionController::class, 'store']);
     Route::get('/transactions/user', [UserTransactionController::class, 'getByUser']);
+
 });
+
 Route::get('/transactions', [UserTransactionController::class, 'getAll']);
 
 ###########################################################storage_link########################################################################################
@@ -188,7 +185,7 @@ Route::post('/addcode/{package_id}', [CodeController::class, 'store']);
 
 
 
-use App\Http\Controllers\RecordController;
+
 
 Route::post('/records', [RecordController::class, 'store']);
 
@@ -200,10 +197,9 @@ Route::post('/contact-us', [ContactUsController::class, 'store']);
 ###########################################################ADMIN-Dashboard########################################################################################
 Route::middleware(['auth:sanctum',CheckAdminRole::class])->group(function () {
 
-
 Route::get('/admin/users-with-packages', [AdminDashboardController::class, 'getAllUsersWithPackages']);
 Route::get('/admin/users-with-qrcodes', [AdminDashboardController::class, 'getEachUserWithQrCodes']);
 Route::get('/qrcode-stats', [AdminDashboardController::class, 'getQrCodeStats']);
+});
 //*take care* that this api delete qrcode and all associated data related to the profile_id
 Route::delete('/Delete_qrcode/{id}', [AdminDashboardController::class, 'deleteQrCodeAndProfile']);
-});

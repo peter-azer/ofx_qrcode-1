@@ -116,32 +116,41 @@ class SubscriptionController extends Controller
     }
 
 
-
     public function renewUserPackage(Request $request)
     {
         $user = $request->user();
-
+    
         // Validate the request data
         $validatedData = $request->validate([
             'package_id' => 'required|integer|exists:packages,id',
+            'duration' => 'required|string|in:year,month,3months',
         ]);
-
+    
         // Find the new package by ID
         $newPackage = Package::find($validatedData['package_id']);
-
+    
         if (!$newPackage) {
             return response()->json([
                 'message' => 'The specified package does not exist.',
             ], 400);
         }
-
+    
         // Calculate new duration dates
         $startDate = Carbon::now();
-        $endDate = Carbon::now()->addYear(); // Static duration of 'year'
-
+        $endDate = null;
+    
+        if ($validatedData['duration'] == 'year') {
+            $endDate = $startDate->copy()->addYear();
+        } elseif ($validatedData['duration'] == 'month') {
+            $endDate = $startDate->copy()->addMonth();
+        }
+       elseif ($validatedData['duration'] == '3months') {
+        $endDate = $startDate->copy()->addMonths(3);
+    }
+    
         // Retrieve the user's current package or attach the new one
         $userPackage = $user->packages()->where('user_id', $user->id)->first();
-
+    
         if ($userPackage) {
             // Update the existing pivot entry and duration
             $user->packages()->updateExistingPivot($userPackage->id, [
@@ -150,7 +159,7 @@ class SubscriptionController extends Controller
                 'is_enable' => true,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
-                'duration' => 'year',
+                'duration' => $validatedData['duration'],
             ]);
         } else {
             // Attach the new package with duration
@@ -159,13 +168,13 @@ class SubscriptionController extends Controller
                 'is_enable' => true,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
-                'duration' => 'year',
+                'duration' => $validatedData['duration'],
             ]);
         }
-
+    
         // Activate the user's QR codes
         QrCodeModel::where('user_id', $user->id)->update(['is_active' => 1]);
-
+    
         return response()->json([
             'message' => 'User package renewed successfully.',
             'data' => [
@@ -178,7 +187,7 @@ class SubscriptionController extends Controller
             ],
         ], 200);
     }
-
+    
     // Get subscriptions by user ID
     public function getByUserId(Request $request)
     {
@@ -381,41 +390,61 @@ class SubscriptionController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
 
-    public function price_qr(Request $request)
-{
-    $user = $request->user();
-    $userPackage = $user->packages()->first();
-
-    if (!$userPackage) {
-        return response()->json(['error' => 'No package found for this user.'], 404);
-    }
-
-
-    $price_twoQR = 100;
-
-    $num_qr = $userPackage->max_visitor;
-    $package_price = $userPackage->price_EGP;
-
-    $user_qr = $userPackage->pivot->qrcode_limit;
-
-    if ($num_qr == $user_qr) {
-        $new_price = $package_price;
-    } else {
-
-        $extra_qrs = $user_qr - 2;
-
-
-        $extra_sets = ceil($extra_qrs / 2);  // The ceil() function in PHP is used to round up a number to the nearest integer.
-
-
-        $new_price = $package_price + ($extra_sets * $price_twoQR);
-    }
-
-    return response()->json([
-        'new_price' => $new_price
-    ], 200);
-}
-
+     public function price_qr(Request $request)
+     {
+         // Validate the incoming request
+         $validatedData = $request->validate([
+             'price_qr' => 'required|numeric',
+             'price_monthly' => 'nullable|numeric', 
+         ]);
+     
+        
+         $price = $validatedData['price_qr'];
+         $priceMonthly = $validatedData['price_monthly'] ?? null; // Default to null if not provided
+     
+         
+         $user = $request->user();
+     
+         if (!$user) {
+             return response()->json(['error' => 'User not authenticated.'], 401);
+         }
+     
+  
+         $userPackage = $user->packages()->first();
+     
+         if (!$userPackage) {
+             return response()->json(['error' => 'No package found for this user.'], 404);
+         }
+     
+         
+         $price_twoQR = $price; 
+         $num_qr = $userPackage->max_visitor; 
+         $package_price = $userPackage->price_EGP; 
+         $user_qr = $userPackage->pivot->qrcode_limit;
+     
+         
+         if ($num_qr == $user_qr) {
+        
+             $new_price = $priceMonthly ?? $package_price; 
+         } else {
+             $extra_qrs = $user_qr - 2; 
+             $extra_sets = ceil($extra_qrs / 2); 
+     
+             if ($priceMonthly) {
+          
+                 $new_price = $priceMonthly + ($extra_sets * $price_twoQR);
+             } else {
+                
+                 $new_price = $package_price + ($extra_sets * $price_twoQR);
+             }
+         }
+     
+         
+         return response()->json([
+             'new_price' => $new_price
+         ], 200);
+     }
+     
     /**
      * Helper method to update the subscription duration and activate QR codes.
      */
@@ -475,7 +504,7 @@ class SubscriptionController extends Controller
         $remainingDays = $now->diffInDays($currentEndDate, false);
 
         // Check if the subscription can be renewed
-        if ($remainingDays > 1) {
+        if ($remainingDays > 5) {
             return response()->json(['message' => 'Your subscription is still active and cannot be renewed yet.'], 400);
         }
 

@@ -34,7 +34,7 @@ class UserProfileController extends Controller
     public function getProfileById($id)
     {
         // Find the profile by ID and include related data
-        $profile = Profile::with(['links', 'images', 'pdfs', 'events', 'branches'])->find($id);
+        $profile = Profile::with(['links', 'images', 'pdfs', 'events', 'branches','records'])->find($id);
 
         if (!$profile) {
             return response()->json(['message' => 'Profile not found'], 404);
@@ -145,13 +145,13 @@ class UserProfileController extends Controller
 
 
         if (!empty($validatedData['links'])) {
-            foreach ($validatedData['links'] as $linkData) {  // Ensure $linkData is defined here
-                log::info('Link Data: ', $linkData);  // Log the entire link data for debugging
+            foreach ($validatedData['links'] as $linkData) { 
+                log::info('Link Data: ', $linkData);  
 
-                if (!empty($linkData['id'])) {  // Check if ID is provided for updating
+                if (!empty($linkData['id'])) {  
                     try {
                         $link = Links::findOrFail($linkData['id']);
-                        log::info('Existing Link: ', $link->toArray());  // Log the retrieved link data
+                        log::info('Existing Link: ', $link->toArray()); 
                         $link->update([
                             'url' => $linkData['url'],
                             'type' => $linkData['type'],
