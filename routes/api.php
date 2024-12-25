@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\qrcodev2Controller;
 use App\Http\Controllers\RecordController;
 use App\Http\Controllers\Smart_QRCodeController;
@@ -203,3 +204,11 @@ Route::get('/qrcode-stats', [AdminDashboardController::class, 'getQrCodeStats'])
 });
 //*take care* that this api delete qrcode and all associated data related to the profile_id
 Route::delete('/Delete_qrcode/{id}', [AdminDashboardController::class, 'deleteQrCodeAndProfile']);
+
+###########################################################ADMIN_BLOGS-Dashboard########################################################################################
+Route::middleware(['auth:sanctum',CheckAdminRole::class])->group(function () {
+Route::post('/blogs', [BlogController::class, 'store']);
+
+});
+Route::get('/blogs', [BlogController::class, 'index'])->middleware('auth:sanctum');
+Route::get('/blogs/{id}', [BlogController::class, 'show'])->middleware('auth:sanctum');
