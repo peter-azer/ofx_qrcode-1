@@ -12,7 +12,6 @@ class Blog extends Model
         'feature',
         'description1',
         'description2',
-        'image1',
-        'image2',
+
     ];
 }
