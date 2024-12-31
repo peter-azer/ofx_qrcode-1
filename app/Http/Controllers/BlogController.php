@@ -11,29 +11,31 @@ class BlogController extends Controller
     // Store a new blog post
     public function store(Request $request)
     {
+        // Validate the request
         $request->validate([
             'title' => 'required|string|max:255',
             'description1' => 'required|string',
             'description2' => 'required|string',
-            'feature' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'feature' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', 
         ]);
-
-        // Handle image uploads
-        $feature =   $request->hasFile('feature') ? $request->file('feature')->store('blogs', 'public') : null;
-
-
+    
+      
+        $feature = $request->hasFile('feature') 
+            ? $request->file('feature')->store('blogs', 'public') 
+            : null;
+    
         // Create the blog post
         $blog = Blog::create([
             'title' => $request->title,
             'description1' => $request->description1,
             'description2' => $request->description2,
-            'feature' => $feature,
-     
+            'feature' => $feature, // Save image path
         ]);
-
+    
+        // Return the created blog as JSON response
         return response()->json(['blog' => $blog], 201);
     }
-
+    
     // Get all blog posts
     public function index()
     {
