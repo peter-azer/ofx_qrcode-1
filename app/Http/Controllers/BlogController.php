@@ -16,7 +16,7 @@ class BlogController extends Controller
             'title' => 'required|string|max:255',
             'description1' => 'required|string',
             'description2' => 'required|string',
-            'feature' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', 
+            'feature' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // image validation
         ]);
     
       
@@ -44,6 +44,18 @@ class BlogController extends Controller
     }
 
     // Get a blog post by ID
+    public function show($id)
+    {
+        $blog = Blog::find($id);
+
+        if (!$blog) {
+            return response()->json(['message' => 'Blog not found'], 404);
+        }
+
+        return response()->json($blog);
+    }
+
+
     public function delete($id)
     {
         $blog = Blog::find($id);

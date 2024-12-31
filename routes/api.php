@@ -212,4 +212,4 @@ Route::post('/blogs', [BlogController::class, 'store']);
 });
 Route::get('/blogs', [BlogController::class, 'index'])->middleware('auth:sanctum');
 Route::get('/blogs/{id}', [BlogController::class, 'show'])->middleware('auth:sanctum');
-Route::delete('/blogs/{id}', [BlogController::class, 'show'])->middleware('auth:sanctum');
+Route::delete('/blogs/{id}', [BlogController::class, 'delete'])->middleware('auth:sanctum');
