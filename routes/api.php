@@ -23,6 +23,8 @@ use App\Http\Controllers\ContactUsController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Middleware\CheckSEORole;
+
 ###########################################################USER_AUTH########################################################################################
 
 
@@ -206,7 +208,7 @@ Route::get('/qrcode-stats', [AdminDashboardController::class, 'getQrCodeStats'])
 Route::delete('/Delete_qrcode/{id}', [AdminDashboardController::class, 'deleteQrCodeAndProfile']);
 
 ###########################################################ADMIN_BLOGS-Dashboard########################################################################################
-Route::middleware(['auth:sanctum',CheckAdminRole::class])->group(function () {
+Route::middleware(['auth:sanctum',CheckSEORole::class])->group(function () {
 Route::post('/blogs', [BlogController::class, 'store']);
 
 });
