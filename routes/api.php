@@ -210,8 +210,7 @@ Route::delete('/Delete_qrcode/{id}', [AdminDashboardController::class, 'deleteQr
 ###########################################################ADMIN_BLOGS-Dashboard########################################################################################
 Route::middleware(['auth:sanctum',CheckSEORole::class])->group(function () {
 Route::post('/blogs', [BlogController::class, 'store']);
-
+Route::delete('/blogs/{id}', [BlogController::class, 'delete']);
 });
-Route::get('/blogs', [BlogController::class, 'index'])->middleware('auth:sanctum');
+Route::get('/blogs', [BlogController::class, 'index']);
 Route::get('/blogs/{id}', [BlogController::class, 'show'])->middleware('auth:sanctum');
-Route::delete('/blogs/{id}', [BlogController::class, 'delete'])->middleware('auth:sanctum');
