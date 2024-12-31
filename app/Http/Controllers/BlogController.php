@@ -44,14 +44,17 @@ class BlogController extends Controller
     }
 
     // Get a blog post by ID
-    public function show($id)
+    public function delete($id)
     {
         $blog = Blog::find($id);
+  
 
         if (!$blog) {
             return response()->json(['message' => 'Blog not found'], 404);
         }
 
-        return response()->json($blog);
+        $blog->delete();
+
+             return response()->json(['message' => 'blog deleted successfully']);
     }
 }
