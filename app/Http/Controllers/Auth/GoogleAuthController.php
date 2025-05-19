@@ -39,7 +39,6 @@ class GoogleAuthController extends Controller
                 'user' => $user,
                 'token' => $user->createToken('GoogleLogin')->plainTextToken,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Authentication failed',
@@ -66,7 +65,7 @@ class GoogleAuthController extends Controller
                     'email' => $googleUser->getEmail(),
                     'google_id' => $googleUser->getId(),
                     'avatar' => $googleUser->getAvatar(),
-                    'password' => bcrypt('random-password'), 
+                    'password' => bcrypt('random-password'),
                 ]);
             }
 
@@ -77,11 +76,9 @@ class GoogleAuthController extends Controller
             $token = $user->createToken('auth_token')->plainTextToken;
 
             // Redirect back to frontend with token
-            return redirect()->away("https://ofx-qrcode.com/auth/callback?token={$token}");
-
+            return redirect()->away("http://localhost:5173/auth/callback?token={$token}");
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 }
-
