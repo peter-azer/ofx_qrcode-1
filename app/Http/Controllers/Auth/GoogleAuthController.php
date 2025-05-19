@@ -76,7 +76,7 @@ class GoogleAuthController extends Controller
             // Generate a token for API authentication
             $token = $user->createToken('GoogleAuth')->plainTextToken;
 
-            return redirect()->away("http://localhost:5173/auth/callback?token={$token}");
+            return redirect()->away("https://ofx-qrcode.com/auth/callback?token={$token}");
 
         } catch (\Exception $e) {
             return response()->json([
