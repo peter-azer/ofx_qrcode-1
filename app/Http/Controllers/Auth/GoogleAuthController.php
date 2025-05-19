@@ -12,7 +12,7 @@ class GoogleAuthController extends Controller
     // Redirect to Google for authentication
     public function redirectToGoogle()
     {
-        return Socialite::driver('google')->redirect();
+        return Socialite::driver('google')->stateless()->redirect();
     }
 
     // Handle Google callback
@@ -20,7 +20,7 @@ class GoogleAuthController extends Controller
     {
         try {
             // Retrieve user information from Google
-            $googleUser = Socialite::driver('google')->user();
+            $googleUser = Socialite::driver('google')->stateless()->user();
 
             // Check if the user exists
             $user = User::where('email', $googleUser->getEmail())->first();
@@ -54,7 +54,7 @@ class GoogleAuthController extends Controller
     {
         try {
             // Get Google user details
-            $googleUser = Socialite::driver('google')->user();
+            $googleUser = Socialite::driver('google')->stateless()->user();
 
             // Check if the user exists in the database
             $user = User::where('email', $googleUser->getEmail())->first();
