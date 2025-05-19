@@ -80,10 +80,7 @@ class GoogleAuthController extends Controller
             return redirect()->away("https://ofx-qrcode.com/auth/callback?token={$token}");
 
         } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Authentication failed',
-                'message' => $e->getMessage(),
-            ], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 }
