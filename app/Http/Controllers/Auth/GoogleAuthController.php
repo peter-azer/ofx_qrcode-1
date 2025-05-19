@@ -39,6 +39,7 @@ class GoogleAuthController extends Controller
                 'user' => $user,
                 'token' => $user->createToken('GoogleLogin')->plainTextToken,
             ]);
+
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Authentication failed',
@@ -65,7 +66,7 @@ class GoogleAuthController extends Controller
                     'email' => $googleUser->getEmail(),
                     'google_id' => $googleUser->getId(),
                     'avatar' => $googleUser->getAvatar(),
-                    'password' => bcrypt('random-password'),
+                    'password' => bcrypt('random-password'), 
                 ]);
             }
 
@@ -73,12 +74,20 @@ class GoogleAuthController extends Controller
             Auth::login($user);
 
             // Generate a token for API authentication
-            $token = $user->createToken('auth_token')->plainTextToken;
+            $token = $user->createToken('GoogleAuth')->plainTextToken;
 
-            // Redirect back to frontend with token
-            return redirect()->away("http://localhost:5173/auth/callback?token={$token}");
+            return response()->json([
+                'message' => 'User signed up or logged in successfully',
+                'user' => $user,
+                'token' => $token,
+            ], 200);
+
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
+            return response()->json([
+                'error' => 'Authentication failed',
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 }
+
