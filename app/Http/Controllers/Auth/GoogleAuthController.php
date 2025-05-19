@@ -76,11 +76,7 @@ class GoogleAuthController extends Controller
             // Generate a token for API authentication
             $token = $user->createToken('GoogleAuth')->plainTextToken;
 
-            return response()->json([
-                'message' => 'User signed up or logged in successfully',
-                'user' => $user,
-                'token' => $token,
-            ], 200);
+            return redirect()->away("http://localhost:5173/auth/callback?token={$token}");
 
         } catch (\Exception $e) {
             return response()->json([
