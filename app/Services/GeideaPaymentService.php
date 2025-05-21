@@ -27,8 +27,7 @@ class GeideaPaymentService
      */
     public function generateSignature($publicKey, $amount, $orderCurrency, $orderMerchantReferenceId, $apiPassword, $timestamp)
     {
-        dd($publicKey, $amount, $orderCurrency, $orderMerchantReferenceId, $timestamp, $apiPassword);
-
+        // dd($publicKey, $amount, $orderCurrency, $orderMerchantReferenceId, $timestamp, $apiPassword);
         $amountStr = number_format($amount, 2, '.', '');
 
         $data = "{$publicKey}{$amountStr}{$orderCurrency}{$orderMerchantReferenceId}{$timestamp}";
