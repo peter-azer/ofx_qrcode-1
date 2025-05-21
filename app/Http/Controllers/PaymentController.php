@@ -41,19 +41,19 @@ class PaymentController extends Controller
 
     $response = $this->geideaService->createSession($amount, $currency,  'https://backend.ofx-qrcode.com/api/payment/callback');
     
-    if (isset($response['session']['id'])) {
-        return response()->json([
-            'status' => 'success',
-            'sessionId' => $response['session']['id'],
+    // if (isset($response['session']['id'])) {
+    //     return response()->json([
+    //         'status' => 'success',
+    //         'sessionId' => $response['session']['id'],
             
-        ]);
-    } else {
+    //     ]);
+    // } else {
         
-        return response()->json([
-            'status' => 'error',
-            'message' => $response['message'] ?? 'Failed to create session.'
-        ], 500);
-    }
+    //     return response()->json([
+    //         'status' => 'error',
+    //         'message' => $response['message'] ?? 'Failed to create session.'
+    //     ], 500);
+    // }
     } catch (\Exception $e) {
         return response()->json([
             'status' => 'error',
