@@ -9,7 +9,7 @@ class GeideaPaymentService
 {
     protected $baseUrl;
     protected $publicKey;
-    protected $apiPassword = '81e08fa6-00eb-4b52-b2fc-89071ebed43d';
+    protected $apiPassword;
     protected $secretKey;
 
     public function __construct()
@@ -24,7 +24,7 @@ class GeideaPaymentService
     /**
      * Generate the signature using the provided data.
      */
-function generateSignature($merchantPublicKey, $orderAmount, $orderCurrency, $orderMerchantReferenceId, $timestamp)
+function generateSignature($merchantPublicKey, $orderAmount, $orderCurrency, $orderMerchantReferenceId, $apiPassword, $timestamp)
 {
     $apiPassword = '81e08fa6-00eb-4b52-b2fc-89071ebed43d';
     dd($merchantPublicKey, $orderAmount, $orderCurrency, $orderMerchantReferenceId, $apiPassword, $timestamp);
