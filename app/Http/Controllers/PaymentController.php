@@ -23,12 +23,14 @@ class PaymentController extends Controller
     public function initializePayment(Request $request)
 {
 
-    $validator = \Validator::make($request->all(), [
-        'amount' => 'required|numeric|min:1',
-    ]);
+    try{
 
-    if ($validator->fails()) {
-        return response()->json([
+        $validator = \Validator::make($request->all(), [
+            'amount' => 'required|numeric|min:1',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
             'status' => 'error',
             'errors' => $validator->errors(),
         ], 400);
@@ -38,25 +40,31 @@ class PaymentController extends Controller
     $currency = 'EGP';
 
     $response = $this->geideaService->createSession($amount, $currency,  'https://backend.ofx-qrcode.com/api/payment/callback');
-
+    
     if (isset($response['session']['id'])) {
         return response()->json([
             'status' => 'success',
             'sessionId' => $response['session']['id'],
-
+            
         ]);
     } else {
-
+        
         return response()->json([
             'status' => 'error',
             'message' => $response['message'] ?? 'Failed to create session.'
         ], 500);
     }
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'An error occurred: ' . $e->getMessage()
+        ], 500);
+    }
 }
 
 
-    /**
-     * Handle the callback from Geidea after payment completion.
+/**
+ * Handle the callback from Geidea after payment completion.
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
