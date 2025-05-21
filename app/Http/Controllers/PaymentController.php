@@ -51,7 +51,7 @@ class PaymentController extends Controller
         
         return response()->json([
             'status' => 'error',
-            'message' => $response['message'] 
+            'message' => $response['message'] ?? 'Failed to create session.'
         ], 500);
     }
     } catch (\Exception $e) {
