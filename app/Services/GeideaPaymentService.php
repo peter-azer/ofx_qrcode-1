@@ -25,13 +25,13 @@ class GeideaPaymentService
     /**
      * Generate the signature using the provided data.
      */
-    public function generateSignature($merchantPublicKey, $amount, $orderCurrency, $orderMerchantReferenceId, $apiPassword, $timestamp)
+    public function generateSignature($publicKey, $amount, $orderCurrency, $orderMerchantReferenceId, $apiPassword, $timestamp)
     {
-        dd($merchantPublicKey, $amount, $orderCurrency, $orderMerchantReferenceId, $apiPassword, $timestamp);
+        dd($publicKey, $amount, $orderCurrency, $orderMerchantReferenceId, $timestamp, $apiPassword);
 
         $amountStr = number_format($amount, 2, '.', '');
 
-        $data = "{$merchantPublicKey}{$amountStr}{$orderCurrency}{$orderMerchantReferenceId}{$timestamp}";
+        $data = "{$publicKey}{$amountStr}{$orderCurrency}{$orderMerchantReferenceId}{$timestamp}";
 
         // Generate HMAC SHA256 hash and encode it in Base64
         $hash = hash_hmac('sha256', $data,  $this->apiPassword, true);
