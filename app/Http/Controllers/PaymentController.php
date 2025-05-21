@@ -37,6 +37,7 @@ class PaymentController extends Controller
     $amount = $request->input('amount');
     $currency = 'EGP';
 
+
     $response = $this->geideaService->createSession($amount, $currency,  'https://backend.ofx-qrcode.com/api/payment/callback');
 
     if (isset($response['session']['id'])) {
@@ -48,8 +49,9 @@ class PaymentController extends Controller
     } else {
 
         return response()->json([
-            'status' => 'error',
-            'message' => $response
+            'status' => 'error amount'. $amount,
+            'message' => $response,
+
         ], 500);
     }
 }
