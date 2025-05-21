@@ -49,7 +49,7 @@ class PaymentController extends Controller
     } else {
 
         return response()->json([
-            'status' => 'error amount'. $amount,
+            'status' => 'error',
             'message' => $response,
 
         ], 500);
