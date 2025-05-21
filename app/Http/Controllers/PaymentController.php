@@ -135,7 +135,7 @@ class PaymentController extends Controller
             try {
 
                 $payload = $request->all();
-               dd($payload);
+            //    dd($payload);
 
                 \Log::info('Webhook Received:', $payload);
 

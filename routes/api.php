@@ -140,9 +140,8 @@ Route::middleware('auth:sanctum')->get('/check-subscription-status', [Subscripti
 
 // Get subscriptions by user ID
 Route::get('/subscriptions/package/{packageId}', [SubscriptionController::class, 'getByPackageId']);  // Get subscriptions by package ID    //for admin
-
-Route::post('/payment/callback', [PaymentController::class, 'handleCallback']);
 ###########################################################GEIDEA_PAYMENT########################################################################################
+Route::post('/payment/callback', [PaymentController::class, 'handleCallback']);
 
 Route::post('/payment/initiate', [PaymentController::class, 'initializePayment']);
 
