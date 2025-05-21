@@ -18,7 +18,7 @@ class GeideaPaymentService
         // $this->publicKey = 'c940b85f-c8f7-4229-a853-7c44d4a8db2f'; //test
         // $this->apiPassword ='225235e9-336a-45aa-91b4-ff9cfd31be50';
  $this->publicKey = 'b42f3fd5-782e-4d86-afda-0efbed7a1711'; //live
-$this->apiPassword ='924eedea-4be1-4ef5-8324-e42e23255337';
+$this->apiPassword ='81e08fa6-00eb-4b52-b2fc-89071ebed43d';
     }
 
     /**
