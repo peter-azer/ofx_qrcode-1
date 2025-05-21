@@ -213,4 +213,4 @@ Route::post('/blogs', [BlogController::class, 'store']);
 Route::delete('/blogs/{id}', [BlogController::class, 'delete']);
 });
 Route::get('/blogs', [BlogController::class, 'index']);
-Route::get('/blogs/{id}', [BlogController::class, 'show']);
+Route::get('/blogs/{slug}', [BlogController::class, 'show']);

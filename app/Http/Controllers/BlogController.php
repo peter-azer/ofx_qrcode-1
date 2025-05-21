@@ -14,6 +14,7 @@ class BlogController extends Controller
         // Validate the request
         $request->validate([
             'title' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:blogs,slug',
             'description1' => 'required|string',
             'description2' => 'required|string',
             'feature' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // image validation
@@ -27,6 +28,7 @@ class BlogController extends Controller
         // Create the blog post
         $blog = Blog::create([
             'title' => $request->title,
+            'slug' => $request->slug,
             'description1' => $request->description1,
             'description2' => $request->description2,
             'feature' => $feature, // Save image path
@@ -44,14 +46,13 @@ class BlogController extends Controller
     }
 
     // Get a blog post by ID
-    public function show($id)
+    public function show($slug)
     {
-        $blog = Blog::find($id);
+        $blog = Blog::where('slug', $slug)->first();
 
         if (!$blog) {
             return response()->json(['message' => 'Blog not found'], 404);
         }
-
         return response()->json($blog);
     }
 
