@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 class GeideaPaymentService
 {
     protected $baseUrl;
-    protected $merchantPublicKey;
+    protected $publicKey;
     protected $apiPassword;
     protected $secretKey;
 
@@ -17,7 +17,7 @@ class GeideaPaymentService
         $this->baseUrl = 'https://api.merchant.geidea.net/payment-intent/api/v2/direct/session'; // Correct URL for payment session
         // $this->publicKey = 'c940b85f-c8f7-4229-a853-7c44d4a8db2f'; //test
         // $this->apiPassword ='225235e9-336a-45aa-91b4-ff9cfd31be50';
- $this->merchantPublicKey = 'b42f3fd5-782e-4d86-afda-0efbed7a1711'; //live
+ $this->publicKey = 'b42f3fd5-782e-4d86-afda-0efbed7a1711'; //live
 $this->apiPassword ='924eedea-4be1-4ef5-8324-e42e23255337';
     }
 
