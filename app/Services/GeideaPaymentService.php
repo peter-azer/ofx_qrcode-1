@@ -27,7 +27,7 @@ class GeideaPaymentService
 function generateSignature($merchantPublicKey, $orderAmount, $orderCurrency, $orderMerchantReferenceId, $apiPassword, $timestamp)
 {
     $apiPassword = '225235e9-336a-45aa-91b4-ff9cfd31be50'; //test
-    $apiPassword = '225235e9-336a-45aa-91b4-ff9cfd31be50'; //live
+    // $apiPassword = '225235e9-336a-45aa-91b4-ff9cfd31be50'; //live
     // dd($merchantPublicKey, $orderAmount, $orderCurrency, $orderMerchantReferenceId, $apiPassword, $timestamp);
     $amountStr = number_format($orderAmount, 2, '.', '');
     $data = "{$merchantPublicKey}{$amountStr}{$orderCurrency}{$orderMerchantReferenceId}{$timestamp}";
