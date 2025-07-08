@@ -7,7 +7,6 @@ use App\Http\Controllers\Smart_QRCodeController;
 use App\Http\Controllers\smartqrcodev2Controller;
 use App\Http\Controllers\UserTransactionController;
 use App\Http\Middleware\CheckAdminRole;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
@@ -26,6 +25,7 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Middleware\CheckSEORole;
 
 ###########################################################USER_AUTH########################################################################################
+Route::get('/user_info', [AuthController::class, 'getUserData'])->middleware('auth:sanctum');
 
 
 Route::post('/admin/signup', [AuthController::class, 'Admin_signup']);
@@ -33,7 +33,6 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::post('/forget-password', [AuthController::class, 'forgetPassword']);
 
-Route::get('/user_info', [AuthController::class, 'getUserData'])->middleware('auth:sanctum');
 
 Route::post('/testmail', [AuthController::class, 'sendMail']);
 
