@@ -72,33 +72,11 @@ class PackageController extends Controller
 
 
 
-public function index()
-{
-    $packages = Package::all()->map(function ($package) {
-        $features = $package->features;
-
-        // Decode if it's stored as JSON
-        if (is_string($features)) {
-            $features = json_decode($features, true);
-        }
-
-        // Normalize features into key => value format
-        $normalizedFeatures = [];
-        foreach ($features as $key => $value) {
-            if (is_int($key)) {
-                $normalizedFeatures[$value] = $value;
-            } else {
-                $normalizedFeatures[$key] = $value;
-            }
-        }
-
-        $package->features = $normalizedFeatures;
-        return $package;
-    });
-
-    return response()->json($packages);
-}
-
+    public function index()
+    {
+        $packages = Package::all();
+        return response()->json($packages);
+    }
 
 
 }
