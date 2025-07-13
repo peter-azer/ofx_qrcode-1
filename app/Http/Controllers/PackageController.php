@@ -30,6 +30,14 @@ class PackageController extends Controller
         return response()->json(['message' => 'Package created successfully', 'data' => $package], 201);
     }
 
+    public function show($id){
+        try{
+            $package = Package::findOrFail($id);
+            return response()->json($package);
+        }catch(\Exception $e){
+            return response()->json(['message' => $e->getMessage()], 404);
+        }
+    }
     // Update a package
     public function update(Request $request, $id)
     {
