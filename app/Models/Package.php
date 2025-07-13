@@ -29,6 +29,8 @@ protected $casts = [
         'price_dollar',
         'price_EGP',
         'max_qrcode',
+        'annual_fee',
+        'monthly_fee',
     ];
 
 
