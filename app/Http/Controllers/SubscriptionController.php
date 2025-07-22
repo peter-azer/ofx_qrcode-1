@@ -22,11 +22,13 @@ class SubscriptionController extends Controller
 
     public function store(Request $request)
     {
-        // Validate the incoming request data
-        $validatedData = $request->validate([
-            'package_id' => 'required|exists:packages, id',
-            'duration' => 'required|string|in:month,three_months,year',
-        ]);
+        try{
+
+            // Validate the incoming request data
+            $validatedData = $request->validate([
+                'package_id' => 'required|exists:packages, id',
+                'duration' => 'required|string|in:month,three_months,year',
+            ]);
 
         $user = $request->user();
 
@@ -37,14 +39,14 @@ class SubscriptionController extends Controller
         // Calculate the start and end dates based on the subscription duration
         $startDate = Carbon::now();
         $endDate = $this->calculateEndDate(clone $startDate, $validatedData['duration']);
-
+        
         // Check if the user already has an active package
         $existingPackage = $user->packages()->first();
-
+        
         if ($existingPackage) {
             // Detach the existing package
             // $user->packages()->detach($existingPackage->id);
-
+            
             // Attach the new package with updated data
             $user->packages()->attach($validatedData['package_id'], [
                 'duration' => $validatedData['duration'],
@@ -61,7 +63,7 @@ class SubscriptionController extends Controller
                 'end_date' => $endDate,
             ]);
         }
-
+        
         // Return a success message with the new package details
         return response()->json([
             'message' => $existingPackage ? 'Package updated successfully.' : 'Package subscribed successfully.',
@@ -72,8 +74,12 @@ class SubscriptionController extends Controller
                 'qrcode_limit' => $qrcodeLimit,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
-            ]
-        ], 201);
+                ]
+            ], 201);
+        }catch(\Exception $e) {
+            Log::error('Error in SubscriptionController@store: ' . $e->getMessage());
+            return response()->json(['message' => 'An error occurred while processing your request.'], 500);
+        }
     }
 
 
