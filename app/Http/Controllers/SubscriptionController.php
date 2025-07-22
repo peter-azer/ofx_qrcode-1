@@ -43,7 +43,7 @@ class SubscriptionController extends Controller
 
         if ($existingPackage) {
             // Detach the existing package
-            $user->packages()->detach($existingPackage->id);
+            // $user->packages()->detach($existingPackage->id);
 
             // Attach the new package with updated data
             $user->packages()->attach($validatedData['package_id'], [
