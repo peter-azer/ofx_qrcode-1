@@ -267,7 +267,7 @@ public function signup(Request $request)
         // Retrieve user's packages with pivot data
         $userPackages = $user->packages->map(function ($package) {
             return [
-
+                'id' => $package->id,
                 'name' => $package->name,
                 'qrcode_limit' => $package->pivot->qrcode_limit,
                 'start_date' => $package->pivot->start_date,

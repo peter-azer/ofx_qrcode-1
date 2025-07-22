@@ -24,7 +24,7 @@ class SubscriptionController extends Controller
     {
         // Validate the incoming request data
         $validatedData = $request->validate([
-            'package_id' => 'required|exists:packages,id',
+            'package_id' => 'required|exists:packages, id',
             'duration' => 'required|string|in:month,three_months,year',
         ]);
 
