@@ -282,6 +282,7 @@ public function signup(Request $request)
             'name' => $user->name,
             'email' => $user->email,
             'phone' => $user->phone,
+            'address' => $user->address,
             'user_packages' => $userPackages,
         ];
 
