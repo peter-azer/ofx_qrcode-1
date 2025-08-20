@@ -44,7 +44,7 @@ class UserProfileController extends Controller
     }
 
 
-    
+
 
     public function getProfileByQRCodeNamev2($qrCodeName)
     {
@@ -144,29 +144,17 @@ class UserProfileController extends Controller
         ]);
 
 
-        if (!empty($validatedData['links'])) {
-            foreach ($validatedData['links'] as $linkData) { 
-                log::info('Link Data: ', $linkData);  
-
-                if (!empty($linkData['id'])) {  
+        if ($validatedData['links']) {
+            foreach ($validatedData['links'] as $linkData) {
                     try {
                         $link = Links::findOrFail($linkData['id']);
-                        log::info('Existing Link: ', $link->toArray()); 
-                        $link->update([
+                        $link->updateOrCreate([
                             'url' => $linkData['url'],
                             'type' => $linkData['type'],
                         ]);
-                    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-                        log::error('Link not found: ', ['id' => $linkData['id']]);
+                    } catch (\Exception $e) {
+                        return response()->json(['message' => 'Link not found', 'error' => $e->getMessage()], 404);
                     }
-                } else {
-                    // Create new link if ID is not provided
-                    Links::create([
-                        'profile_id' => $profile->id,
-                        'url' => $linkData['url'],
-                        'type' => $linkData['type'],
-                    ]);
-                }
             }
         }
 
@@ -198,8 +186,8 @@ class UserProfileController extends Controller
             foreach ($request->file('mp3') as $mp3) {
                 $mp3path = $mp3->store('records', 'public');
                 // log::info(' Data: ', $request);
-              
-                
+
+
                 if ($request->has('mp3_id')) {
                     $record = Records::find($request->input('mp3_id'));
                     // log::info(' Data: ', $record);
