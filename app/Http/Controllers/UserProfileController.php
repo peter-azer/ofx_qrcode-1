@@ -144,17 +144,17 @@ class UserProfileController extends Controller
         ]);
 
 
-        if ($validatedData['links']) {
+        /** -------------------- LINKS -------------------- */
+        if (!empty($validatedData['links'])) {
             foreach ($validatedData['links'] as $linkData) {
-                    try {
-                        $link = Links::findOrFail($linkData['id']);
-                        $link->updateOrCreate([
-                            'url' => $linkData['url'],
-                            'type' => $linkData['type'],
-                        ]);
-                    } catch (\Exception $e) {
-                        return response()->json(['message' => 'Link not found', 'error' => $e->getMessage()], 404);
-                    }
+                Links::updateOrCreate(
+                    ['id' => $linkData['id'] ?? null], // If ID exists, update; else create new
+                    [
+                        'profile_id' => $profile->id,
+                        'url' => $linkData['url'] ?? '',
+                        'type' => $linkData['type'] ?? '',
+                    ]
+                );
             }
         }
 
