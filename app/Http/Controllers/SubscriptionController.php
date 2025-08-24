@@ -119,38 +119,37 @@ class SubscriptionController extends Controller
     public function renewUserPackage(Request $request)
     {
         $user = $request->user();
-    
+
         // Validate the request data
         $validatedData = $request->validate([
             'package_id' => 'required|integer|exists:packages,id',
             'duration' => 'required|string|in:year,month,3months',
         ]);
-    
+
         // Find the new package by ID
         $newPackage = Package::find($validatedData['package_id']);
-    
+
         if (!$newPackage) {
             return response()->json([
                 'message' => 'The specified package does not exist.',
             ], 400);
         }
-    
+
         // Calculate new duration dates
         $startDate = Carbon::now();
         $endDate = null;
-    
+
         if ($validatedData['duration'] == 'year') {
             $endDate = $startDate->copy()->addYear();
         } elseif ($validatedData['duration'] == 'month') {
             $endDate = $startDate->copy()->addMonth();
+        } elseif ($validatedData['duration'] == '3months') {
+            $endDate = $startDate->copy()->addMonths(3);
         }
-       elseif ($validatedData['duration'] == '3months') {
-        $endDate = $startDate->copy()->addMonths(3);
-    }
-    
+
         // Retrieve the user's current package or attach the new one
         $userPackage = $user->packages()->where('user_id', $user->id)->first();
-    
+
         if ($userPackage) {
             // Update the existing pivot entry and duration
             $user->packages()->updateExistingPivot($userPackage->id, [
@@ -171,10 +170,10 @@ class SubscriptionController extends Controller
                 'duration' => $validatedData['duration'],
             ]);
         }
-    
+
         // Activate the user's QR codes
         QrCodeModel::where('user_id', $user->id)->update(['is_active' => 1]);
-    
+
         return response()->json([
             'message' => 'User package renewed successfully.',
             'data' => [
@@ -187,7 +186,7 @@ class SubscriptionController extends Controller
             ],
         ], 200);
     }
-    
+
     // Get subscriptions by user ID
     public function getByUserId(Request $request)
     {
@@ -390,61 +389,61 @@ class SubscriptionController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
 
-     public function price_qr(Request $request)
-     {
-         // Validate the incoming request
-         $validatedData = $request->validate([
-             'price_qr' => 'required|numeric',
-             'price_monthly' => 'nullable|numeric', 
-         ]);
-     
-        
-         $price = $validatedData['price_qr'];
-         $priceMonthly = $validatedData['price_monthly'] ?? null; // Default to null if not provided
-     
-         
-         $user = $request->user();
-     
-         if (!$user) {
-             return response()->json(['error' => 'User not authenticated.'], 401);
-         }
-     
-  
-         $userPackage = $user->packages()->first();
-     
-         if (!$userPackage) {
-             return response()->json(['error' => 'No package found for this user.'], 404);
-         }
-     
-         
-         $price_twoQR = $price; 
-         $num_qr = $userPackage->max_visitor; 
-         $package_price = $userPackage->price_EGP; 
-         $user_qr = $userPackage->pivot->qrcode_limit;
-     
-         
-         if ($num_qr == $user_qr) {
-        
-             $new_price = $priceMonthly ?? $package_price; 
-         } else {
-             $extra_qrs = $user_qr - 2; 
-             $extra_sets = ceil($extra_qrs / 2); 
-     
-             if ($priceMonthly) {
-          
-                 $new_price = $priceMonthly + ($extra_sets * $price_twoQR);
-             } else {
-                
-                 $new_price = $package_price + ($extra_sets * $price_twoQR);
-             }
-         }
-     
-         
-         return response()->json([
-             'new_price' => $new_price
-         ], 200);
-     }
-     
+    public function price_qr(Request $request)
+    {
+        // Validate the incoming request
+        $validatedData = $request->validate([
+            'price_qr' => 'required|numeric',
+            'price_monthly' => 'nullable|numeric',
+        ]);
+
+
+        $price = $validatedData['price_qr'];
+        $priceMonthly = $validatedData['price_monthly'] ?? null; // Default to null if not provided
+
+
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['error' => 'User not authenticated.'], 401);
+        }
+
+
+        $userPackage = $user->packages()->first();
+
+        if (!$userPackage) {
+            return response()->json(['error' => 'No package found for this user.'], 404);
+        }
+
+
+        $price_twoQR = $price;
+        $num_qr = $userPackage->max_visitor;
+        $package_price = $userPackage->price_EGP;
+        $user_qr = $userPackage->pivot->qrcode_limit;
+
+
+        if ($num_qr == $user_qr) {
+
+            $new_price = $priceMonthly ?? $package_price;
+        } else {
+            $extra_qrs = $user_qr - 2;
+            $extra_sets = ceil($extra_qrs / 2);
+
+            if ($priceMonthly) {
+
+                $new_price = $priceMonthly + ($extra_sets * $price_twoQR);
+            } else {
+
+                $new_price = $package_price + ($extra_sets * $price_twoQR);
+            }
+        }
+
+
+        return response()->json([
+            'new_price' => $new_price
+        ], 200);
+    }
+
     /**
      * Helper method to update the subscription duration and activate QR codes.
      */
@@ -481,11 +480,11 @@ class SubscriptionController extends Controller
 
 
 
-    public function checkSubscriptionStatus(Request $request)
+    public function checkSubscriptionStatus(Request $request, $id)
     {
         // Assume the user ID and package ID are passed in the request
         $user = auth()->user(); // Get authenticated user
-        $userPackage = $user->packages()->first(); // Fetch the user's package
+        $userPackage = $user->packages()->where('id', $id)->first(); // Fetch the user's package
 
         if (!$userPackage) {
             return response()->json(['message' => 'Package not found for the user.', 'status' => 'error'], 404);

@@ -134,7 +134,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/create-payment-link', [PaymentController::class, 'createPaymentLink']);
 });
 
-Route::middleware('auth:sanctum')->get('/check-subscription-status', [SubscriptionController::class, 'checkSubscriptionStatus']);
+Route::middleware('auth:sanctum')->get('/check-subscription-status/{id}', [SubscriptionController::class, 'checkSubscriptionStatus']);
 
 
 
