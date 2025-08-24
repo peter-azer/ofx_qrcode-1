@@ -487,7 +487,7 @@ class SubscriptionController extends Controller
         $userPackage = $user->packages()->where('id', $id)->first(); // Fetch the user's package
 
         if (!$userPackage) {
-            return response()->json(['message' => 'Package not found for the user.', 'status' => 'error'], 404);
+            return response()->json(['message' => 'Package not found for the user.', 'status' => 'error'], 200);
         }
 
         // Check if the subscription is enabled
