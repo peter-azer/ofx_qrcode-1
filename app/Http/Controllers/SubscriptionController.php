@@ -488,12 +488,12 @@ class SubscriptionController extends Controller
         $userPackage = $user->packages()->first(); // Fetch the user's package
 
         if (!$userPackage) {
-            return response()->json(['message' => 'Package not found for the user.'], 404);
+            return response()->json(['message' => 'Package not found for the user.', 'status' => 'error'], 404);
         }
 
         // Check if the subscription is enabled
         if ($userPackage->pivot->is_enable == 0) {
-            return response()->json(['message' => 'Your subscription has ended.'], 200);
+            return response()->json(['message' => 'Your subscription has ended.', 'status' => 'inactive'], 200);
         }
 
         // Get the subscription end date
@@ -505,11 +505,11 @@ class SubscriptionController extends Controller
 
         // Check if the subscription can be renewed
         if ($remainingDays > 5) {
-            return response()->json(['message' => 'Your subscription is still active and cannot be renewed yet.'], 400);
+            return response()->json(['message' => 'Your subscription is still active and cannot be renewed yet.', 'status' => 'active'], 200);
         }
 
         // If remaining days are 1 or less, the user can renew
-        return response()->json(['message' => 'You can renew your subscription now.'], 200);
+        return response()->json(['message' => 'You can renew your subscription now.', 'status' => 'renewable'], 200);
     }
 
 
