@@ -482,33 +482,37 @@ class SubscriptionController extends Controller
 
     public function checkSubscriptionStatus(Request $request, $id)
     {
-        // Assume the user ID and package ID are passed in the request
-        $user = auth()->user(); // Get authenticated user
-        $userPackage = $user->packages()->where('id', $id)->first(); // Fetch the user's package
-
-        if (!$userPackage) {
-            return response()->json(['message' => 'Package not found for the user.', 'status' => 'error'], 200);
+        try{
+            // Assume the user ID and package ID are passed in the request
+            $user = auth()->user(); // Get authenticated user
+            $userPackage = $user->packages()->where('id', $id)->first(); // Fetch the user's package
+            
+            if (!$userPackage) {
+                return response()->json(['message' => 'Package not found for the user.', 'status' => 'error'], 200);
+            }
+            
+            // Check if the subscription is enabled
+            if ($userPackage->pivot->is_enable == 0) {
+                return response()->json(['message' => 'Your subscription has ended.', 'status' => 'inactive'], 200);
+            }
+            
+            // Get the subscription end date
+            $currentEndDate = Carbon::parse($userPackage->pivot->end_date); // Assuming `end_date` exists
+            $now = Carbon::now();
+            
+            // Calculate the remaining days
+            $remainingDays = $now->diffInDays($currentEndDate, false);
+            
+            // Check if the subscription can be renewed
+            if ($remainingDays > 5) {
+                return response()->json(['message' => 'Your subscription is still active and cannot be renewed yet.', 'status' => 'active'], 200);
+            }
+            
+            // If remaining days are 1 or less, the user can renew
+            return response()->json(['message' => 'You can renew your subscription now.', 'status' => 'renewable'], 200);
+        }catch(\Exception $e){
+            return response()->json(['message' => 'An error occurred while checking subscription status.', 'status' => 'error', 'error' => $e->getMessage()], 500);
         }
-
-        // Check if the subscription is enabled
-        if ($userPackage->pivot->is_enable == 0) {
-            return response()->json(['message' => 'Your subscription has ended.', 'status' => 'inactive'], 200);
-        }
-
-        // Get the subscription end date
-        $currentEndDate = Carbon::parse($userPackage->pivot->end_date); // Assuming `end_date` exists
-        $now = Carbon::now();
-
-        // Calculate the remaining days
-        $remainingDays = $now->diffInDays($currentEndDate, false);
-
-        // Check if the subscription can be renewed
-        if ($remainingDays > 5) {
-            return response()->json(['message' => 'Your subscription is still active and cannot be renewed yet.', 'status' => 'active'], 200);
-        }
-
-        // If remaining days are 1 or less, the user can renew
-        return response()->json(['message' => 'You can renew your subscription now.', 'status' => 'renewable'], 200);
     }
 
 
