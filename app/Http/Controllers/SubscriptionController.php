@@ -485,7 +485,7 @@ class SubscriptionController extends Controller
         try{
             // Assume the user ID and package ID are passed in the request
             $user = auth()->user(); // Get authenticated user
-            $userPackage = $user->packages()->where('id', $id)->first(); // Fetch the user's package
+            $userPackage = $user->packages()->where('package_id', $id)->first(); // Fetch the user's package
             
             if (!$userPackage) {
                 return response()->json(['message' => 'Package not found for the user.', 'status' => 'error'], 200);
@@ -510,9 +510,10 @@ class SubscriptionController extends Controller
             
             // If remaining days are 1 or less, the user can renew
             return response()->json(['message' => 'You can renew your subscription now.', 'status' => 'renewable'], 200);
-        }catch(\Exception $e){
+
+        }   catch(\Exception $e){
             return response()->json(['message' => 'An error occurred while checking subscription status.', 'status' => 'error', 'error' => $e->getMessage()], 500);
-        }
+            }   
     }
 
 
