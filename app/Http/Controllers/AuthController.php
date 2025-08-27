@@ -269,6 +269,8 @@ public function signup(Request $request)
             return [
                 'id' => $package->id,
                 'name' => $package->name,
+                'name_ar' => $package->name_ar,
+                'price' => $package->price_EGP,
                 'qrcode_limit' => $package->pivot->qrcode_limit,
                 'start_date' => $package->pivot->start_date,
                 'end_date' => $package->pivot->end_date,
