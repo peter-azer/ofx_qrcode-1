@@ -271,6 +271,8 @@ public function signup(Request $request)
                 'name' => $package->name,
                 'name_ar' => $package->name_ar,
                 'price' => $package->price_EGP,
+                'annual_fee' => $package->annual_fee,
+                'monthly_fee' => $package->monthly_fee,
                 'qrcode_limit' => $package->pivot->qrcode_limit,
                 'start_date' => $package->pivot->start_date,
                 'end_date' => $package->pivot->end_date,
