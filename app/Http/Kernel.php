@@ -15,7 +15,7 @@ class Kernel extends HttpKernel
         // Global middleware
         // \Illuminate\Foundation\Http\Middleware\Ha::class,
         // Other middleware...
-        \App\Http\Middleware\AddUserIdToSession::class,
+        'admin' => \App\Http\Middleware\AddUserIdToSession::class,
 
     ];
 

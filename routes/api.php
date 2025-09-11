@@ -100,6 +100,7 @@ Route::get('/profiles/{user_id}', [UserProfileController::class, 'getAllProfiles
 Route::get('/profile/{id}', [UserProfileController::class, 'getProfileById']);
 Route::get('/profile/qrcode/{qrCodeName}', [UserProfileController::class, 'getProfileByQRCodeName']);
 Route::post('/profile/{id}', [UserProfileController::class, 'updateProfile'])->middleware('auth:sanctum');
+Route::delete('/user_info/delete/{id}', [UserController::class, 'destroy'])->middleware(['auth:sanctum', 'admin']);
 
 #********************************************************USER_location*************************************************************************************************
 
