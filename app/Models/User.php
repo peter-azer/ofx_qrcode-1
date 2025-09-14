@@ -56,7 +56,7 @@ class User extends Authenticatable
     public function packages()
     {
         return $this->belongsToMany(Package::class, 'user_packages')
-            ->withPivot('qrcode_limit', 'end_date', 'start_date', 'is_enable') // Add pivot data like qrcode_limit
+            ->withPivot('qrcode_limit', 'end_date', 'start_date', 'is_enable', 'created_at') // Add pivot data like qrcode_limit
             ->withTimestamps(); // Automatically manage created_at and updated_at timestamps
     }
 
