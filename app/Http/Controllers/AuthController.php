@@ -151,21 +151,10 @@ public function signup(Request $request)
         ], 400);
     }
 
-    $user = User::create([
-        'name' => $request->name,
-        'phone' => $request->phone,
-        'address' => $request->address,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'role' => 'user',
-    ]);
-
     // Send verification code to the user's email
-    $this->sendVerificationCode($user);
+    $this->sendVerificationCode($request);
 
-    $token = $user->createToken('personalAccessToken')->plainTextToken;
-
-    return response()->json(['message' => 'Verification code sent to your email. Please verify to complete registration.', 'token'=>$token], 200);
+    return response()->json(['message' => 'Verification code sent to your email. Please verify to complete registration.'], 200);
 }
 
 
