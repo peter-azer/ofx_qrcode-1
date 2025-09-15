@@ -54,7 +54,9 @@ class AuthController extends Controller
         // Optionally delete the verification record after successful verification
         DB::table('email_verifications')->where('email', $request->email)->delete();
 
-        return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);
+        $token = $user->createToken('personalAccessToken')->plainTextToken;
+
+        return response()->json(['message' => 'User registered successfully', 'user' => $user, 'token' => $token], 200);
     }
 
 
@@ -77,7 +79,6 @@ class AuthController extends Controller
         DB::table('email_verifications')->updateOrInsert(
             ['email' => $request->email],
             [
-
                 'verification_code' => $code,
                 'expires_at' => Carbon::now()->addMinutes(10),
                 'address' => $request->address,
@@ -88,6 +89,7 @@ class AuthController extends Controller
                 'updated_at' => Carbon::now(),
             ]
         );
+
 
         // Send the verification code via email
         Mail::to($request->email)->send(new EmailVerificationCode($code));
