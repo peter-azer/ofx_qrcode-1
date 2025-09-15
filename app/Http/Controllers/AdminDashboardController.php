@@ -17,7 +17,7 @@ class AdminDashboardController extends Controller
         $data = $users->map(function ($user) {
             if ($user->packages->isNotEmpty()) {
                 return [
-                    'user' => $user->only(['id', 'name', 'email']),
+                    'user' => $user->only(['id', 'name', 'email', 'created_at']),
                     'packages' => $user->packages->map(function ($package) {
                         return [
                             'name' => $package->name,
@@ -25,6 +25,7 @@ class AdminDashboardController extends Controller
                             'start_date' => $package->pivot->start_date,
                             'end_date' => $package->pivot->end_date,
                             'is_enable' => $package->pivot->is_enable,
+                            'created_at' => $package->pivot->created_at,
                         ];
                     }),
                     'qrcode_count' => $user->qrcode->count(),
