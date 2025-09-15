@@ -30,7 +30,7 @@ class UserController extends Controller
         return response()->json(['message' => 'User updated successfully']);
     }
 
-        public function deleteUser($id){
+        public function destroy($id){
         try {
             $user_id = User::findOrFail($id);
             $profile = Profile::where('user_id', $user_id->id)->first();
