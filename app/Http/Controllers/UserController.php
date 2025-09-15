@@ -39,7 +39,7 @@ class UserController extends Controller
             if (!auth()->user()->role == 'admin') {
                 return response()->json(['message' => 'Unauthorized'], 403);
             }
-            $user_id = User::findOrFail($id);
+            $user_id = User::where('id', $id)->first();
             dd($user_id);
 
             $profile = Profile::where('user_id', $user_id->id)->first();
