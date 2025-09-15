@@ -39,10 +39,10 @@ class UserController extends Controller
             if (!auth()->user()->role == 'admin') {
                 return response()->json(['message' => 'Unauthorized'], 403);
             }
-            $user_id = User::find($id);
-            dd($user_id);
+            $user = User::find($id);
+            dd($user);
 
-            $profile = Profile::where('user_id', $user_id->id)->first();
+            $profile = Profile::where('user', $user->id)->first();
             if ($profile) {
                 // Delete associated links
                 $profile->links()->delete();
@@ -74,7 +74,7 @@ class UserController extends Controller
                 // Finally, delete the profile itself and the user
                 $profile->delete();
             }                   
-            $user_id->delete();
+            $user->delete();
 
             return response()->json(['message' => 'Profile and all associated data deleted successfully'], 200);
         } catch (ModelNotFoundException $e) {
