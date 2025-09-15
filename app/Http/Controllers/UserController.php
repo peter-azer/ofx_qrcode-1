@@ -70,7 +70,7 @@ class UserController extends Controller
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Profile not found'], 404);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'An error occurred while deleting the profile'], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 }
