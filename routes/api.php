@@ -28,7 +28,7 @@ use App\Http\Middleware\CheckSEORole;
 ###########################################################USER_AUTH########################################################################################
 Route::get('/user_info', [AuthController::class, 'getUserData'])->middleware('auth:sanctum');
 Route::put('/user_info/update', [UserController::class, 'update'])->middleware('auth:sanctum');
-Route::delete('/admin/user_info/delete/{id}', [UserController::class, 'destroy']);
+Route::delete('/admin/user_info/delete/{user}', [UserController::class, 'destroy']);
 
 Route::post('/admin/signup', [AuthController::class, 'Admin_signup']);
 Route::post('/login', [AuthController::class, 'login']);
