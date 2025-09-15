@@ -254,48 +254,5 @@ class UserProfileController extends Controller
         ]);
     }
 
-    public function deleteUser($id){
-        try {
-            $user_id = User::findOrFail($id);
-            $profile = Profile::where('user_id', $user_id->id)->first();
 
-            // Delete associated links
-            $profile->links()->delete();
-
-            // Delete associated images and their files
-            foreach ($profile->images as $image) {
-                Storage::disk('public')->delete($image->image_path);
-                $image->delete();
-            }
-
-            // Delete associated pdfs and their files
-            foreach ($profile->pdfs as $pdf) {
-                Storage::disk('public')->delete($pdf->pdf_path);
-                $pdf->delete();
-            }
-
-            // Delete associated events
-            $profile->events()->delete();
-
-            // Delete associated branches
-            $profile->branches()->delete();
-
-            // Delete associated records and their files
-            foreach ($profile->records as $record) {
-                Storage::disk('public')->delete($record->mp3_path);
-                $record->delete();
-            }
-
-            // Finally, delete the profile itself and the user
-            $profile->delete();
-            $user_id->delete();
-
-            return response()->json(['message' => 'Profile and all associated data deleted successfully'], 200);
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['message' => 'Profile not found'], 404);
-        } catch (\Exception $e) {
-            Log::error('Error deleting profile: ' . $e->getMessage());
-            return response()->json(['message' => 'An error occurred while deleting the profile'], 500);
-        }
-    }
 }
