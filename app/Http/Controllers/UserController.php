@@ -33,6 +33,7 @@ class UserController extends Controller
         public function destroy(Request $request, $user){
         try {
             $id = intval($user);
+            dd($id);
             if(auth()->user()->id == $id){
                 return response()->json(['message' => 'You cannot delete your own account'], 403);
             }
