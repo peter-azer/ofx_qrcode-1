@@ -30,7 +30,7 @@ class UserController extends Controller
         return response()->json(['message' => 'User updated successfully']);
     }
 
-        public function destroy($id){
+        public function destroy(Request $request, $id){
         try {
             if(auth()->user()->id == $id){
                 return response()->json(['message' => 'You cannot delete your own account'], 403);
