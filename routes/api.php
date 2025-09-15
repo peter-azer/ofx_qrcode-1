@@ -28,6 +28,7 @@ use App\Http\Middleware\CheckSEORole;
 ###########################################################USER_AUTH########################################################################################
 Route::get('/user_info', [AuthController::class, 'getUserData'])->middleware('auth:sanctum');
 Route::put('/user_info/update', [UserController::class, 'update'])->middleware('auth:sanctum');
+Route::delete('/admin/user_info/delete/{id}', [UserController::class, 'destroy'])->middleware(['auth:sanctum', 'admin']);
 
 Route::post('/admin/signup', [AuthController::class, 'Admin_signup']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -100,7 +101,6 @@ Route::get('/profiles/{user_id}', [UserProfileController::class, 'getAllProfiles
 Route::get('/profile/{id}', [UserProfileController::class, 'getProfileById']);
 Route::get('/profile/qrcode/{qrCodeName}', [UserProfileController::class, 'getProfileByQRCodeName']);
 Route::post('/profile/{id}', [UserProfileController::class, 'updateProfile'])->middleware('auth:sanctum');
-Route::delete('/admin/user_info/delete/{id}', [UserController::class, 'destroy'])->middleware(['auth:sanctum', 'admin']);
 
 #********************************************************USER_location*************************************************************************************************
 

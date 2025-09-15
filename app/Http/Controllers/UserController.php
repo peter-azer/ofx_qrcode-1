@@ -32,6 +32,12 @@ class UserController extends Controller
 
         public function destroy($id){
         try {
+            if(auth()->user()->id == $id){
+                return response()->json(['message' => 'You cannot delete your own account'], 403);
+            }
+            if (!auth()->user()->role == 'admin') {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
             $user_id = User::findOrFail($id);
 
             $profile = Profile::where('user_id', $user_id->id)->first();
@@ -70,7 +76,7 @@ class UserController extends Controller
 
             return response()->json(['message' => 'Profile and all associated data deleted successfully'], 200);
         } catch (ModelNotFoundException $e) {
-            return response()->json(['message' => 'Profile not found'], 404);
+            return response()->json(['message' => $e->getMessage()], 404);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
