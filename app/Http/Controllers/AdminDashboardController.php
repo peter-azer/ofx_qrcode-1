@@ -33,7 +33,7 @@ class AdminDashboardController extends Controller
             }
 
             return [
-                'user' => $user->only(['id', 'name', 'email']),
+                'user' => $user->only(['id', 'name', 'email', 'created_at']),
                 'message' => 'This user is not subscribed yet.',
             ];
         });
