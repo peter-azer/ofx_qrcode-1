@@ -30,7 +30,7 @@ class UserController extends Controller
         return response()->json(['message' => 'User updated successfully']);
     }
 
-        public function destroy(Request $request, $id){
+        public function destroy($id){
         try {
             $id = intval($id);
             if(auth()->user()->id == $id){
