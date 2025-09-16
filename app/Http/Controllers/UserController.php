@@ -35,13 +35,6 @@ class UserController extends Controller
             $id = intval($id);
             $user = User::findOrFail($id);
 
-            if (auth()->user()->id == $id) {
-                return response()->json(['message' => 'You cannot delete your own account'], 403);
-            }
-            if (auth()->user()->role !== 'admin') {
-                return response()->json(['message' => 'Unauthorized'], 403);
-            }
-
             $profile = Profile::where('user_id', $user->id)->first();
             if ($profile) {
                 // Delete associated links
