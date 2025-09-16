@@ -35,7 +35,7 @@ class UserController extends Controller
             $id = intval($id);
             $user = User::findOrFail($id);
 
-            $profile = Profile::where('user', $user->id)->first();
+            $profile = Profile::where('user_id', $user->id)->first();
             if ($profile) {
                 // Delete associated links
                 $profile->links()->delete();
