@@ -33,10 +33,10 @@ class UserController extends Controller
         public function deleteUser($id){
         try {
             $id = intval($id);
-            dd($id);
             if(auth()->user()->id == $id){
                 return response()->json(['message' => 'You cannot delete your own account'], 403);
             }
+            dd($id);
             if (!auth()->user()->role == 'admin') {
                 return response()->json(['message' => 'Unauthorized'], 403);
             }
