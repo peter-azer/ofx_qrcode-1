@@ -33,8 +33,8 @@ class UserController extends Controller
         public function deleteUser($id){
         try {
             $id = intval($id);
-            dd($id);
             $user = User::findOrFail($id);
+            dd($user);
 
             $profile = Profile::where('user', $user->id)->first();
             if ($profile) {
