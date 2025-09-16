@@ -34,7 +34,6 @@ class UserController extends Controller
         try {
             $id = intval($id);
             $user = User::findOrFail($id);
-            dd($user);
 
             $profile = Profile::where('user', $user->id)->first();
             if ($profile) {
